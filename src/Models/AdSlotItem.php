@@ -40,6 +40,7 @@ class AdSlotItem extends Model
         'shop.cart.top',
         'board.popular.top',
         'global.top',
+        'global.bottom',
     ];
 
     /**
