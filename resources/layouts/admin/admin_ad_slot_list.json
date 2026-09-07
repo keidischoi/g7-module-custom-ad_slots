@@ -1,5 +1,5 @@
 {
-    "version": "1.0.4",
+    "version": "1.0.5",
     "meta": {
         "title": "$t:custom-ad_slots.admin.ads.index.title",
         "description": "$t:custom-ad_slots.admin.ads.index.description"
@@ -129,7 +129,7 @@
                         "name": "Div",
                         "if": "{{(ads?.data?.data ?? []).length > 0}}",
                         "props": {
-                            "className": "flex flex-col gap-3"
+                            "className": "flex flex-col gap-6"
                         },
                         "iteration": {
                             "source": "{{ads?.data?.data ?? []}}",
