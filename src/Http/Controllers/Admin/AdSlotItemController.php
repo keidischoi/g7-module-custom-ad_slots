@@ -132,4 +132,25 @@ class AdSlotItemController extends AdminBaseController
             return $this->error('custom-ad_slots::messages.ad.toggle_failed', 500, $e->getMessage());
         }
     }
+
+    /**
+     * 광고 복제
+     */
+    public function duplicate(int $id): JsonResponse
+    {
+        try {
+            $item = $this->adSlotService->findOrFail($id);
+            $copy = $this->adSlotService->duplicate($item);
+
+            return $this->success(
+                'custom-ad_slots::messages.ad.duplicate_success',
+                (new AdSlotItemResource($copy))->resolve(),
+                201
+            );
+        } catch (ModelNotFoundException) {
+            return $this->notFound('custom-ad_slots::messages.ad.not_found');
+        } catch (\Exception $e) {
+            return $this->error('custom-ad_slots::messages.ad.duplicate_failed', 500, $e->getMessage());
+        }
+    }
 }

@@ -87,6 +87,37 @@ class AdSlotService
         return (bool) $item->delete();
     }
 
+
+    /**
+     * 기존 광고를 복제 (제목에 " (복제)" 붙이고 비활성으로 생성).
+     */
+    public function duplicate(AdSlotItem $item): AdSlotItem
+    {
+        $title = $item->title;
+        if ($title !== null && $title !== '') {
+            $title = $title.' (복제)';
+        } else {
+            $title = ($item->slot_key ?? 'ad').' (복제)';
+        }
+
+        return $this->create([
+            'slot_key' => $item->slot_key,
+            'type' => $item->type,
+            'title' => $title,
+            'image_url' => $item->image_url,
+            'image_url_desktop' => $item->image_url_desktop,
+            'image_url_mobile' => $item->image_url_mobile,
+            'bg_color' => $item->bg_color,
+            'link_url' => $item->link_url,
+            'html_content' => $item->html_content,
+            'script_src' => $item->script_src,
+            'sort_order' => (int) $item->sort_order,
+            'is_active' => false,
+            'starts_at' => optional($item->starts_at)?->toIso8601String(),
+            'ends_at' => optional($item->ends_at)?->toIso8601String(),
+        ]);
+    }
+
     public function toggle(AdSlotItem $item): AdSlotItem
     {
         $item->is_active = ! $item->is_active;

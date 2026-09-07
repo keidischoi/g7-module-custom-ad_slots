@@ -1,5 +1,5 @@
 {
-    "version": "1.0.2",
+    "version": "1.0.4",
     "meta": {
         "title": "$t:custom-ad_slots.admin.ads.index.title",
         "description": "$t:custom-ad_slots.admin.ads.index.description"
@@ -208,7 +208,7 @@
                                                                 "name": "Span",
                                                                 "if": "{{ad.is_active}}",
                                                                 "props": {
-                                                                    "className": "inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300"
+                                                                    "className": "inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-black dark:bg-gray-700 dark:text-white"
                                                                 },
                                                                 "text": "활성"
                                                             },
@@ -272,6 +272,56 @@
                                                                 "type": "basic",
                                                                 "name": "Span",
                                                                 "text": "수정"
+                                                            }
+                                                        ]
+                                                    },
+                                                    {
+                                                        "type": "basic",
+                                                        "name": "Button",
+                                                        "props": {
+                                                            "type": "button",
+                                                            "className": "px-3 py-1.5 text-sm font-medium rounded-md bg-violet-50 text-violet-800 hover:bg-violet-100 dark:bg-violet-900/30 dark:text-violet-200 dark:hover:bg-violet-900/50"
+                                                        },
+                                                        "actions": [
+                                                            {
+                                                                "type": "click",
+                                                                "handler": "apiCall",
+                                                                "auth_required": true,
+                                                                "target": "/api/modules/custom-ad_slots/admin/ads/{{ad.id}}/duplicate",
+                                                                "params": {
+                                                                    "method": "POST"
+                                                                },
+                                                                "onSuccess": [
+                                                                    {
+                                                                        "handler": "toast",
+                                                                        "params": {
+                                                                            "type": "success",
+                                                                            "message": "$t:custom-ad_slots.admin.ads.index.duplicate_success"
+                                                                        }
+                                                                    },
+                                                                    {
+                                                                        "handler": "refetchDataSource",
+                                                                        "params": {
+                                                                            "dataSourceId": "ads"
+                                                                        }
+                                                                    }
+                                                                ],
+                                                                "onError": [
+                                                                    {
+                                                                        "handler": "toast",
+                                                                        "params": {
+                                                                            "type": "error",
+                                                                            "message": "{{error.message}}"
+                                                                        }
+                                                                    }
+                                                                ]
+                                                            }
+                                                        ],
+                                                        "children": [
+                                                            {
+                                                                "type": "basic",
+                                                                "name": "Span",
+                                                                "text": "복제"
                                                             }
                                                         ]
                                                     },

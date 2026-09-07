@@ -9,6 +9,8 @@ return [
     'ad' => [
         'fetch_success' => 'Ad fetched successfully.',
         'fetch_failed' => 'Failed to fetch ad.',
+        'duplicate_success' => 'Ad duplicated successfully.',
+        'duplicate_failed' => 'Failed to duplicate ad.',
         'create_success' => 'Ad created successfully.',
         'create_failed' => 'Failed to create ad.',
         'update_success' => 'Ad updated successfully.',
