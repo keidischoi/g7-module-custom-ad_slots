@@ -56,6 +56,9 @@ class AdSlotItemResource extends JsonResource
             'is_active' => (bool) $this->is_active,
             'starts_at' => optional($this->starts_at)?->toIso8601String(),
             'ends_at' => optional($this->ends_at)?->toIso8601String(),
+            // datetime-local 입력용 (Asia/Seoul, 분 단위)
+            'starts_at_local' => optional($this->starts_at)?->timezone('Asia/Seoul')->format('Y-m-d\TH:i'),
+            'ends_at_local' => optional($this->ends_at)?->timezone('Asia/Seoul')->format('Y-m-d\TH:i'),
             'created_at' => optional($this->created_at)?->toIso8601String(),
             'updated_at' => optional($this->updated_at)?->toIso8601String(),
         ];
