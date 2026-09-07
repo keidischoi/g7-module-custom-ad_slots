@@ -23,6 +23,8 @@ class AdSlotItemResource extends JsonResource
         'shop.detail.top' => '상품 상세 상단',
         'shop.cart.top' => '장바구니 상단',
         'board.popular.top' => '인기글 상단',
+        'global.top' => '전체 페이지 상단',
+        'global.bottom' => '전체 페이지 하단',
     ];
 
     /**

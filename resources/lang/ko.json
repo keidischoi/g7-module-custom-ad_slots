@@ -72,6 +72,12 @@
                 "top": "인기글 상단"
             }
         },
-        "board.popular.top": "인기글 상단"
+        "board.popular.top": "인기글 상단",
+        "global": {
+            "top": "전체 페이지 상단",
+            "bottom": "전체 페이지 하단"
+        },
+        "global.top": "전체 페이지 상단",
+        "global.bottom": "전체 페이지 하단"
     }
 }
