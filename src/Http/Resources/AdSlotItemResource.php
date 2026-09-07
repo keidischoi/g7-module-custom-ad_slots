@@ -15,7 +15,7 @@ class AdSlotItemResource extends JsonResource
     /**
      * @var array<string, string>
      */
-    private const SLOT_LABELS = [
+        private const SLOT_LABELS = [
         'home.top' => '홈 상단',
         'home.mid' => '홈 중단',
         'home.bottom' => '홈 하단',
