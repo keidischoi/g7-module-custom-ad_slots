@@ -175,6 +175,14 @@
                                             "className": "input",
                                             "options": [
                                                 {
+                                                    "label": "$t:custom-ad_slots.slots.global.top",
+                                                    "value": "global.top"
+                                                },
+                                                {
+                                                    "label": "$t:custom-ad_slots.slots.global.bottom",
+                                                    "value": "global.bottom"
+                                                },
+                                                {
                                                     "label": "$t:custom-ad_slots.slots.home.top",
                                                     "value": "home.top"
                                                 },
