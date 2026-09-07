@@ -1,5 +1,5 @@
 {
-    "version": "1.0.5",
+    "version": "1.0.6",
     "meta": {
         "title": "$t:custom-ad_slots.admin.ads.index.title",
         "description": "$t:custom-ad_slots.admin.ads.index.description"
@@ -149,7 +149,7 @@
                                         "type": "basic",
                                         "name": "Div",
                                         "props": {
-                                            "className": "flex items-start gap-4"
+                                            "className": "flex items-center gap-4"
                                         },
                                         "children": [
                                             {
