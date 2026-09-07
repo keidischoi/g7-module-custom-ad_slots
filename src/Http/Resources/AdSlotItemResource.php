@@ -4,9 +4,10 @@ namespace Modules\Custom\AdSlots\Http\Resources;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Carbon;
 
 /**
- * 관리자/공개 공통 광고 아이템 리소스 (Laravel JsonResource — G7 BaseApiResource 미의존).
+ * 관리자/공개 공통 광고 아이템 리소스.
  *
  * @mixin \Modules\Custom\AdSlots\Models\AdSlotItem
  */
@@ -15,7 +16,7 @@ class AdSlotItemResource extends JsonResource
     /**
      * @var array<string, string>
      */
-            private const SLOT_LABELS = [
+    private const SLOT_LABELS = [
         'home.top' => '홈 상단',
         'home.mid' => '홈 중단',
         'home.bottom' => '홈 하단',
@@ -56,11 +57,28 @@ class AdSlotItemResource extends JsonResource
             'is_active' => (bool) $this->is_active,
             'starts_at' => optional($this->starts_at)?->toIso8601String(),
             'ends_at' => optional($this->ends_at)?->toIso8601String(),
-            // datetime-local 입력용 (Asia/Seoul, 분 단위)
-            'starts_at_local' => optional($this->starts_at)?->timezone('Asia/Seoul')->format('Y-m-d\TH:i'),
-            'ends_at_local' => optional($this->ends_at)?->timezone('Asia/Seoul')->format('Y-m-d\TH:i'),
+            'starts_at_local' => $this->toDatetimeLocal($this->starts_at),
+            'ends_at_local' => $this->toDatetimeLocal($this->ends_at),
             'created_at' => optional($this->created_at)?->toIso8601String(),
             'updated_at' => optional($this->updated_at)?->toIso8601String(),
         ];
+    }
+
+    /**
+     * datetime-local input 값 (Asia/Seoul, 분 단위).
+     */
+    private function toDatetimeLocal(mixed $value): ?string
+    {
+        if ($value === null || $value === '') {
+            return null;
+        }
+
+        try {
+            $dt = Carbon::parse($value)->timezone('Asia/Seoul');
+        } catch (\Throwable) {
+            return null;
+        }
+
+        return $dt->format('Y-m-d') . 'T' . $dt->format('H:i');
     }
 }
