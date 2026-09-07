@@ -13,8 +13,8 @@
 
 | slot_key | 용도 |
 |----------|------|
-| `global.top` | 모든 유저 페이지 상단 |
-| `global.bottom` | 모든 유저 페이지 하단 (푸터 직전) |
+| `global.top` | 전체 상단 |
+| `global.bottom` | 전체 하단 (푸터 직전) |
 | `home.top` | 홈 상단 |
 | `home.mid` | 홈 중단 |
 | `home.bottom` | 홈 하단 |
