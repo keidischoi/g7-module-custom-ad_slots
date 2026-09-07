@@ -1,5 +1,5 @@
 {
-    "version": "1.0.1",
+    "version": "1.1.0",
     "meta": {
         "title": "{{route?.id ? '$t:custom-ad_slots.admin.ads.form.title_edit' : '$t:custom-ad_slots.admin.ads.form.title_create'}}",
         "description": "$t:custom-ad_slots.admin.ads.form.description"
@@ -46,6 +46,9 @@
                     "type": "static",
                     "title": "",
                     "image_url": "",
+                    "image_url_desktop": "",
+                    "image_url_mobile": "",
+                    "bg_color": "",
                     "link_url": "",
                     "html_content": "",
                     "script_src": "",
@@ -335,6 +338,108 @@
                                             "name": "image_url",
                                             "className": "input",
                                             "placeholder": "https://"
+                                        }
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "field_image_url_desktop",
+                                "type": "basic",
+                                "name": "Div",
+                                "props": {
+                                    "className": "form-group"
+                                },
+                                "children": [
+                                    {
+                                        "type": "basic",
+                                        "name": "Label",
+                                        "props": {
+                                            "className": "form-label"
+                                        },
+                                        "children": [
+                                            {
+                                                "type": "basic",
+                                                "name": "Span",
+                                                "text": "$t:custom-ad_slots.admin.ads.form.fields.image_url_desktop"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "type": "basic",
+                                        "name": "Input",
+                                        "props": {
+                                            "type": "text",
+                                            "name": "image_url_desktop",
+                                            "className": "input",
+                                            "placeholder": "https://"
+                                        }
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "field_image_url_mobile",
+                                "type": "basic",
+                                "name": "Div",
+                                "props": {
+                                    "className": "form-group"
+                                },
+                                "children": [
+                                    {
+                                        "type": "basic",
+                                        "name": "Label",
+                                        "props": {
+                                            "className": "form-label"
+                                        },
+                                        "children": [
+                                            {
+                                                "type": "basic",
+                                                "name": "Span",
+                                                "text": "$t:custom-ad_slots.admin.ads.form.fields.image_url_mobile"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "type": "basic",
+                                        "name": "Input",
+                                        "props": {
+                                            "type": "text",
+                                            "name": "image_url_mobile",
+                                            "className": "input",
+                                            "placeholder": "https://"
+                                        }
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "field_bg_color",
+                                "type": "basic",
+                                "name": "Div",
+                                "props": {
+                                    "className": "form-group"
+                                },
+                                "children": [
+                                    {
+                                        "type": "basic",
+                                        "name": "Label",
+                                        "props": {
+                                            "className": "form-label"
+                                        },
+                                        "children": [
+                                            {
+                                                "type": "basic",
+                                                "name": "Span",
+                                                "text": "$t:custom-ad_slots.admin.ads.form.fields.bg_color"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "type": "basic",
+                                        "name": "Input",
+                                        "props": {
+                                            "type": "text",
+                                            "name": "bg_color",
+                                            "className": "input",
+                                            "placeholder": "#f5f5f5"
                                         }
                                     }
                                 ]
@@ -657,6 +762,9 @@
                                                         "type": "{{_local.form?.type}}",
                                                         "title": "{{_local.form?.title ?? ''}}",
                                                         "image_url": "{{_local.form?.image_url ?? ''}}",
+                                                        "image_url_desktop": "{{_local.form?.image_url_desktop ?? ''}}",
+                                                        "image_url_mobile": "{{_local.form?.image_url_mobile ?? ''}}",
+                                                        "bg_color": "{{_local.form?.bg_color ?? ''}}",
                                                         "link_url": "{{_local.form?.link_url ?? ''}}",
                                                         "html_content": "{{_local.form?.html_content ?? ''}}",
                                                         "script_src": "{{_local.form?.script_src ?? ''}}",

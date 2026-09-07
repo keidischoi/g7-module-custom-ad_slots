@@ -13,6 +13,9 @@ use Illuminate\Database\Eloquent\Model;
  * @property string $type
  * @property string|null $title
  * @property string|null $image_url
+ * @property string|null $image_url_desktop
+ * @property string|null $image_url_mobile
+ * @property string|null $bg_color
  * @property string|null $link_url
  * @property string|null $html_content
  * @property string|null $script_src
@@ -58,6 +61,9 @@ class AdSlotItem extends Model
         'type',
         'title',
         'image_url',
+        'image_url_desktop',
+        'image_url_mobile',
+        'bg_color',
         'link_url',
         'html_content',
         'script_src',

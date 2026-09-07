@@ -23,6 +23,12 @@ class AdSlotItemResource extends JsonResource
             'type' => $this->type,
             'title' => $this->title,
             'image_url' => $this->image_url,
+            'image_url_desktop' => $this->image_url_desktop,
+            'image_url_mobile' => $this->image_url_mobile,
+            'bg_color' => $this->bg_color,
+            // Resolved helpers for Bunjang-style hero / responsive carousel
+            'image_desktop' => $this->image_url_desktop ?: $this->image_url,
+            'image_mobile' => $this->image_url_mobile ?: $this->image_url_desktop ?: $this->image_url,
             'link_url' => $this->link_url,
             'html_content' => $this->html_content,
             'script_src' => $this->script_src,

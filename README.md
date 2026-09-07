@@ -7,7 +7,7 @@
 | identifier | `custom-ad_slots` |
 | Namespace | `Modules\Custom\AdSlots` |
 | Composer | `modules/custom-ad_slots` |
-| 버전 | `1.0.0` |
+| 버전 | `1.1.0` |
 
 ## 슬롯 키
 
@@ -30,6 +30,44 @@ Prefix는 코어 `ModuleRouteServiceProvider`가 자동 적용합니다.
 | `GET` | `/api/modules/custom-ad_slots/placements?slot=home.top` | 특정 슬롯 목록 (`sort_order` 정렬) |
 
 필터 조건: `is_active=true` 이고 `starts_at`/`ends_at` 윈도우 안(또는 null).
+
+
+## 반응형 이미지 (v1.1.0)
+
+번장(Bunjang) 스타일 히어로/캐러셀용 **데스크톱·모바일 분리 이미지**를 지원합니다.
+
+| 컬럼 | 설명 |
+|------|------|
+| `image_url` | 레거시 단일 이미지 (폴백) |
+| `image_url_desktop` | 데스크톱/히어로 (와이드 캐러셀 권장) |
+| `image_url_mobile` | 모바일 이미지 |
+| `bg_color` | 레터박스 배경색 (예: `#f5f5f5`, max 32) |
+
+리소스 응답에 해석된 헬퍼가 포함됩니다.
+
+| 필드 | 해석 |
+|------|------|
+| `image_desktop` | `image_url_desktop` ?: `image_url` |
+| `image_mobile` | `image_url_mobile` ?: `image_url_desktop` ?: `image_url` |
+
+기존 데이터는 `image_url`만 있어도 헬퍼가 그대로 폴백합니다.
+
+### 업그레이드 (NAS)
+
+모듈 코드를 최신으로 맞춘 뒤 마이그레이션을 실행하세요.
+
+```bash
+cd /volume1/web/3ds/modules/custom-ad_slots
+git pull origin main
+
+cd /volume1/web/3ds
+php artisan migrate
+# 또는 모듈 스코프:
+# php artisan module:migrate custom-ad_slots
+php artisan cache:clear
+```
+
+추가 마이그레이션: `2026_09_08_000002_add_responsive_images_to_ad_slots_items.php`
 
 ## 관리자 API
 
@@ -122,6 +160,9 @@ curl -sS -X POST 'https://YOUR_HOST/api/modules/custom-ad_slots/admin/ads' \
     "type": "static",
     "title": "홈 상단 배너",
     "image_url": "https://via.placeholder.com/1200x200.png?text=Home+Top",
+    "image_url_desktop": "https://via.placeholder.com/1920x480.png?text=Desktop",
+    "image_url_mobile": "https://via.placeholder.com/768x960.png?text=Mobile",
+    "bg_color": "#f5f5f5",
     "link_url": "https://example.com",
     "sort_order": 0,
     "is_active": true
@@ -149,6 +190,7 @@ curl -sS -X PATCH "https://YOUR_HOST/api/modules/custom-ad_slots/admin/ads/1/tog
 ```text
 module.json / module.php / composer.json / LICENSE
 database/migrations/..._create_ad_slots_items_table.php
+database/migrations/..._add_responsive_images_to_ad_slots_items.php
 database/seeders/Sample/AdSlotSampleSeeder.php
 src/Models/AdSlotItem.php
 src/Services/AdSlotService.php
