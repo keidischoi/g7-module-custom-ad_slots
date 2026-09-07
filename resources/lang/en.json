@@ -66,6 +66,12 @@
         "home.bottom": "Home Bottom",
         "shop.list.top": "Shop List Top",
         "shop.detail.top": "Shop Detail Top",
-        "shop.cart.top": "Shop Cart Top"
+        "shop.cart.top": "Shop Cart Top",
+        "board": {
+            "popular": {
+                "top": "Popular Posts Top"
+            }
+        },
+        "board.popular.top": "Popular Posts Top"
     }
 }

@@ -19,6 +19,7 @@
 | `shop.list.top` | 쇼핑몰 목록 상단 |
 | `shop.detail.top` | 상품 상세 상단 |
 | `shop.cart.top` | 장바구니 상단 |
+| `board.popular.top` | 인기글 상단 |
 
 ## 공개 API
 
