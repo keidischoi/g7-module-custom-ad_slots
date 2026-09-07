@@ -41,7 +41,8 @@
                     "is_active": "Active",
                     "starts_at": "Starts at",
                     "ends_at": "Ends at",
-                    "datetime_placeholder": "e.g. 2026-09-08T00:00:00+09:00 (empty = no limit)"
+                    "datetime_placeholder": "YYYY-MM-DD HH:mm",
+                    "datetime_hint": "Pick date and time from the calendar. Leave empty for no limit."
                 }
             }
         }

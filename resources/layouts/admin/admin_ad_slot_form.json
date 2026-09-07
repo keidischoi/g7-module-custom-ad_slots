@@ -1,5 +1,5 @@
 {
-    "version": "1.0.3",
+    "version": "1.0.7",
     "meta": {
         "title": "{{route?.id ? '$t:custom-ad_slots.admin.ads.form.title_edit' : '$t:custom-ad_slots.admin.ads.form.title_create'}}",
         "description": "$t:custom-ad_slots.admin.ads.form.description"
@@ -662,11 +662,31 @@
                                         "type": "basic",
                                         "name": "Input",
                                         "props": {
-                                            "type": "text",
+                                            "type": "datetime-local",
                                             "name": "starts_at",
+                                            "value": "{{_local.form?.starts_at_local ?? _local.form?.starts_at ?? ''}}",
                                             "className": "input w-full",
-                                            "placeholder": "$t:custom-ad_slots.admin.ads.form.fields.datetime_placeholder"
-                                        }
+                                            "step": "60"
+                                        },
+                                        "actions": [
+                                            {
+                                                "type": "change",
+                                                "handler": "setState",
+                                                "params": {
+                                                    "target": "local",
+                                                    "form.starts_at": "{{$event.target.value}}",
+                                                    "form.starts_at_local": "{{$event.target.value}}"
+                                                }
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "type": "basic",
+                                        "name": "P",
+                                        "props": {
+                                            "className": "mt-1 text-xs text-gray-500 dark:text-gray-400"
+                                        },
+                                        "text": "$t:custom-ad_slots.admin.ads.form.fields.datetime_hint"
                                     }
                                 ]
                             },
@@ -696,11 +716,31 @@
                                         "type": "basic",
                                         "name": "Input",
                                         "props": {
-                                            "type": "text",
+                                            "type": "datetime-local",
                                             "name": "ends_at",
+                                            "value": "{{_local.form?.ends_at_local ?? _local.form?.ends_at ?? ''}}",
                                             "className": "input w-full",
-                                            "placeholder": "$t:custom-ad_slots.admin.ads.form.fields.datetime_placeholder"
-                                        }
+                                            "step": "60"
+                                        },
+                                        "actions": [
+                                            {
+                                                "type": "change",
+                                                "handler": "setState",
+                                                "params": {
+                                                    "target": "local",
+                                                    "form.ends_at": "{{$event.target.value}}",
+                                                    "form.ends_at_local": "{{$event.target.value}}"
+                                                }
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "type": "basic",
+                                        "name": "P",
+                                        "props": {
+                                            "className": "mt-1 text-xs text-gray-500 dark:text-gray-400"
+                                        },
+                                        "text": "$t:custom-ad_slots.admin.ads.form.fields.datetime_hint"
                                     }
                                 ]
                             }
