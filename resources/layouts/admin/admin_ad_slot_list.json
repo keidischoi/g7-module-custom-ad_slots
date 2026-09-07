@@ -1,5 +1,5 @@
 {
-    "version": "1.0.0",
+    "version": "1.0.1",
     "meta": {
         "title": "$t:custom-ad_slots.admin.ads.index.title",
         "description": "$t:custom-ad_slots.admin.ads.index.description"
@@ -70,7 +70,7 @@
                                 "name": "Button",
                                 "props": {
                                     "type": "button",
-                                    "className": "px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium"
+                                    "className": "btn btn-primary"
                                 },
                                 "actions": [
                                     {
@@ -94,9 +94,26 @@
                         ]
                     },
                     {
+                        "id": "ad_slot_empty_state",
+                        "type": "basic",
+                        "name": "Div",
+                        "if": "{{!(ads?.data?.data ?? []).length}}",
+                        "props": {
+                            "className": "p-8 text-center bg-white rounded-lg border border-gray-200 text-gray-600"
+                        },
+                        "children": [
+                            {
+                                "type": "basic",
+                                "name": "P",
+                                "text": "$t:custom-ad_slots.admin.ads.index.empty"
+                            }
+                        ]
+                    },
+                    {
                         "id": "ad_items_{{idx}}",
                         "type": "basic",
                         "name": "Div",
+                        "if": "{{(ads?.data?.data ?? []).length > 0}}",
                         "props": {
                             "className": "row-stack"
                         },
@@ -116,43 +133,170 @@
                                 "children": [
                                     {
                                         "type": "basic",
-                                        "name": "H2",
+                                        "name": "Div",
                                         "props": {
-                                            "className": "section-heading"
+                                            "className": "flex-between gap-3"
                                         },
-                                        "text": "{{ad.title ?? ad.slot_key}}"
-                                    },
-                                    {
-                                        "type": "basic",
-                                        "name": "P",
-                                        "props": {
-                                            "className": "mt-1 text-sm text-gray-600"
-                                        },
-                                        "text": "{{ad.slot_key}} · {{ad.type}} · sort={{ad.sort_order}} · active={{ad.is_active}}"
-                                    },
-                                    {
-                                        "type": "basic",
-                                        "name": "Button",
-                                        "props": {
-                                            "type": "button",
-                                            "className": "mt-2 px-3 py-1 text-sm bg-gray-100 rounded hover:bg-gray-200"
-                                        },
-                                        "actions": [
-                                            {
-                                                "type": "click",
-                                                "handler": "navigate",
-                                                "params": {
-                                                    "path": "/admin/ad-slots/{{ad.id}}/edit",
-                                                    "mergeQuery": true,
-                                                    "query": {}
-                                                }
-                                            }
-                                        ],
                                         "children": [
                                             {
                                                 "type": "basic",
-                                                "name": "Span",
-                                                "text": "$t:custom-ad_slots.admin.ads.form.title_edit"
+                                                "name": "Div",
+                                                "props": {
+                                                    "className": "flex-1 min-w-0"
+                                                },
+                                                "children": [
+                                                    {
+                                                        "type": "basic",
+                                                        "name": "H2",
+                                                        "props": {
+                                                            "className": "section-heading"
+                                                        },
+                                                        "text": "{{ad.title ?? ad.slot_key}}"
+                                                    },
+                                                    {
+                                                        "type": "basic",
+                                                        "name": "P",
+                                                        "props": {
+                                                            "className": "mt-1 text-sm text-gray-600"
+                                                        },
+                                                        "text": "{{ad.slot_key}} · {{ad.type}} · sort={{ad.sort_order}} · {{ad.is_active ? '$t:custom-ad_slots.admin.ads.index.active' : '$t:custom-ad_slots.admin.ads.index.inactive'}}"
+                                                    }
+                                                ]
+                                            },
+                                            {
+                                                "type": "basic",
+                                                "name": "Div",
+                                                "props": {
+                                                    "className": "flex gap-2 flex-wrap"
+                                                },
+                                                "children": [
+                                                    {
+                                                        "type": "basic",
+                                                        "name": "Button",
+                                                        "props": {
+                                                            "type": "button",
+                                                            "className": "px-3 py-1 text-sm bg-gray-100 rounded hover:bg-gray-200"
+                                                        },
+                                                        "actions": [
+                                                            {
+                                                                "type": "click",
+                                                                "handler": "navigate",
+                                                                "params": {
+                                                                    "path": "/admin/ad-slots/{{ad.id}}/edit",
+                                                                    "mergeQuery": true,
+                                                                    "query": {}
+                                                                }
+                                                            }
+                                                        ],
+                                                        "children": [
+                                                            {
+                                                                "type": "basic",
+                                                                "name": "Span",
+                                                                "text": "$t:custom-ad_slots.admin.ads.index.edit"
+                                                            }
+                                                        ]
+                                                    },
+                                                    {
+                                                        "type": "basic",
+                                                        "name": "Button",
+                                                        "props": {
+                                                            "type": "button",
+                                                            "className": "px-3 py-1 text-sm bg-blue-50 text-blue-700 rounded hover:bg-blue-100"
+                                                        },
+                                                        "actions": [
+                                                            {
+                                                                "type": "click",
+                                                                "handler": "apiCall",
+                                                                "auth_required": true,
+                                                                "target": "/api/modules/custom-ad_slots/admin/ads/{{ad.id}}/toggle",
+                                                                "params": {
+                                                                    "method": "PATCH"
+                                                                },
+                                                                "onSuccess": [
+                                                                    {
+                                                                        "handler": "toast",
+                                                                        "params": {
+                                                                            "type": "success",
+                                                                            "message": "$t:custom-ad_slots.admin.ads.index.toggle_success"
+                                                                        }
+                                                                    },
+                                                                    {
+                                                                        "handler": "refetchDataSource",
+                                                                        "params": {
+                                                                            "dataSourceId": "ads"
+                                                                        }
+                                                                    }
+                                                                ],
+                                                                "onError": [
+                                                                    {
+                                                                        "handler": "toast",
+                                                                        "params": {
+                                                                            "type": "error",
+                                                                            "message": "{{error.message}}"
+                                                                        }
+                                                                    }
+                                                                ]
+                                                            }
+                                                        ],
+                                                        "children": [
+                                                            {
+                                                                "type": "basic",
+                                                                "name": "Span",
+                                                                "text": "$t:custom-ad_slots.admin.ads.index.toggle"
+                                                            }
+                                                        ]
+                                                    },
+                                                    {
+                                                        "type": "basic",
+                                                        "name": "Button",
+                                                        "props": {
+                                                            "type": "button",
+                                                            "className": "px-3 py-1 text-sm bg-red-50 text-red-700 rounded hover:bg-red-100"
+                                                        },
+                                                        "actions": [
+                                                            {
+                                                                "type": "click",
+                                                                "handler": "apiCall",
+                                                                "auth_required": true,
+                                                                "target": "/api/modules/custom-ad_slots/admin/ads/{{ad.id}}",
+                                                                "params": {
+                                                                    "method": "DELETE"
+                                                                },
+                                                                "onSuccess": [
+                                                                    {
+                                                                        "handler": "toast",
+                                                                        "params": {
+                                                                            "type": "success",
+                                                                            "message": "$t:custom-ad_slots.admin.ads.index.delete_success"
+                                                                        }
+                                                                    },
+                                                                    {
+                                                                        "handler": "refetchDataSource",
+                                                                        "params": {
+                                                                            "dataSourceId": "ads"
+                                                                        }
+                                                                    }
+                                                                ],
+                                                                "onError": [
+                                                                    {
+                                                                        "handler": "toast",
+                                                                        "params": {
+                                                                            "type": "error",
+                                                                            "message": "{{error.message}}"
+                                                                        }
+                                                                    }
+                                                                ]
+                                                            }
+                                                        ],
+                                                        "children": [
+                                                            {
+                                                                "type": "basic",
+                                                                "name": "Span",
+                                                                "text": "$t:custom-ad_slots.admin.ads.index.delete"
+                                                            }
+                                                        ]
+                                                    }
+                                                ]
                                             }
                                         ]
                                     }

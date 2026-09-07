@@ -1,7 +1,8 @@
 {
-    "version": "1.0.0",
+    "version": "1.0.1",
     "meta": {
-        "title": "$t:custom-ad_slots.admin.ads.form.title_edit"
+        "title": "{{route?.id ? '$t:custom-ad_slots.admin.ads.form.title_edit' : '$t:custom-ad_slots.admin.ads.form.title_create'}}",
+        "description": "$t:custom-ad_slots.admin.ads.form.description"
     },
     "layout_name": "admin_ad_slot_form",
     "permissions": [
@@ -18,9 +19,52 @@
             "method": "GET",
             "auto_fetch": true,
             "auth_required": true,
-            "condition": "{{route.id}}",
+            "if": "{{route?.id}}",
+            "initLocal": "form",
+            "refetchOnMount": true,
             "fallback": {
                 "data": null
+            }
+        }
+    ],
+    "init_actions": [
+        {
+            "if": "{{!route?.id}}",
+            "handler": "setState",
+            "params": {
+                "target": "local",
+                "form": null
+            }
+        },
+        {
+            "if": "{{!route?.id}}",
+            "handler": "setState",
+            "params": {
+                "target": "local",
+                "form": {
+                    "slot_key": "home.top",
+                    "type": "static",
+                    "title": "",
+                    "image_url": "",
+                    "link_url": "",
+                    "html_content": "",
+                    "script_src": "",
+                    "sort_order": 0,
+                    "is_active": true,
+                    "starts_at": "",
+                    "ends_at": ""
+                },
+                "errors": null,
+                "saving": false
+            }
+        },
+        {
+            "if": "{{!!route?.id}}",
+            "handler": "setState",
+            "params": {
+                "target": "local",
+                "errors": null,
+                "saving": false
             }
         }
     ],
@@ -30,49 +74,658 @@
                 "id": "ad_slot_form_wrapper",
                 "type": "basic",
                 "name": "Div",
+                "dataKey": "form",
+                "trackChanges": true,
                 "props": {
                     "className": "admin-page-content max-w-3xl"
                 },
                 "children": [
                     {
+                        "id": "ad_slot_form_header",
                         "type": "basic",
-                        "name": "H1",
+                        "name": "Div",
                         "props": {
-                            "className": "text-page-heading mb-4"
+                            "className": "flex-between mb-6"
                         },
-                        "text": "$t:custom-ad_slots.admin.ads.form.title_edit"
-                    },
-                    {
-                        "type": "basic",
-                        "name": "P",
-                        "props": {
-                            "className": "text-sm text-gray-600 mb-4"
-                        },
-                        "text": "관리 API(curl)로 먼저 CRUD 하세요. 전체 폼 컴포넌트는 템플릿에 맞게 확장 가능합니다. 현재 값: {{ad?.data?.title ?? '(신규)'}} / {{ad?.data?.slot_key ?? ''}}"
-                    },
-                    {
-                        "type": "basic",
-                        "name": "Button",
-                        "props": {
-                            "type": "button",
-                            "className": "px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
-                        },
-                        "actions": [
-                            {
-                                "type": "click",
-                                "handler": "navigate",
-                                "params": {
-                                    "path": "/admin/ad-slots",
-                                    "mergeQuery": true,
-                                    "query": {}
-                                }
-                            }
-                        ],
                         "children": [
                             {
                                 "type": "basic",
+                                "name": "H1",
+                                "props": {
+                                    "className": "text-page-heading"
+                                },
+                                "text": "{{route?.id ? '$t:custom-ad_slots.admin.ads.form.title_edit' : '$t:custom-ad_slots.admin.ads.form.title_create'}}"
+                            }
+                        ]
+                    },
+                    {
+                        "id": "error_message_box",
+                        "type": "basic",
+                        "name": "Div",
+                        "if": "{{_local.errors && Object.keys(_local.errors).length > 0}}",
+                        "props": {
+                            "className": "alert-danger mb-6"
+                        },
+                        "children": [
+                            {
+                                "type": "basic",
+                                "name": "H3",
+                                "props": {
+                                    "className": "text-sm font-medium text-danger-soft mb-2"
+                                },
+                                "text": "$t:custom-ad_slots.admin.ads.form.validation_error"
+                            },
+                            {
+                                "type": "basic",
                                 "name": "Span",
-                                "text": "목록으로"
+                                "props": {
+                                    "className": "block text-sm"
+                                },
+                                "text": "{{_local.errors?.slot_key?.[0] ?? _local.errors?.type?.[0] ?? _local.errors?.title?.[0] ?? _local.errors?.message ?? ''}}"
+                            }
+                        ]
+                    },
+                    {
+                        "id": "ad_slot_form_card",
+                        "type": "basic",
+                        "name": "Div",
+                        "props": {
+                            "className": "admin-card row-stack"
+                        },
+                        "children": [
+                            {
+                                "id": "field_slot_key",
+                                "type": "basic",
+                                "name": "Div",
+                                "props": {
+                                    "className": "form-group"
+                                },
+                                "children": [
+                                    {
+                                        "type": "basic",
+                                        "name": "Label",
+                                        "props": {
+                                            "className": "form-label"
+                                        },
+                                        "children": [
+                                            {
+                                                "type": "basic",
+                                                "name": "Span",
+                                                "text": "$t:custom-ad_slots.admin.ads.form.fields.slot_key"
+                                            },
+                                            {
+                                                "type": "basic",
+                                                "name": "Span",
+                                                "props": {
+                                                    "className": "text-required"
+                                                },
+                                                "text": "*"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "type": "composite",
+                                        "name": "Select",
+                                        "props": {
+                                            "name": "slot_key",
+                                            "value": "{{_local.form?.slot_key ?? 'home.top'}}",
+                                            "className": "input",
+                                            "options": [
+                                                {
+                                                    "label": "$t:custom-ad_slots.slots.home.top",
+                                                    "value": "home.top"
+                                                },
+                                                {
+                                                    "label": "$t:custom-ad_slots.slots.home.mid",
+                                                    "value": "home.mid"
+                                                },
+                                                {
+                                                    "label": "$t:custom-ad_slots.slots.home.bottom",
+                                                    "value": "home.bottom"
+                                                },
+                                                {
+                                                    "label": "$t:custom-ad_slots.slots.shop.list.top",
+                                                    "value": "shop.list.top"
+                                                },
+                                                {
+                                                    "label": "$t:custom-ad_slots.slots.shop.detail.top",
+                                                    "value": "shop.detail.top"
+                                                },
+                                                {
+                                                    "label": "$t:custom-ad_slots.slots.shop.cart.top",
+                                                    "value": "shop.cart.top"
+                                                }
+                                            ]
+                                        },
+                                        "actions": [
+                                            {
+                                                "type": "change",
+                                                "handler": "setState",
+                                                "params": {
+                                                    "target": "local",
+                                                    "form.slot_key": "{{$event.target.value}}"
+                                                }
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "field_type",
+                                "type": "basic",
+                                "name": "Div",
+                                "props": {
+                                    "className": "form-group"
+                                },
+                                "children": [
+                                    {
+                                        "type": "basic",
+                                        "name": "Label",
+                                        "props": {
+                                            "className": "form-label"
+                                        },
+                                        "children": [
+                                            {
+                                                "type": "basic",
+                                                "name": "Span",
+                                                "text": "$t:custom-ad_slots.admin.ads.form.fields.type"
+                                            },
+                                            {
+                                                "type": "basic",
+                                                "name": "Span",
+                                                "props": {
+                                                    "className": "text-required"
+                                                },
+                                                "text": "*"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "type": "composite",
+                                        "name": "Select",
+                                        "props": {
+                                            "name": "type",
+                                            "value": "{{_local.form?.type ?? 'static'}}",
+                                            "className": "input",
+                                            "options": [
+                                                {
+                                                    "label": "$t:custom-ad_slots.admin.ads.form.type_static",
+                                                    "value": "static"
+                                                },
+                                                {
+                                                    "label": "$t:custom-ad_slots.admin.ads.form.type_dynamic",
+                                                    "value": "dynamic"
+                                                }
+                                            ]
+                                        },
+                                        "actions": [
+                                            {
+                                                "type": "change",
+                                                "handler": "setState",
+                                                "params": {
+                                                    "target": "local",
+                                                    "form.type": "{{$event.target.value}}"
+                                                }
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "field_title",
+                                "type": "basic",
+                                "name": "Div",
+                                "props": {
+                                    "className": "form-group"
+                                },
+                                "children": [
+                                    {
+                                        "type": "basic",
+                                        "name": "Label",
+                                        "props": {
+                                            "className": "form-label"
+                                        },
+                                        "children": [
+                                            {
+                                                "type": "basic",
+                                                "name": "Span",
+                                                "text": "$t:custom-ad_slots.admin.ads.form.fields.title"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "type": "basic",
+                                        "name": "Input",
+                                        "props": {
+                                            "type": "text",
+                                            "name": "title",
+                                            "className": "input",
+                                            "placeholder": "$t:custom-ad_slots.admin.ads.form.fields.title_placeholder"
+                                        }
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "field_image_url",
+                                "type": "basic",
+                                "name": "Div",
+                                "props": {
+                                    "className": "form-group"
+                                },
+                                "children": [
+                                    {
+                                        "type": "basic",
+                                        "name": "Label",
+                                        "props": {
+                                            "className": "form-label"
+                                        },
+                                        "children": [
+                                            {
+                                                "type": "basic",
+                                                "name": "Span",
+                                                "text": "$t:custom-ad_slots.admin.ads.form.fields.image_url"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "type": "basic",
+                                        "name": "Input",
+                                        "props": {
+                                            "type": "text",
+                                            "name": "image_url",
+                                            "className": "input",
+                                            "placeholder": "https://"
+                                        }
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "field_link_url",
+                                "type": "basic",
+                                "name": "Div",
+                                "props": {
+                                    "className": "form-group"
+                                },
+                                "children": [
+                                    {
+                                        "type": "basic",
+                                        "name": "Label",
+                                        "props": {
+                                            "className": "form-label"
+                                        },
+                                        "children": [
+                                            {
+                                                "type": "basic",
+                                                "name": "Span",
+                                                "text": "$t:custom-ad_slots.admin.ads.form.fields.link_url"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "type": "basic",
+                                        "name": "Input",
+                                        "props": {
+                                            "type": "text",
+                                            "name": "link_url",
+                                            "className": "input",
+                                            "placeholder": "https://"
+                                        }
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "field_html_content",
+                                "type": "basic",
+                                "name": "Div",
+                                "props": {
+                                    "className": "form-group"
+                                },
+                                "children": [
+                                    {
+                                        "type": "basic",
+                                        "name": "Label",
+                                        "props": {
+                                            "className": "form-label"
+                                        },
+                                        "children": [
+                                            {
+                                                "type": "basic",
+                                                "name": "Span",
+                                                "text": "$t:custom-ad_slots.admin.ads.form.fields.html_content"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "type": "basic",
+                                        "name": "Textarea",
+                                        "props": {
+                                            "name": "html_content",
+                                            "className": "input",
+                                            "rows": 6,
+                                            "placeholder": "$t:custom-ad_slots.admin.ads.form.fields.html_content_placeholder"
+                                        }
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "field_script_src",
+                                "type": "basic",
+                                "name": "Div",
+                                "if": "{{_local.form?.type === 'dynamic'}}",
+                                "props": {
+                                    "className": "form-group"
+                                },
+                                "children": [
+                                    {
+                                        "type": "basic",
+                                        "name": "Label",
+                                        "props": {
+                                            "className": "form-label"
+                                        },
+                                        "children": [
+                                            {
+                                                "type": "basic",
+                                                "name": "Span",
+                                                "text": "$t:custom-ad_slots.admin.ads.form.fields.script_src"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "type": "basic",
+                                        "name": "Input",
+                                        "props": {
+                                            "type": "text",
+                                            "name": "script_src",
+                                            "className": "input",
+                                            "placeholder": "https://"
+                                        }
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "field_sort_order",
+                                "type": "basic",
+                                "name": "Div",
+                                "props": {
+                                    "className": "form-group"
+                                },
+                                "children": [
+                                    {
+                                        "type": "basic",
+                                        "name": "Label",
+                                        "props": {
+                                            "className": "form-label"
+                                        },
+                                        "children": [
+                                            {
+                                                "type": "basic",
+                                                "name": "Span",
+                                                "text": "$t:custom-ad_slots.admin.ads.form.fields.sort_order"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "type": "basic",
+                                        "name": "Input",
+                                        "props": {
+                                            "type": "number",
+                                            "name": "sort_order",
+                                            "className": "input",
+                                            "min": 0
+                                        }
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "field_is_active",
+                                "type": "basic",
+                                "name": "Div",
+                                "props": {
+                                    "className": "form-group"
+                                },
+                                "children": [
+                                    {
+                                        "type": "basic",
+                                        "name": "Label",
+                                        "props": {
+                                            "className": "flex items-center gap-2 cursor-pointer"
+                                        },
+                                        "children": [
+                                            {
+                                                "type": "basic",
+                                                "name": "Checkbox",
+                                                "props": {
+                                                    "name": "is_active",
+                                                    "autoBinding": false,
+                                                    "checked": "{{!!_local.form?.is_active}}"
+                                                },
+                                                "actions": [
+                                                    {
+                                                        "type": "change",
+                                                        "handler": "setState",
+                                                        "params": {
+                                                            "target": "local",
+                                                            "form.is_active": "{{$event.target.checked}}"
+                                                        }
+                                                    }
+                                                ]
+                                            },
+                                            {
+                                                "type": "basic",
+                                                "name": "Span",
+                                                "text": "$t:custom-ad_slots.admin.ads.form.fields.is_active"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "field_starts_at",
+                                "type": "basic",
+                                "name": "Div",
+                                "props": {
+                                    "className": "form-group"
+                                },
+                                "children": [
+                                    {
+                                        "type": "basic",
+                                        "name": "Label",
+                                        "props": {
+                                            "className": "form-label"
+                                        },
+                                        "children": [
+                                            {
+                                                "type": "basic",
+                                                "name": "Span",
+                                                "text": "$t:custom-ad_slots.admin.ads.form.fields.starts_at"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "type": "basic",
+                                        "name": "Input",
+                                        "props": {
+                                            "type": "text",
+                                            "name": "starts_at",
+                                            "className": "input",
+                                            "placeholder": "$t:custom-ad_slots.admin.ads.form.fields.datetime_placeholder"
+                                        }
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "field_ends_at",
+                                "type": "basic",
+                                "name": "Div",
+                                "props": {
+                                    "className": "form-group"
+                                },
+                                "children": [
+                                    {
+                                        "type": "basic",
+                                        "name": "Label",
+                                        "props": {
+                                            "className": "form-label"
+                                        },
+                                        "children": [
+                                            {
+                                                "type": "basic",
+                                                "name": "Span",
+                                                "text": "$t:custom-ad_slots.admin.ads.form.fields.ends_at"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "type": "basic",
+                                        "name": "Input",
+                                        "props": {
+                                            "type": "text",
+                                            "name": "ends_at",
+                                            "className": "input",
+                                            "placeholder": "$t:custom-ad_slots.admin.ads.form.fields.datetime_placeholder"
+                                        }
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "id": "footer_buttons",
+                        "type": "basic",
+                        "name": "Div",
+                        "props": {
+                            "className": "flex gap-3 mt-6"
+                        },
+                        "children": [
+                            {
+                                "id": "footer_cancel_button",
+                                "type": "basic",
+                                "name": "Button",
+                                "props": {
+                                    "type": "button",
+                                    "className": "btn btn-secondary"
+                                },
+                                "actions": [
+                                    {
+                                        "type": "click",
+                                        "handler": "navigate",
+                                        "params": {
+                                            "path": "/admin/ad-slots",
+                                            "mergeQuery": true,
+                                            "query": {}
+                                        }
+                                    }
+                                ],
+                                "children": [
+                                    {
+                                        "type": "basic",
+                                        "name": "Span",
+                                        "text": "$t:common.cancel"
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "footer_save_button",
+                                "type": "basic",
+                                "name": "Button",
+                                "props": {
+                                    "type": "button",
+                                    "disabled": "{{_local.saving}}",
+                                    "className": "btn btn-primary flex-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed"
+                                },
+                                "actions": [
+                                    {
+                                        "type": "click",
+                                        "handler": "sequence",
+                                        "actions": [
+                                            {
+                                                "handler": "setState",
+                                                "params": {
+                                                    "target": "local",
+                                                    "saving": true,
+                                                    "errors": null
+                                                }
+                                            },
+                                            {
+                                                "handler": "apiCall",
+                                                "auth_required": true,
+                                                "target": "{{route?.id ? '/api/modules/custom-ad_slots/admin/ads/' + route?.id : '/api/modules/custom-ad_slots/admin/ads'}}",
+                                                "params": {
+                                                    "method": "{{route?.id ? 'PUT' : 'POST'}}",
+                                                    "body": {
+                                                        "slot_key": "{{_local.form?.slot_key}}",
+                                                        "type": "{{_local.form?.type}}",
+                                                        "title": "{{_local.form?.title ?? ''}}",
+                                                        "image_url": "{{_local.form?.image_url ?? ''}}",
+                                                        "link_url": "{{_local.form?.link_url ?? ''}}",
+                                                        "html_content": "{{_local.form?.html_content ?? ''}}",
+                                                        "script_src": "{{_local.form?.script_src ?? ''}}",
+                                                        "sort_order": "{{_local.form?.sort_order ?? 0}}",
+                                                        "is_active": "{{!!_local.form?.is_active}}",
+                                                        "starts_at": "{{_local.form?.starts_at || null}}",
+                                                        "ends_at": "{{_local.form?.ends_at || null}}"
+                                                    }
+                                                },
+                                                "onSuccess": [
+                                                    {
+                                                        "handler": "setState",
+                                                        "params": {
+                                                            "target": "local",
+                                                            "saving": false,
+                                                            "hasChanges": false
+                                                        }
+                                                    },
+                                                    {
+                                                        "handler": "toast",
+                                                        "params": {
+                                                            "type": "success",
+                                                            "message": "{{route?.id ? '$t:custom-ad_slots.admin.ads.form.update_success' : '$t:custom-ad_slots.admin.ads.form.create_success'}}"
+                                                        }
+                                                    },
+                                                    {
+                                                        "handler": "navigate",
+                                                        "params": {
+                                                            "path": "/admin/ad-slots",
+                                                            "mergeQuery": true,
+                                                            "query": {}
+                                                        }
+                                                    }
+                                                ],
+                                                "onError": [
+                                                    {
+                                                        "handler": "setState",
+                                                        "params": {
+                                                            "target": "local",
+                                                            "saving": false,
+                                                            "errors": "{{error.errors ?? { message: [error.message] }}}"
+                                                        }
+                                                    },
+                                                    {
+                                                        "handler": "toast",
+                                                        "params": {
+                                                            "type": "error",
+                                                            "message": "{{error.message ?? '$t:custom-ad_slots.admin.ads.form.validation_error'}}"
+                                                        }
+                                                    }
+                                                ]
+                                            }
+                                        ]
+                                    }
+                                ],
+                                "children": [
+                                    {
+                                        "type": "basic",
+                                        "name": "Span",
+                                        "if": "{{!_local.saving}}",
+                                        "text": "$t:common.save"
+                                    },
+                                    {
+                                        "type": "basic",
+                                        "name": "Span",
+                                        "if": "{{_local.saving}}",
+                                        "text": "$t:common.saving"
+                                    }
+                                ]
                             }
                         ]
                     }

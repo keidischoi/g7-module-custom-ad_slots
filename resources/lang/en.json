@@ -3,15 +3,61 @@
         "ads": {
             "index": {
                 "title": "Ad Slots",
-                "description": "Manage ads for home and shop areas."
+                "description": "Manage ads for home and shop areas.",
+                "empty": "No ads yet. Create one to get started.",
+                "edit": "Edit",
+                "delete": "Delete",
+                "toggle": "Toggle active",
+                "delete_success": "Ad deleted.",
+                "toggle_success": "Active status updated.",
+                "active": "Active",
+                "inactive": "Inactive"
             },
             "form": {
                 "title_create": "Create Ad",
-                "title_edit": "Edit Ad"
+                "title_edit": "Edit Ad",
+                "description": "Create or edit an ad slot item.",
+                "validation_error": "Please check the form values.",
+                "create_success": "Ad created.",
+                "update_success": "Ad updated.",
+                "type_static": "Static (image)",
+                "type_dynamic": "Dynamic (HTML/script)",
+                "fields": {
+                    "slot_key": "Slot",
+                    "type": "Type",
+                    "title": "Title",
+                    "title_placeholder": "Admin title",
+                    "image_url": "Image URL",
+                    "link_url": "Link URL",
+                    "html_content": "HTML content",
+                    "html_content_placeholder": "Dynamic ad HTML (trusted content only)",
+                    "script_src": "Script SRC",
+                    "sort_order": "Sort order",
+                    "is_active": "Active",
+                    "starts_at": "Starts at",
+                    "ends_at": "Ends at",
+                    "datetime_placeholder": "e.g. 2026-09-08T00:00:00+09:00 (empty = no limit)"
+                }
             }
         }
     },
     "slots": {
+        "home": {
+            "top": "Home Top",
+            "mid": "Home Mid",
+            "bottom": "Home Bottom"
+        },
+        "shop": {
+            "list": {
+                "top": "Shop List Top"
+            },
+            "detail": {
+                "top": "Shop Detail Top"
+            },
+            "cart": {
+                "top": "Shop Cart Top"
+            }
+        },
         "home.top": "Home Top",
         "home.mid": "Home Mid",
         "home.bottom": "Home Bottom",
