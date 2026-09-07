@@ -3,7 +3,7 @@
         "ads": {
             "index": {
                 "title": "Ad Slots",
-                "description": "Manage ads for home and shop areas.",
+                "description": "Manage ads for home, shop, and popular posts areas.",
                 "empty": "No ads yet. Create one to get started.",
                 "edit": "Edit",
                 "delete": "Delete",

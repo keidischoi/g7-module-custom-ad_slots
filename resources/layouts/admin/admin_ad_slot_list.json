@@ -1,5 +1,5 @@
 {
-    "version": "1.0.1",
+    "version": "1.0.2",
     "meta": {
         "title": "$t:custom-ad_slots.admin.ads.index.title",
         "description": "$t:custom-ad_slots.admin.ads.index.description"
@@ -52,17 +52,31 @@
                         "type": "basic",
                         "name": "Div",
                         "props": {
-                            "className": "flex-between mb-6"
+                            "className": "flex items-center justify-between mb-6 gap-3 flex-wrap"
                         },
                         "children": [
                             {
-                                "id": "ad_slot_list_title",
                                 "type": "basic",
-                                "name": "H1",
-                                "props": {
-                                    "className": "text-page-heading"
-                                },
-                                "text": "$t:custom-ad_slots.admin.ads.index.title"
+                                "name": "Div",
+                                "children": [
+                                    {
+                                        "id": "ad_slot_list_title",
+                                        "type": "basic",
+                                        "name": "H1",
+                                        "props": {
+                                            "className": "text-2xl font-bold text-gray-900 dark:text-white"
+                                        },
+                                        "text": "$t:custom-ad_slots.admin.ads.index.title"
+                                    },
+                                    {
+                                        "type": "basic",
+                                        "name": "P",
+                                        "props": {
+                                            "className": "mt-1 text-sm text-gray-500 dark:text-gray-400"
+                                        },
+                                        "text": "$t:custom-ad_slots.admin.ads.index.description"
+                                    }
+                                ]
                             },
                             {
                                 "id": "ad_slot_create_button",
@@ -70,7 +84,7 @@
                                 "name": "Button",
                                 "props": {
                                     "type": "button",
-                                    "className": "btn btn-primary"
+                                    "className": "px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium"
                                 },
                                 "actions": [
                                     {
@@ -87,7 +101,7 @@
                                     {
                                         "type": "basic",
                                         "name": "Span",
-                                        "text": "$t:custom-ad_slots.admin.ads.form.title_create"
+                                        "text": "광고 추가"
                                     }
                                 ]
                             }
@@ -99,7 +113,7 @@
                         "name": "Div",
                         "if": "{{!(ads?.data?.data ?? []).length}}",
                         "props": {
-                            "className": "p-8 text-center bg-white rounded-lg border border-gray-200 text-gray-600"
+                            "className": "p-8 text-center bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300"
                         },
                         "children": [
                             {
@@ -115,7 +129,7 @@
                         "name": "Div",
                         "if": "{{(ads?.data?.data ?? []).length > 0}}",
                         "props": {
-                            "className": "row-stack"
+                            "className": "flex flex-col gap-3"
                         },
                         "iteration": {
                             "source": "{{ads?.data?.data ?? []}}",
@@ -128,16 +142,45 @@
                                 "type": "basic",
                                 "name": "Div",
                                 "props": {
-                                    "className": "p-4 bg-white rounded-lg shadow border border-gray-200 mb-3"
+                                    "className": "p-4 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm"
                                 },
                                 "children": [
                                     {
                                         "type": "basic",
                                         "name": "Div",
                                         "props": {
-                                            "className": "flex-between gap-3"
+                                            "className": "flex items-start gap-4"
                                         },
                                         "children": [
+                                            {
+                                                "comment": "썸네일",
+                                                "type": "basic",
+                                                "name": "Div",
+                                                "props": {
+                                                    "className": "w-24 h-16 shrink-0 rounded-md overflow-hidden bg-gray-100 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 flex items-center justify-center"
+                                                },
+                                                "children": [
+                                                    {
+                                                        "type": "basic",
+                                                        "name": "Img",
+                                                        "if": "{{!!(ad.thumb_url ?? ad.image_desktop ?? ad.image_url_desktop ?? ad.image_url)}}",
+                                                        "props": {
+                                                            "src": "{{ad.thumb_url ?? ad.image_desktop ?? ad.image_url_desktop ?? ad.image_url}}",
+                                                            "alt": "{{ad.title ?? ad.slot_key}}",
+                                                            "className": "w-full h-full object-cover"
+                                                        }
+                                                    },
+                                                    {
+                                                        "type": "basic",
+                                                        "name": "Span",
+                                                        "if": "{{!(ad.thumb_url ?? ad.image_desktop ?? ad.image_url_desktop ?? ad.image_url)}}",
+                                                        "props": {
+                                                            "className": "text-xs text-gray-400 dark:text-gray-500"
+                                                        },
+                                                        "text": "No image"
+                                                    }
+                                                ]
+                                            },
                                             {
                                                 "type": "basic",
                                                 "name": "Div",
@@ -147,19 +190,55 @@
                                                 "children": [
                                                     {
                                                         "type": "basic",
-                                                        "name": "H2",
+                                                        "name": "Div",
                                                         "props": {
-                                                            "className": "section-heading"
+                                                            "className": "flex items-center gap-2 flex-wrap"
                                                         },
-                                                        "text": "{{ad.title ?? ad.slot_key}}"
+                                                        "children": [
+                                                            {
+                                                                "type": "basic",
+                                                                "name": "H2",
+                                                                "props": {
+                                                                    "className": "text-base font-semibold text-gray-900 dark:text-white truncate"
+                                                                },
+                                                                "text": "{{ad.title || ad.slot_label || ad.slot_key || '(제목 없음)'}}"
+                                                            },
+                                                            {
+                                                                "type": "basic",
+                                                                "name": "Span",
+                                                                "if": "{{ad.is_active}}",
+                                                                "props": {
+                                                                    "className": "inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300"
+                                                                },
+                                                                "text": "활성"
+                                                            },
+                                                            {
+                                                                "type": "basic",
+                                                                "name": "Span",
+                                                                "if": "{{!ad.is_active}}",
+                                                                "props": {
+                                                                    "className": "inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300"
+                                                                },
+                                                                "text": "비활성"
+                                                            }
+                                                        ]
                                                     },
                                                     {
                                                         "type": "basic",
                                                         "name": "P",
                                                         "props": {
-                                                            "className": "mt-1 text-sm text-gray-600"
+                                                            "className": "mt-1 text-sm text-gray-600 dark:text-gray-400"
                                                         },
-                                                        "text": "{{ad.slot_key}} · {{ad.type}} · sort={{ad.sort_order}} · {{ad.is_active ? '$t:custom-ad_slots.admin.ads.index.active' : '$t:custom-ad_slots.admin.ads.index.inactive'}}"
+                                                        "text": "{{ad.slot_label || ad.slot_key}} · {{ad.type_label || ad.type}} · 정렬 {{ad.sort_order}}"
+                                                    },
+                                                    {
+                                                        "type": "basic",
+                                                        "name": "P",
+                                                        "if": "{{!!ad.link_url}}",
+                                                        "props": {
+                                                            "className": "mt-0.5 text-xs text-gray-400 dark:text-gray-500 truncate"
+                                                        },
+                                                        "text": "{{ad.link_url}}"
                                                     }
                                                 ]
                                             },
@@ -167,7 +246,7 @@
                                                 "type": "basic",
                                                 "name": "Div",
                                                 "props": {
-                                                    "className": "flex gap-2 flex-wrap"
+                                                    "className": "flex gap-2 flex-wrap shrink-0"
                                                 },
                                                 "children": [
                                                     {
@@ -175,7 +254,7 @@
                                                         "name": "Button",
                                                         "props": {
                                                             "type": "button",
-                                                            "className": "px-3 py-1 text-sm bg-gray-100 rounded hover:bg-gray-200"
+                                                            "className": "px-3 py-1.5 text-sm font-medium rounded-md bg-gray-100 text-gray-800 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-100 dark:hover:bg-gray-600"
                                                         },
                                                         "actions": [
                                                             {
@@ -192,7 +271,7 @@
                                                             {
                                                                 "type": "basic",
                                                                 "name": "Span",
-                                                                "text": "$t:custom-ad_slots.admin.ads.index.edit"
+                                                                "text": "수정"
                                                             }
                                                         ]
                                                     },
@@ -201,7 +280,7 @@
                                                         "name": "Button",
                                                         "props": {
                                                             "type": "button",
-                                                            "className": "px-3 py-1 text-sm bg-blue-50 text-blue-700 rounded hover:bg-blue-100"
+                                                            "className": "px-3 py-1.5 text-sm font-medium rounded-md bg-blue-50 text-blue-700 hover:bg-blue-100 dark:bg-blue-900/30 dark:text-blue-300 dark:hover:bg-blue-900/50"
                                                         },
                                                         "actions": [
                                                             {
@@ -242,7 +321,7 @@
                                                             {
                                                                 "type": "basic",
                                                                 "name": "Span",
-                                                                "text": "$t:custom-ad_slots.admin.ads.index.toggle"
+                                                                "text": "활성 전환"
                                                             }
                                                         ]
                                                     },
@@ -251,7 +330,7 @@
                                                         "name": "Button",
                                                         "props": {
                                                             "type": "button",
-                                                            "className": "px-3 py-1 text-sm bg-red-50 text-red-700 rounded hover:bg-red-100"
+                                                            "className": "px-3 py-1.5 text-sm font-medium rounded-md bg-red-50 text-red-700 hover:bg-red-100 dark:bg-red-900/30 dark:text-red-300 dark:hover:bg-red-900/50"
                                                         },
                                                         "actions": [
                                                             {
@@ -292,7 +371,7 @@
                                                             {
                                                                 "type": "basic",
                                                                 "name": "Span",
-                                                                "text": "$t:custom-ad_slots.admin.ads.index.delete"
+                                                                "text": "삭제"
                                                             }
                                                         ]
                                                     }
