@@ -1,0 +1,17 @@
+{
+    "name": "modules/custom-ad_slots",
+    "description": "Custom ad slots module for Gnuboard7 (static + dynamic placements)",
+    "type": "library",
+    "version": "1.0.0",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Modules\\Custom\\AdSlots\\": "src/",
+            "Modules\\Custom\\AdSlots\\Database\\Seeders\\": "database/seeders/",
+            "Modules\\Custom\\AdSlots\\Upgrades\\": "upgrades/"
+        }
+    },
+    "require": {
+        "php": "^8.2"
+    }
+}

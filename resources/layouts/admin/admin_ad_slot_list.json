@@ -1,0 +1,167 @@
+{
+    "version": "1.0.0",
+    "meta": {
+        "title": "$t:custom-ad_slots.admin.ads.index.title",
+        "description": "$t:custom-ad_slots.admin.ads.index.description"
+    },
+    "layout_name": "admin_ad_slot_list",
+    "permissions": [
+        "custom-ad_slots.ads.read"
+    ],
+    "extends": "_admin_base",
+    "data_sources": [
+        {
+            "id": "ads",
+            "type": "api",
+            "endpoint": "/api/modules/custom-ad_slots/admin/ads",
+            "method": "GET",
+            "auto_fetch": true,
+            "auth_required": true,
+            "params": {
+                "page": "{{query.page}}",
+                "per_page": "{{query.per_page ?? 20}}",
+                "slot_key": "{{query.slot_key ?? ''}}",
+                "type": "{{query.type ?? ''}}"
+            },
+            "fallback": {
+                "data": {
+                    "data": [],
+                    "meta": {
+                        "current_page": 1,
+                        "last_page": 1,
+                        "per_page": 20,
+                        "total": 0
+                    },
+                    "slot_keys": []
+                }
+            }
+        }
+    ],
+    "slots": {
+        "content": [
+            {
+                "id": "ad_slot_list_wrapper",
+                "type": "basic",
+                "name": "Div",
+                "props": {
+                    "className": "admin-page-content"
+                },
+                "children": [
+                    {
+                        "id": "ad_slot_list_header",
+                        "type": "basic",
+                        "name": "Div",
+                        "props": {
+                            "className": "flex-between mb-6"
+                        },
+                        "children": [
+                            {
+                                "id": "ad_slot_list_title",
+                                "type": "basic",
+                                "name": "H1",
+                                "props": {
+                                    "className": "text-page-heading"
+                                },
+                                "text": "$t:custom-ad_slots.admin.ads.index.title"
+                            },
+                            {
+                                "id": "ad_slot_create_button",
+                                "type": "basic",
+                                "name": "Button",
+                                "props": {
+                                    "type": "button",
+                                    "className": "px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium"
+                                },
+                                "actions": [
+                                    {
+                                        "type": "click",
+                                        "handler": "navigate",
+                                        "params": {
+                                            "path": "/admin/ad-slots/create",
+                                            "mergeQuery": true,
+                                            "query": {}
+                                        }
+                                    }
+                                ],
+                                "children": [
+                                    {
+                                        "type": "basic",
+                                        "name": "Span",
+                                        "text": "$t:custom-ad_slots.admin.ads.form.title_create"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "id": "ad_items_{{idx}}",
+                        "type": "basic",
+                        "name": "Div",
+                        "props": {
+                            "className": "row-stack"
+                        },
+                        "iteration": {
+                            "source": "{{ads?.data?.data ?? []}}",
+                            "item_var": "ad",
+                            "index_var": "idx"
+                        },
+                        "children": [
+                            {
+                                "id": "ad_item_{{idx}}",
+                                "type": "basic",
+                                "name": "Div",
+                                "props": {
+                                    "className": "p-4 bg-white rounded-lg shadow border border-gray-200 mb-3"
+                                },
+                                "children": [
+                                    {
+                                        "type": "basic",
+                                        "name": "H2",
+                                        "props": {
+                                            "className": "section-heading"
+                                        },
+                                        "text": "{{ad.title ?? ad.slot_key}}"
+                                    },
+                                    {
+                                        "type": "basic",
+                                        "name": "P",
+                                        "props": {
+                                            "className": "mt-1 text-sm text-gray-600"
+                                        },
+                                        "text": "{{ad.slot_key}} · {{ad.type}} · sort={{ad.sort_order}} · active={{ad.is_active}}"
+                                    },
+                                    {
+                                        "type": "basic",
+                                        "name": "Button",
+                                        "props": {
+                                            "type": "button",
+                                            "className": "mt-2 px-3 py-1 text-sm bg-gray-100 rounded hover:bg-gray-200"
+                                        },
+                                        "actions": [
+                                            {
+                                                "type": "click",
+                                                "handler": "navigate",
+                                                "params": {
+                                                    "path": "/admin/ad-slots/{{ad.id}}/edit",
+                                                    "mergeQuery": true,
+                                                    "query": {}
+                                                }
+                                            }
+                                        ],
+                                        "children": [
+                                            {
+                                                "type": "basic",
+                                                "name": "Span",
+                                                "text": "$t:custom-ad_slots.admin.ads.form.title_edit"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
+}

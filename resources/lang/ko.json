@@ -1,0 +1,22 @@
+{
+    "admin": {
+        "ads": {
+            "index": {
+                "title": "광고 슬롯",
+                "description": "홈/쇼핑몰 영역별 광고를 관리합니다."
+            },
+            "form": {
+                "title_create": "광고 추가",
+                "title_edit": "광고 수정"
+            }
+        }
+    },
+    "slots": {
+        "home.top": "홈 상단",
+        "home.mid": "홈 중단",
+        "home.bottom": "홈 하단",
+        "shop.list.top": "쇼핑몰 목록 상단",
+        "shop.detail.top": "상품 상세 상단",
+        "shop.cart.top": "장바구니 상단"
+    }
+}

@@ -1,0 +1,20 @@
+{
+    "identifier": "custom-ad_slots",
+    "vendor": "custom",
+    "name": {
+        "ko": "광고 슬롯",
+        "en": "Ad Slots"
+    },
+    "version": "1.0.0",
+    "license": "MIT",
+    "description": {
+        "ko": "홈/쇼핑몰 영역별 정적·동적 광고 슬롯 관리 모듈",
+        "en": "Manage static and dynamic ad slots for home and shop areas"
+    },
+    "g7_version": ">=7.0.0",
+    "github_url": "https://github.com/keidischoi/g7-module-custom-ad_slots",
+    "dependencies": {
+        "modules": {},
+        "plugins": {}
+    }
+}

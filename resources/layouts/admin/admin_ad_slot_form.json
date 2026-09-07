@@ -1,0 +1,83 @@
+{
+    "version": "1.0.0",
+    "meta": {
+        "title": "$t:custom-ad_slots.admin.ads.form.title_edit"
+    },
+    "layout_name": "admin_ad_slot_form",
+    "permissions": [
+        "custom-ad_slots.ads.read",
+        "custom-ad_slots.ads.create",
+        "custom-ad_slots.ads.update"
+    ],
+    "extends": "_admin_base",
+    "data_sources": [
+        {
+            "id": "ad",
+            "type": "api",
+            "endpoint": "/api/modules/custom-ad_slots/admin/ads/{{route.id}}",
+            "method": "GET",
+            "auto_fetch": true,
+            "auth_required": true,
+            "condition": "{{route.id}}",
+            "fallback": {
+                "data": null
+            }
+        }
+    ],
+    "slots": {
+        "content": [
+            {
+                "id": "ad_slot_form_wrapper",
+                "type": "basic",
+                "name": "Div",
+                "props": {
+                    "className": "admin-page-content max-w-3xl"
+                },
+                "children": [
+                    {
+                        "type": "basic",
+                        "name": "H1",
+                        "props": {
+                            "className": "text-page-heading mb-4"
+                        },
+                        "text": "$t:custom-ad_slots.admin.ads.form.title_edit"
+                    },
+                    {
+                        "type": "basic",
+                        "name": "P",
+                        "props": {
+                            "className": "text-sm text-gray-600 mb-4"
+                        },
+                        "text": "관리 API(curl)로 먼저 CRUD 하세요. 전체 폼 컴포넌트는 템플릿에 맞게 확장 가능합니다. 현재 값: {{ad?.data?.title ?? '(신규)'}} / {{ad?.data?.slot_key ?? ''}}"
+                    },
+                    {
+                        "type": "basic",
+                        "name": "Button",
+                        "props": {
+                            "type": "button",
+                            "className": "px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
+                        },
+                        "actions": [
+                            {
+                                "type": "click",
+                                "handler": "navigate",
+                                "params": {
+                                    "path": "/admin/ad-slots",
+                                    "mergeQuery": true,
+                                    "query": {}
+                                }
+                            }
+                        ],
+                        "children": [
+                            {
+                                "type": "basic",
+                                "name": "Span",
+                                "text": "목록으로"
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
+}

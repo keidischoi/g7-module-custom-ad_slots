@@ -1,3 +1,172 @@
-# g7-module-custom-ad_slots
+# custom-ad_slots — G7 광고 슬롯 모듈
 
-G7 custom module: home/shop ad slots (static + dynamic).
+홈/쇼핑몰 영역별 **정적(static)** · **동적(dynamic)** 광고를 관리하고, 공개 placements API로 템플릿에 노출합니다.
+
+| 항목 | 값 |
+|------|-----|
+| identifier | `custom-ad_slots` |
+| Namespace | `Modules\Custom\AdSlots` |
+| Composer | `modules/custom-ad_slots` |
+| 버전 | `1.0.0` |
+
+## 슬롯 키
+
+| slot_key | 용도 |
+|----------|------|
+| `home.top` | 홈 상단 |
+| `home.mid` | 홈 중단 |
+| `home.bottom` | 홈 하단 |
+| `shop.list.top` | 쇼핑몰 목록 상단 |
+| `shop.detail.top` | 상품 상세 상단 |
+| `shop.cart.top` | 장바구니 상단 |
+
+## 공개 API
+
+Prefix는 코어 `ModuleRouteServiceProvider`가 자동 적용합니다.
+
+| Method | Path | 설명 |
+|--------|------|------|
+| `GET` | `/api/modules/custom-ad_slots/placements` | 활성+스케줄 내 전체, **슬롯별 그룹** |
+| `GET` | `/api/modules/custom-ad_slots/placements?slot=home.top` | 특정 슬롯 목록 (`sort_order` 정렬) |
+
+필터 조건: `is_active=true` 이고 `starts_at`/`ends_at` 윈도우 안(또는 null).
+
+## 관리자 API
+
+인증: `auth:sanctum` + `permission:admin,custom-ad_slots.ads.*` (hello_module과 동일 스타일).
+
+| Method | Path | Permission |
+|--------|------|------------|
+| `GET` | `/api/modules/custom-ad_slots/admin/ads` | `ads.read` |
+| `POST` | `/api/modules/custom-ad_slots/admin/ads` | `ads.create` |
+| `GET` | `/api/modules/custom-ad_slots/admin/ads/{id}` | `ads.read` |
+| `PUT` | `/api/modules/custom-ad_slots/admin/ads/{id}` | `ads.update` |
+| `PATCH` | `/api/modules/custom-ad_slots/admin/ads/{id}/toggle` | `ads.update` |
+| `DELETE` | `/api/modules/custom-ad_slots/admin/ads/{id}` | `ads.delete` |
+
+관리자 메뉴: `/admin/ad-slots` (`resources/routes/admin.json` + `Module::getAdminMenus()`).
+
+> 관리 레이아웃 JSON은 목록/폼 **최소** 구현입니다. 우선 curl로 CRUD를 검증한 뒤, 사이트 admin 템플릿에 맞게 폼 필드를 확장하세요.
+
+## NAS 설치 (Synology 예시)
+
+경로 예: `/volume1/web/3ds` = G7 루트.
+
+```bash
+# 1) 모듈 복사/클론
+cd /volume1/web/3ds/modules
+git clone https://github.com/keidischoi/g7-module-custom-ad_slots.git custom-ad_slots
+# 또는 scp/rsync 로 custom-ad_slots 디렉터리 통째 복사
+
+# 2) 소유권 (웹 서버 유저 — DSM 환경에 맞게 http 또는 httpd)
+chown -R http:http /volume1/web/3ds/modules/custom-ad_slots
+
+# 3) 오토로드 / 확장 반영 (G7 루트에서)
+cd /volume1/web/3ds
+php artisan extension:update-autoload
+# 또는 모듈 composer dump가 필요하면:
+# php artisan module:composer-install custom-ad_slots
+# composer dump-autoload
+
+# 4) 설치 + 마이그레이션 + 활성화
+php artisan module:install custom-ad_slots
+php artisan migrate
+# 마이그레이션이 모듈 설치에 포함되지 않는 환경이면:
+# php artisan module:migrate custom-ad_slots   # 커맨드명이 다를 수 있음 — 코어 문서 확인
+php artisan module:activate custom-ad_slots
+
+# 5) 캐시 정리
+php artisan cache:clear
+php artisan route:clear
+```
+
+권한/메뉴는 설치·업데이트 시 `Module.php`의 `getPermissions()` / `getAdminMenus()`로 동기화됩니다.
+
+## 템플릿 슬롯 연결
+
+1. 유저 레이아웃(홈/상품목록 등)에 partial include 또는 동일 data_source 패턴을 넣습니다.
+2. 참고 partial: `resources/layouts/partials/_ad_slot.json`
+   - `data_sources.placements` → `GET /api/modules/custom-ad_slots/placements?slot={{slot_key}}`
+   - `type=static`: `image_url` + `link_url` 앵커/이미지
+   - `type=dynamic`: `html_content` / `script_src` — **아래 XSS 경고 필독**
+
+예시(개념):
+
+```text
+홈 레이아웃 content 슬롯에
+  partial _ad_slot  (props.slot_key = home.top)
+를 배치하고, mid/bottom도 동일하게 복제.
+```
+
+## ⚠️ XSS 경고 (dynamic)
+
+`html_content`, `script_src`는 **신뢰된 관리자 입력만** 저장하세요.
+
+- 공개 API가 그대로 JSON으로 내려줍니다.
+- 레이아웃에서 raw HTML/스크립트를 렌더하면 XSS가 됩니다.
+- sanitize 없이 `dangerouslySetInnerHTML` / raw 바인딩을 쓰지 마세요.
+- 외부 광고 네트워크 스크립트는 CSP·도메인 화이트리스트를 검토하세요.
+
+## curl 샘플 (정적 광고 생성)
+
+관리자 Sanctum 토큰을 `TOKEN`에 넣습니다.
+
+```bash
+# 생성
+curl -sS -X POST 'https://YOUR_HOST/api/modules/custom-ad_slots/admin/ads' \
+  -H "Authorization: Bearer $TOKEN" \
+  -H 'Accept: application/json' \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "slot_key": "home.top",
+    "type": "static",
+    "title": "홈 상단 배너",
+    "image_url": "https://via.placeholder.com/1200x200.png?text=Home+Top",
+    "link_url": "https://example.com",
+    "sort_order": 0,
+    "is_active": true
+  }'
+
+# 공개 조회
+curl -sS 'https://YOUR_HOST/api/modules/custom-ad_slots/placements?slot=home.top' \
+  -H 'Accept: application/json'
+
+# 전체 그룹 조회
+curl -sS 'https://YOUR_HOST/api/modules/custom-ad_slots/placements' \
+  -H 'Accept: application/json'
+
+# 토글
+curl -sS -X PATCH "https://YOUR_HOST/api/modules/custom-ad_slots/admin/ads/1/toggle" \
+  -H "Authorization: Bearer $TOKEN" \
+  -H 'Accept: application/json'
+```
+
+샘플 시더: `database/seeders/Sample/AdSlotSampleSeeder.php`  
+(`php artisan module:seed custom-ad_slots --sample` — 코어 시더 디스커버리 지원 시)
+
+## 디렉터리 요약
+
+```text
+module.json / module.php / composer.json / LICENSE
+database/migrations/..._create_ad_slots_items_table.php
+database/seeders/Sample/AdSlotSampleSeeder.php
+src/Models/AdSlotItem.php
+src/Services/AdSlotService.php
+src/Http/Controllers/Public/PlacementController.php
+src/Http/Controllers/Admin/AdSlotItemController.php
+src/Http/Requests/Admin/{Store,Update}AdSlotItemRequest.php
+src/Http/Resources/AdSlotItemResource.php
+src/routes/api.php
+resources/routes/admin.json
+resources/layouts/admin/admin_ad_slot_{list,form}.json
+resources/layouts/partials/_ad_slot.json
+resources/lang/{ko,en}.json
+src/lang/{ko,en}/messages.php
+```
+
+## 오픈 이슈 / 확인 필요
+
+- NAS에서 `module:migrate` / 마이그레이션 자동 실행 여부는 G7 버전에 따라 다름 → `migrate` 후 `ad_slots_items` 테이블 존재 확인.
+- `optional.sanctum`, `permission:admin,...` 미들웨어 alias는 코어 G7 기준(hello_module에서 확인). 커스텀 코어면 alias 이름 조정.
+- Admin 폼 레이아웃은 최소 UI — 필드 입력 폼은 사이트 admin 컴포넌트 세트에 맞게 보강 권장.
+- 테이블명 `ad_slots_items`는 요청 스펙 그대로(모듈 prefix 없음). 다중 커스텀 모듈과 충돌 시 rename 검토.

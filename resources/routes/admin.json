@@ -1,0 +1,29 @@
+{
+    "version": "1.0.0",
+    "routes": [
+        {
+            "path": "*/admin/ad-slots",
+            "layout": "admin_ad_slot_list",
+            "auth_required": true,
+            "meta": {
+                "title": "$t:custom-ad_slots.admin.ads.index.title"
+            }
+        },
+        {
+            "path": "*/admin/ad-slots/create",
+            "layout": "admin_ad_slot_form",
+            "auth_required": true,
+            "meta": {
+                "title": "$t:custom-ad_slots.admin.ads.form.title_create"
+            }
+        },
+        {
+            "path": "*/admin/ad-slots/:id/edit",
+            "layout": "admin_ad_slot_form",
+            "auth_required": true,
+            "meta": {
+                "title": "$t:custom-ad_slots.admin.ads.form.title_edit"
+            }
+        }
+    ]
+}

@@ -1,0 +1,22 @@
+{
+    "admin": {
+        "ads": {
+            "index": {
+                "title": "Ad Slots",
+                "description": "Manage ads for home and shop areas."
+            },
+            "form": {
+                "title_create": "Create Ad",
+                "title_edit": "Edit Ad"
+            }
+        }
+    },
+    "slots": {
+        "home.top": "Home Top",
+        "home.mid": "Home Mid",
+        "home.bottom": "Home Bottom",
+        "shop.list.top": "Shop List Top",
+        "shop.detail.top": "Shop Detail Top",
+        "shop.cart.top": "Shop Cart Top"
+    }
+}
