@@ -13,6 +13,24 @@ class UpdateAdSlotItemRequest extends FormRequest
         return true;
     }
 
+    protected function prepareForValidation(): void
+    {
+        $nullable = [
+            'title', 'image_url', 'image_url_desktop', 'image_url_mobile', 'bg_color',
+            'link_url', 'html_content', 'script_src', 'starts_at', 'ends_at',
+        ];
+        $merge = [];
+        foreach ($nullable as $key) {
+            if ($this->exists($key) && $this->input($key) === '') {
+                $merge[$key] = null;
+            }
+        }
+        if ($merge !== []) {
+            $this->merge($merge);
+        }
+    }
+
+
     /**
      * @return array<string, mixed>
      */

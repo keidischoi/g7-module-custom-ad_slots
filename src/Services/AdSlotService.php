@@ -101,12 +101,36 @@ class AdSlotService
      */
     private function normalize(array $data): array
     {
-        if (array_key_exists('sort_order', $data)) {
+        $nullableStrings = [
+            'title',
+            'image_url',
+            'image_url_desktop',
+            'image_url_mobile',
+            'bg_color',
+            'link_url',
+            'html_content',
+            'script_src',
+            'starts_at',
+            'ends_at',
+        ];
+        foreach ($nullableStrings as $key) {
+            if (array_key_exists($key, $data) && ($data[$key] === '' || $data[$key] === null)) {
+                $data[$key] = null;
+            }
+        }
+
+        if (array_key_exists('sort_order', $data) && $data['sort_order'] !== null && $data['sort_order'] !== '') {
             $data['sort_order'] = (int) $data['sort_order'];
+        } elseif (array_key_exists('sort_order', $data) && ($data['sort_order'] === '' || $data['sort_order'] === null)) {
+            $data['sort_order'] = 0;
         }
 
         if (array_key_exists('is_active', $data)) {
-            $data['is_active'] = filter_var($data['is_active'], FILTER_VALIDATE_BOOLEAN);
+            if ($data['is_active'] === '' || $data['is_active'] === null) {
+                $data['is_active'] = true;
+            } else {
+                $data['is_active'] = filter_var($data['is_active'], FILTER_VALIDATE_BOOLEAN);
+            }
         }
 
         return $data;
