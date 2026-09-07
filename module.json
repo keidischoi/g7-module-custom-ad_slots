@@ -5,7 +5,7 @@
         "ko": "광고 슬롯",
         "en": "Ad Slots"
     },
-    "version": "1.1.9",
+    "version": "1.1.10",
     "license": "MIT",
     "description": {
         "ko": "전역/홈/쇼핑몰/인기글 영역별 정적·동적 광고 슬롯 관리 모듈",

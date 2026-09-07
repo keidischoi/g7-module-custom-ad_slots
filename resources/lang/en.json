@@ -76,10 +76,10 @@
         },
         "board.popular.top": "Popular Posts Top",
         "global": {
-            "top": "All Pages Top",
-            "bottom": "All Pages Bottom"
+            "top": "Global Top",
+            "bottom": "Global Bottom"
         },
-        "global.top": "All Pages Top",
-        "global.bottom": "All Pages Bottom"
+        "global.top": "Global Top",
+        "global.bottom": "Global Bottom"
     }
 }
