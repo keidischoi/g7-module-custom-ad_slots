@@ -9,6 +9,8 @@ return [
     'ad' => [
         'fetch_success' => '광고를 조회했습니다.',
         'fetch_failed' => '광고 조회에 실패했습니다.',
+        'duplicate_success' => '광고를 복제했습니다.',
+        'duplicate_failed' => '광고 복제에 실패했습니다.',
         'create_success' => '광고를 생성했습니다.',
         'create_failed' => '광고 생성에 실패했습니다.',
         'update_success' => '광고를 수정했습니다.',

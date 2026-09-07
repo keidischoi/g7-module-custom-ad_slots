@@ -82,6 +82,7 @@ php artisan cache:clear
 | `POST` | `/api/modules/custom-ad_slots/admin/ads` | `ads.create` |
 | `GET` | `/api/modules/custom-ad_slots/admin/ads/{id}` | `ads.read` |
 | `PUT` | `/api/modules/custom-ad_slots/admin/ads/{id}` | `ads.update` |
+| `POST` | `/api/modules/custom-ad_slots/admin/ads/{id}/duplicate` | `ads.create` |
 | `PATCH` | `/api/modules/custom-ad_slots/admin/ads/{id}/toggle` | `ads.update` |
 | `DELETE` | `/api/modules/custom-ad_slots/admin/ads/{id}` | `ads.delete` |
 

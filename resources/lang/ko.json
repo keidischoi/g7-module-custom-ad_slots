@@ -11,7 +11,9 @@
                 "delete_success": "광고가 삭제되었습니다.",
                 "toggle_success": "활성 상태가 변경되었습니다.",
                 "active": "활성",
-                "inactive": "비활성"
+                "inactive": "비활성",
+                "duplicate": "복제",
+                "duplicate_success": "광고가 복제되었습니다. (비활성)"
             },
             "form": {
                 "title_create": "광고 추가",

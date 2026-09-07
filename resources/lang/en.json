@@ -11,7 +11,9 @@
                 "delete_success": "Ad deleted.",
                 "toggle_success": "Active status updated.",
                 "active": "Active",
-                "inactive": "Inactive"
+                "inactive": "Inactive",
+                "duplicate": "Duplicate",
+                "duplicate_success": "Ad duplicated (inactive)."
             },
             "form": {
                 "title_create": "Create Ad",

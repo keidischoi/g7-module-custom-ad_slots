@@ -37,6 +37,11 @@ Route::prefix('admin/ads')
             ->middleware('permission:admin,custom-ad_slots.ads.update')
             ->name('update');
 
+        Route::post('/{id}/duplicate', [AdSlotItemController::class, 'duplicate'])
+            ->whereNumber('id')
+            ->middleware('permission:admin,custom-ad_slots.ads.create')
+            ->name('duplicate');
+
         Route::patch('/{id}/toggle', [AdSlotItemController::class, 'toggle'])
             ->whereNumber('id')
             ->middleware('permission:admin,custom-ad_slots.ads.update')
