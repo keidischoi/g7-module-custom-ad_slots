@@ -197,6 +197,10 @@
                                                 {
                                                     "label": "$t:custom-ad_slots.slots.shop.cart.top",
                                                     "value": "shop.cart.top"
+                                                },
+                                                {
+                                                    "label": "$t:custom-ad_slots.slots.board.popular.top",
+                                                    "value": "board.popular.top"
                                                 }
                                             ]
                                         },
