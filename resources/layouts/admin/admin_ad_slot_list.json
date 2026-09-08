@@ -208,7 +208,7 @@
                                                                 "name": "Span",
                                                                 "if": "{{ad.is_active}}",
                                                                 "props": {
-                                                                    "className": "inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-500 text-white"
+                                                                    "className": "inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-500 text-black"
                                                                 },
                                                                 "text": "활성"
                                                             },
@@ -217,7 +217,7 @@
                                                                 "name": "Span",
                                                                 "if": "{{!ad.is_active}}",
                                                                 "props": {
-                                                                    "className": "inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-500 text-black"
+                                                                    "className": "inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-500 text-white"
                                                                 },
                                                                 "text": "비활성"
                                                             }
