@@ -55,6 +55,7 @@ class AdSlotItemResource extends JsonResource
             'script_src' => $this->script_src,
             'sort_order' => $this->sort_order,
             'is_active' => (bool) $this->is_active,
+            'prevent_right_click' => (bool) $this->prevent_right_click,
             'starts_at' => optional($this->starts_at)?->toIso8601String(),
             'ends_at' => optional($this->ends_at)?->toIso8601String(),
             'starts_at_local' => $this->toDatetimeLocal($this->starts_at),

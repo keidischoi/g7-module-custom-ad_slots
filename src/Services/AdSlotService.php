@@ -113,6 +113,7 @@ class AdSlotService
             'script_src' => $item->script_src,
             'sort_order' => (int) $item->sort_order,
             'is_active' => false,
+            'prevent_right_click' => (bool) $item->prevent_right_click,
             'starts_at' => optional($item->starts_at)?->toIso8601String(),
             'ends_at' => optional($item->ends_at)?->toIso8601String(),
         ]);
@@ -161,6 +162,14 @@ class AdSlotService
                 $data['is_active'] = true;
             } else {
                 $data['is_active'] = filter_var($data['is_active'], FILTER_VALIDATE_BOOLEAN);
+            }
+        }
+
+        if (array_key_exists('prevent_right_click', $data)) {
+            if ($data['prevent_right_click'] === '' || $data['prevent_right_click'] === null) {
+                $data['prevent_right_click'] = false;
+            } else {
+                $data['prevent_right_click'] = filter_var($data['prevent_right_click'], FILTER_VALIDATE_BOOLEAN);
             }
         }
 

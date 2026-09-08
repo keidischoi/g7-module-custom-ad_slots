@@ -55,7 +55,8 @@
                     "sort_order": 0,
                     "is_active": true,
                     "starts_at": "",
-                    "ends_at": ""
+                    "ends_at": "",
+                    "prevent_right_click": false
                 },
                 "errors": null,
                 "saving": false
@@ -637,6 +638,57 @@
                                 ]
                             },
                             {
+                                "id": "field_prevent_right_click",
+                                "type": "basic",
+                                "name": "Div",
+                                "props": {
+                                    "className": "form-group w-full"
+                                },
+                                "children": [
+                                    {
+                                        "type": "basic",
+                                        "name": "Label",
+                                        "props": {
+                                            "className": "flex items-center gap-2 cursor-pointer"
+                                        },
+                                        "children": [
+                                            {
+                                                "type": "basic",
+                                                "name": "Checkbox",
+                                                "props": {
+                                                    "name": "prevent_right_click",
+                                                    "autoBinding": false,
+                                                    "checked": "{{!!_local.form?.prevent_right_click}}"
+                                                },
+                                                "actions": [
+                                                    {
+                                                        "type": "change",
+                                                        "handler": "setState",
+                                                        "params": {
+                                                            "target": "local",
+                                                            "form.prevent_right_click": "{{$event.target.checked}}"
+                                                        }
+                                                    }
+                                                ]
+                                            },
+                                            {
+                                                "type": "basic",
+                                                "name": "Span",
+                                                "text": "$t:custom-ad_slots.admin.ads.form.fields.prevent_right_click"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "type": "basic",
+                                        "name": "P",
+                                        "props": {
+                                            "className": "mt-1 text-xs text-gray-500 dark:text-gray-400"
+                                        },
+                                        "text": "$t:custom-ad_slots.admin.ads.form.fields.prevent_right_click_hint"
+                                    }
+                                ]
+                            },
+                            {
                                 "id": "field_starts_at",
                                 "type": "basic",
                                 "name": "Div",
@@ -822,6 +874,7 @@
                                                         "script_src": "{{_local.form?.script_src ?? ''}}",
                                                         "sort_order": "{{_local.form?.sort_order ?? 0}}",
                                                         "is_active": "{{!!_local.form?.is_active}}",
+                                                        "prevent_right_click": "{{!!_local.form?.prevent_right_click}}",
                                                         "starts_at": "{{_local.form?.starts_at || null}}",
                                                         "ends_at": "{{_local.form?.ends_at || null}}"
                                                     }
