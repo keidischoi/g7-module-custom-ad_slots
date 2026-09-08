@@ -2,7 +2,7 @@
     "name": "modules/custom-ad_slots",
     "description": "Custom ad slots module for Gnuboard7 (static + dynamic placements)",
     "type": "library",
-    "version": "1.1.20",
+    "version": "1.1.21",
     "license": "MIT",
     "autoload": {
         "psr-4": {

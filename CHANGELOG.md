@@ -4,6 +4,12 @@
 형식은 [Keep a Changelog](https://keepachangelog.com/ko/1.1.0/)를 따르며,
 [Semantic Versioning](https://semver.org/lang/ko/)을 준수합니다.
 
+## [1.1.21] - 2026-09-08
+
+### Changed
+
+- 오른쪽 토글 버튼 글자는 **현재 상태 그대로** 표시합니다(활성이면 「활성」, 비활성이면 「비활성」). 색상 반전만 유지합니다.
+
 ## [1.1.20] - 2026-09-08
 
 ### Changed

@@ -345,7 +345,7 @@
                                                             {
                                                                 "type": "basic",
                                                                 "name": "Span",
-                                                                "text": "비활성"
+                                                                "text": "활성"
                                                             }
                                                         ],
                                                         "if": "{{ad.is_active}}"
@@ -396,7 +396,7 @@
                                                             {
                                                                 "type": "basic",
                                                                 "name": "Span",
-                                                                "text": "활성"
+                                                                "text": "비활성"
                                                             }
                                                         ],
                                                         "if": "{{!ad.is_active}}"
