@@ -42,7 +42,9 @@
                     "starts_at": "시작 일시",
                     "ends_at": "종료 일시",
                     "datetime_placeholder": "날짜·시간 선택",
-                    "datetime_hint": "달력에서 날짜를 고르고, 시간을 선택하세요. 비우면 제한 없음."
+                    "datetime_hint": "달력에서 날짜를 고르고, 시간을 선택하세요. 비우면 제한 없음.",
+                    "prevent_right_click": "우클릭 방지",
+                    "prevent_right_click_hint": "브라우저 우클릭 메뉴만 막습니다"
                 }
             }
         }

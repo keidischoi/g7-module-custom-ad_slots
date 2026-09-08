@@ -42,7 +42,9 @@
                     "starts_at": "Starts at",
                     "ends_at": "Ends at",
                     "datetime_placeholder": "YYYY-MM-DD HH:mm",
-                    "datetime_hint": "Pick date and time from the calendar. Leave empty for no limit."
+                    "datetime_hint": "Pick date and time from the calendar. Leave empty for no limit.",
+                    "prevent_right_click": "Prevent right-click",
+                    "prevent_right_click_hint": "Blocks the browser context menu only"
                 }
             }
         }
