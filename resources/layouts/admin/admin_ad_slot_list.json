@@ -1,5 +1,5 @@
 {
-    "version": "1.0.8",
+    "version": "1.0.9",
     "meta": {
         "title": "$t:custom-ad_slots.admin.ads.index.title",
         "description": "$t:custom-ad_slots.admin.ads.index.description"
@@ -129,7 +129,7 @@
                         "name": "Div",
                         "if": "{{(ads?.data?.data ?? []).length > 0}}",
                         "props": {
-                            "className": "flex flex-col gap-8"
+                            "className": "flex flex-col gap-4"
                         },
                         "iteration": {
                             "source": "{{ads?.data?.data ?? []}}",
@@ -142,7 +142,7 @@
                                 "type": "basic",
                                 "name": "Div",
                                 "props": {
-                                    "className": "p-4 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm mb-6"
+                                    "className": "p-4 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm mb-3"
                                 },
                                 "children": [
                                     {
@@ -208,7 +208,7 @@
                                                                 "name": "Span",
                                                                 "if": "{{ad.is_active}}",
                                                                 "props": {
-                                                                    "className": "inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-black dark:bg-gray-700 dark:text-white"
+                                                                    "className": "inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-500 text-black"
                                                                 },
                                                                 "text": "활성"
                                                             },
@@ -217,7 +217,7 @@
                                                                 "name": "Span",
                                                                 "if": "{{!ad.is_active}}",
                                                                 "props": {
-                                                                    "className": "inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300"
+                                                                    "className": "inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-500 text-black"
                                                                 },
                                                                 "text": "비활성"
                                                             }
@@ -330,7 +330,7 @@
                                                         "name": "Button",
                                                         "props": {
                                                             "type": "button",
-                                                            "className": "px-3 py-1.5 text-sm font-medium rounded-md bg-blue-50 text-blue-700 hover:bg-blue-100 dark:bg-blue-900/30 dark:text-blue-300 dark:hover:bg-blue-900/50"
+                                                            "className": "px-3 py-1.5 text-sm font-medium rounded-md bg-green-500 text-black hover:bg-green-600"
                                                         },
                                                         "actions": [
                                                             {
@@ -371,9 +371,61 @@
                                                             {
                                                                 "type": "basic",
                                                                 "name": "Span",
-                                                                "text": "활성 전환"
+                                                                "text": "활성"
                                                             }
-                                                        ]
+                                                        ],
+                                                        "if": "{{ad.is_active}}"
+                                                    },
+                                                    {
+                                                        "type": "basic",
+                                                        "name": "Button",
+                                                        "props": {
+                                                            "type": "button",
+                                                            "className": "px-3 py-1.5 text-sm font-medium rounded-md bg-red-500 text-black hover:bg-red-600"
+                                                        },
+                                                        "actions": [
+                                                            {
+                                                                "type": "click",
+                                                                "handler": "apiCall",
+                                                                "auth_required": true,
+                                                                "target": "/api/modules/custom-ad_slots/admin/ads/{{ad.id}}/toggle",
+                                                                "params": {
+                                                                    "method": "PATCH"
+                                                                },
+                                                                "onSuccess": [
+                                                                    {
+                                                                        "handler": "toast",
+                                                                        "params": {
+                                                                            "type": "success",
+                                                                            "message": "$t:custom-ad_slots.admin.ads.index.toggle_success"
+                                                                        }
+                                                                    },
+                                                                    {
+                                                                        "handler": "refetchDataSource",
+                                                                        "params": {
+                                                                            "dataSourceId": "ads"
+                                                                        }
+                                                                    }
+                                                                ],
+                                                                "onError": [
+                                                                    {
+                                                                        "handler": "toast",
+                                                                        "params": {
+                                                                            "type": "error",
+                                                                            "message": "{{error.message}}"
+                                                                        }
+                                                                    }
+                                                                ]
+                                                            }
+                                                        ],
+                                                        "children": [
+                                                            {
+                                                                "type": "basic",
+                                                                "name": "Span",
+                                                                "text": "활성"
+                                                            }
+                                                        ],
+                                                        "if": "{{!ad.is_active}}"
                                                     },
                                                     {
                                                         "type": "basic",
