@@ -50,6 +50,7 @@ class UpdateAdSlotItemRequest extends FormRequest
             'sort_order' => ['nullable', 'integer', 'min:0', 'max:999999'],
             'is_active' => ['nullable', 'boolean'],
             'prevent_right_click' => ['nullable', 'boolean'],
+            'open_in_new_tab' => ['nullable', 'boolean'],
             'starts_at' => ['nullable', 'date'],
             'ends_at' => ['nullable', 'date', 'after_or_equal:starts_at'],
         ];
