@@ -22,6 +22,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property int $sort_order
  * @property bool $is_active
  * @property bool $prevent_right_click
+ * @property bool $open_in_new_tab
  * @property \Illuminate\Support\Carbon|null $starts_at
  * @property \Illuminate\Support\Carbon|null $ends_at
  */
@@ -74,6 +75,7 @@ class AdSlotItem extends Model
         'sort_order',
         'is_active',
         'prevent_right_click',
+        'open_in_new_tab',
         'starts_at',
         'ends_at',
     ];
@@ -87,6 +89,7 @@ class AdSlotItem extends Model
             'sort_order' => 'integer',
             'is_active' => 'boolean',
             'prevent_right_click' => 'boolean',
+            'open_in_new_tab' => 'boolean',
             'starts_at' => 'datetime',
             'ends_at' => 'datetime',
         ];

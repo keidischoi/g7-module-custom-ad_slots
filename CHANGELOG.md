@@ -1,0 +1,16 @@
+# Changelog
+
+이 프로젝트의 모든 주요 변경사항을 기록합니다.
+형식은 [Keep a Changelog](https://keepachangelog.com/ko/1.1.0/)를 따르며,
+[Semantic Versioning](https://semver.org/lang/ko/)을 준수합니다.
+
+## [1.1.18] - 2026-09-08
+
+### Added
+
+- 광고별 `open_in_new_tab` 플래그(기본값 `true`, 기존 `_blank` 동작 유지). 관리자 폼 「새 창에서 열기」 체크박스와 placements API(`open_in_new_tab`)에 포함됩니다.
+
+### Changed
+
+- 관리자 목록 활성/비활성 뱃지·「활성」 토글 버튼 색상을 서로 바꿨습니다(활성=빨강/흰글씨, 비활성=초록/검정글씨).
+- 관리자 목록 우측 액션 버튼 순서를 복제 → 활성 → 수정 → 삭제로 변경했습니다.
