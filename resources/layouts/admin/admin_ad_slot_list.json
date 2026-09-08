@@ -1,5 +1,5 @@
 {
-    "version": "1.0.9",
+    "version": "1.0.10",
     "meta": {
         "title": "$t:custom-ad_slots.admin.ads.index.title",
         "description": "$t:custom-ad_slots.admin.ads.index.description"
@@ -217,7 +217,7 @@
                                                                 "name": "Span",
                                                                 "if": "{{!ad.is_active}}",
                                                                 "props": {
-                                                                    "className": "inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-500 text-black"
+                                                                    "className": "inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-500 text-white"
                                                                 },
                                                                 "text": "비활성"
                                                             }
@@ -381,7 +381,7 @@
                                                         "name": "Button",
                                                         "props": {
                                                             "type": "button",
-                                                            "className": "px-3 py-1.5 text-sm font-medium rounded-md bg-red-500 text-black hover:bg-red-600"
+                                                            "className": "px-3 py-1.5 text-sm font-medium rounded-md bg-red-500 text-white hover:bg-red-600"
                                                         },
                                                         "actions": [
                                                             {
