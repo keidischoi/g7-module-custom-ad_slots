@@ -4,6 +4,17 @@
 형식은 [Keep a Changelog](https://keepachangelog.com/ko/1.1.0/)를 따르며,
 [Semantic Versioning](https://semver.org/lang/ko/)을 준수합니다.
 
+## [1.2.6] - 2026-09-10
+
+### Fixed
+
+- **Page ads via `_user_base` path-routed mounts (fixes main-only):** always-on `#cas_page_top_mount` / `#cas_page_bottom_mount` (`data-cas-ad-role`) on `_user_base` so every page has DOM mounts. `hero-carousel.js` `resolvePageSlots()` maps `location.pathname` → slot keys (home/shop/board/mypage); checkout/order URLs hide page mounts. SPA nav (popstate + history patch + interval + MutationObserver) re-resolves and rebuilds when path/slot changes.
+- Event Hook per-page `slots.content[0]` injection remains optional backup (`INJECT_PAGE_MOUNTS_BACKUP=false` by default to avoid duplicates); **home.mid** still inserted between home rows.
+
+### Changed
+
+- Primary page ad delivery no longer depends on Event Hook mount injection succeeding.
+
 ## [1.2.5] - 2026-09-10
 
 ### Fixed

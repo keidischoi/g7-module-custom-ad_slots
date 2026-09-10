@@ -7,7 +7,7 @@
 | identifier | `custom-ad_slots` |
 | Namespace | `Modules\Custom\AdSlots` |
 | Composer | `modules/custom-ad_slots` |
-| 버전 | `1.2.5` |
+| 버전 | `1.2.6` |
 
 ## 슬롯 키
 
@@ -34,24 +34,23 @@
 
 
 
-## 공식 테마 광고 주입 (v1.2.5 · Event Hook mounts + `_user_base` global)
+## 공식 테마 광고 주입 (v1.2.6 · `_user_base` path-routed mounts)
 
-테마 파일을 수정하지 않습니다. **페이지별 마운트는 Event Hook**이 `main_content` 또는 `slots.content[0]` 자식에 빈 Div를 넣습니다(공식 shop/board/mypage에는 overlay용 `main_content`가 없음).
+테마 파일을 수정하지 않습니다. **페이지 광고는 `_user_base`에 고정된 마운트**(`cas_page_top_mount` / `cas_page_bottom_mount`)를 `hero-carousel.js`가 **URL 경로로 슬롯 키를 선택**해 채웁니다(Event Hook content 주입 실패와 무관하게 모든 페이지에서 DOM에 존재).
 
 | 슬롯 | 방식 | 앵커 |
 |------|------|------|
 | `global.top` / `global.bottom` | overlay `ad_global__user_base.json` (always-on) | `_user_base` → `main_content_area` / `footer` + script |
-| `home.top` / `home.bottom` / `home.mid` | Event Hook | content tree prepend/append; mid = 1행·2행 사이 |
-| `shop.list.*` / `shop.detail.*` / `shop.cart.*` | Event Hook | `shop/index`·`shop/show`·`shop/cart` content tree |
-| `board.popular.*` / `board.index.*` / `board.show.*` / `board.form.*` / `board.boards.*` | Event Hook | 해당 board 레이아웃 content tree |
-| `mypage.top` / `mypage.bottom` | Event Hook | `mypage` 및 `mypage/*` (문의·주문 등 포함) |
+| `home.top` / `home.bottom` / shop.* / board.* / mypage.* | `_user_base` path-routed mounts + JS | `#cas_page_top_mount` / `#cas_page_bottom_mount` (`data-cas-ad-role`) |
+| `home.mid` | Event Hook | 홈 1행·2행 사이 |
 
-**제외(주입 안 함):** `shop/checkout`, `checkout`, `order_complete`, `guest_order_show`, 이름에 `checkout` 포함 레이아웃 — 결제 화면 공백 방지.
+**제외(페이지 마운트 숨김):** checkout / order_complete / guest_order URL·레이아웃 — 결제 화면 공백 방지.
 
-확장 파일: `resources/extensions/ad_global__user_base.json` (+ page overlays는 data_sources only)  
-리스너: `src/Listeners/AdPlacementLayoutListener.php`
+확장 파일: `resources/extensions/ad_global__user_base.json`  
+리스너: `src/Listeners/AdPlacementLayoutListener.php` (`home.mid` + optional backup mounts)  
+스크립트: `resources/assets/hero-carousel.js` (`resolvePageSlots()`)
 
-**모든 슬롯**: 레이아웃은 `data-cas-ad-slot` **마운트만** 두고, `hero-carousel.js`가 placements API로 렌더. 빈 슬롯은 마운트만 `display:none`(페이지 콘텐츠는 건드리지 않음). `home.top`/`global.top`=캐러셀, 나머지=스택 배너.
+**렌더**: JS가 placements API로 캐러셀(`home.top`/`global.top`) 또는 스택 배너를 마운트 안에 그림. 빈 슬롯은 마운트만 `display:none`.
 
 **제외 UI**: 메뉴/검색/아이콘/홈디자인 등 비광고 UI는 포함하지 않습니다.
 
