@@ -7,7 +7,7 @@
 | identifier | `custom-ad_slots` |
 | Namespace | `Modules\Custom\AdSlots` |
 | Composer | `modules/custom-ad_slots` |
-| 버전 | `1.1.4` |
+| 버전 | `1.2.0` |
 
 ## 슬롯 키
 
@@ -22,6 +22,29 @@
 | `shop.detail.top` | 상품 상세 상단 |
 | `shop.cart.top` | 장바구니 상단 |
 | `board.popular.top` | 인기글 상단 |
+
+
+
+## 공식 테마 광고 주입 (v1.2.0 · Layout Extensions + Event Hook)
+
+테마 파일을 수정하지 않습니다. 모듈이 **공식** `gnuboard/g7-template-sirsoft-basic` 앵커에만 광고 UI를 주입합니다.
+
+| 슬롯 | 방식 | 앵커 |
+|------|------|------|
+| `global.top` | overlay `ad_global__user_base.json` | `_user_base` → `main_content_area` `prepend_child` |
+| `global.bottom` | 동일 | `_user_base` → `footer` `prepend` |
+| `home.top` / `home.bottom` | overlay `ad_home.json` | `home` → `main_content` prepend/append_child |
+| `home.mid` | Event Hook `AdPlacementLayoutListener` | 홈 1행·2행 사이 |
+| `shop.list.top` | overlay `ad_shop_list.json` | `shop/index` → `main_content` |
+| `shop.detail.top` | overlay + Event Hook 재배치 | `shop/show` → 뒤로가기 다음 |
+| `shop.cart.top` | overlay `ad_shop_cart.json` | `shop/cart` → `main_content` |
+| `board.popular.top` | overlay `ad_board_popular.json` | `board/popular` → `main_content` |
+
+확장 파일: `resources/extensions/*.json`  
+Partials: `resources/layouts/partials/ads/*`  
+리스너: `src/Listeners/AdPlacementLayoutListener.php`
+
+**제외**: 메뉴/검색/아이콘/홈디자인 등 비광고 UI는 포함하지 않습니다.
 
 ## 공개 API
 
@@ -206,6 +229,10 @@ src/routes/api.php
 resources/routes/admin.json
 resources/layouts/admin/admin_ad_slot_{list,form}.json
 resources/layouts/partials/_ad_slot.json
+resources/layouts/partials/ads/{_banner_list,_hero_carousel,_hero_carousel_global}.json
+resources/extensions/ad_*.json
+src/Listeners/AdPlacementLayoutListener.php
+src/Support/AdPlacementFragments.php
 resources/lang/{ko,en}.json
 src/lang/{ko,en}/messages.php
 ```

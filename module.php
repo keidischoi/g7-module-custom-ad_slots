@@ -132,4 +132,16 @@ class Module extends AbstractModule
             ],
         ];
     }
+
+    /**
+     * Event Hook listeners (official theme ad placements).
+     *
+     * @return array<int, class-string>
+     */
+    public function getHookListeners(): array
+    {
+        return [
+            \Modules\Custom\AdSlots\Listeners\AdPlacementLayoutListener::class,
+        ];
+    }
 }
