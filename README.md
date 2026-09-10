@@ -7,7 +7,7 @@
 | identifier | `custom-ad_slots` |
 | Namespace | `Modules\Custom\AdSlots` |
 | Composer | `modules/custom-ad_slots` |
-| 버전 | `1.2.1` |
+| 버전 | `1.2.3` |
 
 ## 슬롯 키
 
@@ -29,7 +29,7 @@
 
 
 
-## 공식 테마 광고 주입 (v1.2.1 · Layout Extensions + Event Hook)
+## 공식 테마 광고 주입 (v1.2.3 · Layout Extensions + Event Hook)
 
 테마 파일을 수정하지 않습니다. 모듈이 **공식** `gnuboard/g7-template-sirsoft-basic` 앵커에만 광고 UI를 주입합니다.
 

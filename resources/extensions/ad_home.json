@@ -94,7 +94,7 @@
           "name": "Div",
           "if": "{{((ad_home_top.data ?? ad_home_top ?? []).length > 0)}}",
           "props": {
-            "className": "relative w-full overflow-hidden rounded-xl mb-4",
+            "className": "relative w-full overflow-hidden rounded-xl mb-4 cas-hero",
             "data-cas-hero": "1",
             "role": "region",
             "aria-roledescription": "carousel",
