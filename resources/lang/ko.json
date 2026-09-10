@@ -59,13 +59,16 @@
         },
         "shop": {
             "list": {
-                "top": "쇼핑몰 목록 상단"
+                "top": "쇼핑몰 목록 상단",
+                "bottom": "쇼핑몰 목록 하단"
             },
             "detail": {
-                "top": "상품 상세 상단"
+                "top": "상품 상세 상단",
+                "bottom": "상품 상세 하단"
             },
             "cart": {
-                "top": "장바구니 상단"
+                "top": "장바구니 상단",
+                "bottom": "장바구니 하단"
             }
         },
         "home.top": "홈 상단",
@@ -76,7 +79,8 @@
         "shop.cart.top": "장바구니 상단",
         "board": {
             "popular": {
-                "top": "인기글 상단"
+                "top": "인기글 상단",
+                "bottom": "인기글 하단"
             }
         },
         "board.popular.top": "인기글 상단",
@@ -85,6 +89,10 @@
             "bottom": "전체 · 하단"
         },
         "global.top": "전체 · 상단",
-        "global.bottom": "전체 · 하단"
+        "global.bottom": "전체 · 하단",
+        "shop.list.bottom": "쇼핑몰 목록 하단",
+        "shop.detail.bottom": "상품 상세 하단",
+        "shop.cart.bottom": "장바구니 하단",
+        "board.popular.bottom": "인기글 하단"
     }
 }

@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use Modules\Custom\AdSlots\Http\Controllers\Admin\AdSlotItemController;
+use Modules\Custom\AdSlots\Http\Controllers\Public\AssetController;
 use Modules\Custom\AdSlots\Http\Controllers\Public\PlacementController;
 
 /*
@@ -52,3 +53,8 @@ Route::prefix('admin/ads')
             ->middleware('permission:admin,custom-ad_slots.ads.delete')
             ->name('destroy');
     });
+
+Route::get('assets/{file}', [AssetController::class, 'show'])
+    ->where('file', 'hero-carousel\\.js')
+    ->middleware(['throttle:600,1'])
+    ->name('assets.show');

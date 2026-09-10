@@ -201,16 +201,32 @@
                                                     "value": "shop.list.top"
                                                 },
                                                 {
+                                                    "label": "$t:custom-ad_slots.slots.shop.list.bottom",
+                                                    "value": "shop.list.bottom"
+                                                },
+                                                {
                                                     "label": "$t:custom-ad_slots.slots.shop.detail.top",
                                                     "value": "shop.detail.top"
+                                                },
+                                                {
+                                                    "label": "$t:custom-ad_slots.slots.shop.detail.bottom",
+                                                    "value": "shop.detail.bottom"
                                                 },
                                                 {
                                                     "label": "$t:custom-ad_slots.slots.shop.cart.top",
                                                     "value": "shop.cart.top"
                                                 },
                                                 {
+                                                    "label": "$t:custom-ad_slots.slots.shop.cart.bottom",
+                                                    "value": "shop.cart.bottom"
+                                                },
+                                                {
                                                     "label": "$t:custom-ad_slots.slots.board.popular.top",
                                                     "value": "board.popular.top"
+                                                },
+                                                {
+                                                    "label": "$t:custom-ad_slots.slots.board.popular.bottom",
+                                                    "value": "board.popular.bottom"
                                                 }
                                             ]
                                         },
