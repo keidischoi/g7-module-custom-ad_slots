@@ -10,12 +10,13 @@ use Modules\Custom\AdSlots\Support\AdPlacementFragments;
  *
  * Home / global (unchanged from 1.2.8):
  *  - `home.top` / `home.bottom` via `_user_base` path mounts (`cas_page_*`) + JS
- *  - `global.top` / `global.bottom` on `_user_base` overlay
+ *  - `global.top` / `global.bottom` on `_user_base` overlay (`ad_global__user_base`)
  *  - `home.mid` inserted between official home row1 and row2 (API mount)
  *
- * Non-home (v1.2.9): shop / board / mypage get feat-style **native** banner
- * stacks (data_source + if + iteration + inlined `_banner_list`) injected into
- * the page content tree — path JS alone is unreliable for those URLs.
+ * Non-home (v1.3.0): shop / board / mypage empty Div mounts live on
+ * `_user_base` overlay `ad_page_slots__user_base.json` (path `if` only,
+ * injected into `main_content`). Native content-tree stacks are DISABLED
+ * to avoid duplicate ads.
  *
  * Checkout / order-complete layouts stay excluded.
  * SLOT_KEYS / admin options are unchanged (owned by forms + lang).
@@ -34,8 +35,8 @@ class AdPlacementLayoutListener implements HookListenerInterface
 
     /**
      * Exact layout_name → [topSlot, bottomSlot] (null = skip that side).
-     * home top/bottom are NOT injected here (cas_page path mounts).
-     * shop/board/mypage get native stacks. home.mid handled separately.
+     * Backup / legacy map only — primary non-home mounts are on `_user_base`
+     * (`ad_page_slots__user_base.json`). home.mid handled separately.
      * mypage/* matched by prefix.
      *
      * @var array<string, array{0:?string,1:?string}>
@@ -52,6 +53,14 @@ class AdPlacementLayoutListener implements HookListenerInterface
         'board/form' => ['board.form.top', 'board.form.bottom'],
         'board/boards' => ['board.boards.top', 'board.boards.bottom'],
     ];
+
+    /**
+     * v1.2.9 native feat-style stacks into page content trees.
+     * v1.3.0: keep FALSE — page mounts come from `_user_base` overlay
+     * (`ad_page_slots__user_base.json`). Avoids duplicate ads with those mounts.
+     * home.mid is always attempted regardless of this flag.
+     */
+    private const INJECT_NATIVE_PAGE_STACKS = false;
 
     public static function getSubscribedHooks(): array
     {
@@ -123,9 +132,8 @@ class AdPlacementLayoutListener implements HookListenerInterface
             return $layout;
         }
 
-        // Non-home only: feat-style native stacks into page content.
-        // Home top/bottom stay on cas_page path mounts — do not inject here.
-        if ($name !== self::HOME) {
+        // Optional legacy: native stacks into page content (disabled in 1.3.0).
+        if (self::INJECT_NATIVE_PAGE_STACKS && $name !== self::HOME) {
             $pair = $this->slotsForLayout($name);
             if ($pair !== null) {
                 [$topSlot, $bottomSlot] = $pair;
@@ -143,7 +151,7 @@ class AdPlacementLayoutListener implements HookListenerInterface
             $layout = $this->insertHomeMid($layout);
         }
 
-        if ($name === self::SHOP_SHOW) {
+        if (self::INJECT_NATIVE_PAGE_STACKS && $name === self::SHOP_SHOW) {
             $layout = $this->repositionShopDetailTop($layout);
         }
 

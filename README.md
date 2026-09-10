@@ -7,7 +7,7 @@
 | identifier | `custom-ad_slots` |
 | Namespace | `Modules\Custom\AdSlots` |
 | Composer | `modules/custom-ad_slots` |
-| 버전 | `1.2.9` |
+| 버전 | `1.3.0` |
 
 ## 슬롯 키
 
@@ -34,24 +34,24 @@
 
 
 
-## 공식 테마 광고 주입 (v1.2.9 · home/global path mounts + non-home native stacks)
+## 공식 테마 광고 주입 (v1.3.0 · hooks/extensions only)
 
-테마 파일을 수정하지 않습니다.
+테마 파일을 수정하지 않습니다. 홈과 같은 `_user_base` 훅으로 페이지별 슬롯 마운트를 추가합니다.
 
 | 슬롯 | 방식 | 앵커 |
 |------|------|------|
 | `global.top` / `global.bottom` | overlay `ad_global__user_base.json` (always-on JS mounts) | `_user_base` → `main_content_area` / `footer` + script |
 | `home.top` / `home.bottom` | `_user_base` path-routed mounts + JS | `#cas_page_top_mount` / `#cas_page_bottom_mount` |
-| shop.* / board.* / mypage.* | Event Hook **native** stacks (`if` + `iteration` + inlined `_banner_list`) | 각 페이지 `slots.content` 상·하단 |
+| shop.* / board.* / mypage.* | overlay `ad_page_slots__user_base.json` (path `if` empty Div + JS) | `_user_base` → `main_content` prepend/append |
 | `home.mid` | Event Hook API mount | 홈 1행·2행 사이 |
 
-**제외:** checkout / order_complete / guest_order URL·레이아웃 — 결제 화면 공백 방지. **홈/글로벌 구조는 1.2.8과 동일** (`ad_global__user_base.json` 미변경).
+**제외:** checkout / order_complete / guest_order URL·레이아웃 — 결제 화면 공백 방지. **`ad_global__user_base.json` 미변경** (global + cas_page 구조 유지).
 
-확장 파일: `resources/extensions/ad_global__user_base.json` (+ per-page DS: `ad_shop_*`, `ad_board_popular`, `ad_home`)  
-리스너: `src/Listeners/AdPlacementLayoutListener.php` (`nativeStackWrap` for non-home; home.mid)  
-스크립트: `resources/assets/hero-carousel.js` (home/global + optional shopBase; skips native wrap ids)
+확장 파일: `ad_global__user_base.json` (pri 80) + **`ad_page_slots__user_base.json` (pri 81)** (+ per-page DS stubs)  
+리스너: `AdPlacementLayoutListener` — **native stacks OFF**; `home.mid` only  
+스크립트: `hero-carousel.js` — fills `[data-cas-ad-slot]`; hides empty; skips `cas_page` when dedicated page mounts exist
 
-**렌더**: 홈/글로벌 히어로·스택은 JS; 비홈 페이지는 레이아웃 엔진이 네이티브 배너 스택을 그림.
+**렌더**: 모든 공개 슬롯은 JS API mounts (empty Div → fetch placements → carousel/stack). 빈 마운트는 `display:none`.
 
 **제외 UI**: 메뉴/검색/아이콘/홈디자인 등 비광고 UI는 포함하지 않습니다.
 
