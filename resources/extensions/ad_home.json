@@ -89,26 +89,18 @@
       "components": [
         {
           "id": "ad_home_top_wrap",
-          "comment": "=== Ad slot: home.top — mount placeholder; hero-carousel.js builds carousel from placements API (full items, like AdHeroCarousel) ===",
+          "comment": "=== Ad slot: home.top — API mount; hero-carousel.js carousel ===",
           "type": "basic",
           "name": "Div",
-          "if": "{{((ad_home_top.data ?? ad_home_top ?? []).length > 0)}}",
           "props": {
-            "className": "relative w-full overflow-hidden rounded-xl mb-4 cas-hero",
+            "className": "relative w-full overflow-hidden rounded-xl mb-4",
+            "data-cas-ad-slot": "home.top",
+            "id": "ad_home_top_wrap",
             "data-cas-hero": "1",
-            "data-cas-hero-slot": "home.top",
-            "aria-hidden": "true"
+            "data-cas-hero-slot": "home.top"
           },
-          "children": [
-            {
-              "type": "basic",
-              "name": "Div",
-              "props": {
-                "className": "sr-only"
-              },
-              "children": []
-            }
-          ]
+          "children": [],
+          "if": "{{((ad_home_top.data ?? ad_home_top ?? []).length > 0)}}"
         }
       ]
     },
@@ -118,209 +110,18 @@
       "components": [
         {
           "id": "ad_home_bottom_wrap",
-          "comment": "=== Ad slot: home.bottom (마지막 행 이후) ===",
+          "comment": "=== Ad slot: home.bottom — API mount; stacked banners ===",
           "type": "basic",
           "name": "Div",
-          "if": "{{((ad_home_bottom.data ?? ad_home_bottom ?? []).length > 0)}}",
           "props": {
-            "className": "mt-4 flex flex-col gap-3"
+            "className": "mt-4 flex flex-col gap-3",
+            "data-cas-ad-slot": "home.bottom",
+            "id": "ad_home_bottom_wrap"
           },
-          "iteration": {
-            "source": "{{(ad_home_bottom.data ?? ad_home_bottom ?? [])}}",
-            "item_var": "ad"
-          },
-          "children": [
-            {
-              "type": "basic",
-              "name": "Div",
-              "props": {
-                "className": "w-full overflow-hidden rounded-lg"
-              },
-              "children": [
-                {
-                  "comment": "static: 이미지 배너 (link_url, 새 창) — desktop/mobile/legacy",
-                  "type": "basic",
-                  "name": "A",
-                  "if": "{{(ad.type ?? 'static') === 'static' && (ad.image_desktop ?? ad.image_url_desktop ?? ad.image_url ?? ad.image_mobile ?? ad.image_url_mobile) && ad.link_url && (ad.open_in_new_tab ?? true)}}",
-                  "props": {
-                    "href": "{{ad.link_url}}",
-                    "target": "_blank",
-                    "rel": "noopener noreferrer",
-                    "className": "block w-full",
-                    "title": "{{ad.title ?? ''}}"
-                  },
-                  "children": [
-                    {
-                      "type": "basic",
-                      "name": "Img",
-                      "props": {
-                        "src": "{{ad.image_desktop ?? ad.image_url_desktop ?? ad.image_url}}",
-                        "alt": "{{ad.title ?? 'ad'}}",
-                        "className": "hidden md:block w-full h-auto object-cover rounded-lg",
-                        "preventRightClick": "{{!!ad.prevent_right_click}}",
-                        "draggable": false
-                      }
-                    },
-                    {
-                      "type": "basic",
-                      "name": "Img",
-                      "props": {
-                        "src": "{{ad.image_mobile ?? ad.image_url_mobile ?? ad.image_desktop ?? ad.image_url_desktop ?? ad.image_url}}",
-                        "alt": "{{ad.title ?? 'ad'}}",
-                        "className": "block md:hidden w-full h-auto object-cover rounded-lg",
-                        "preventRightClick": "{{!!ad.prevent_right_click}}",
-                        "draggable": false
-                      }
-                    }
-                  ]
-                },
-                {
-                  "comment": "static: 이미지 배너 (link_url, 현재 창) — desktop/mobile/legacy",
-                  "type": "basic",
-                  "name": "A",
-                  "if": "{{(ad.type ?? 'static') === 'static' && (ad.image_desktop ?? ad.image_url_desktop ?? ad.image_url ?? ad.image_mobile ?? ad.image_url_mobile) && ad.link_url && !(ad.open_in_new_tab ?? true)}}",
-                  "props": {
-                    "href": "{{ad.link_url}}",
-                    "className": "block w-full",
-                    "title": "{{ad.title ?? ''}}"
-                  },
-                  "children": [
-                    {
-                      "type": "basic",
-                      "name": "Img",
-                      "props": {
-                        "src": "{{ad.image_desktop ?? ad.image_url_desktop ?? ad.image_url}}",
-                        "alt": "{{ad.title ?? 'ad'}}",
-                        "className": "hidden md:block w-full h-auto object-cover rounded-lg",
-                        "preventRightClick": "{{!!ad.prevent_right_click}}",
-                        "draggable": false
-                      }
-                    },
-                    {
-                      "type": "basic",
-                      "name": "Img",
-                      "props": {
-                        "src": "{{ad.image_mobile ?? ad.image_url_mobile ?? ad.image_desktop ?? ad.image_url_desktop ?? ad.image_url}}",
-                        "alt": "{{ad.title ?? 'ad'}}",
-                        "className": "block md:hidden w-full h-auto object-cover rounded-lg",
-                        "preventRightClick": "{{!!ad.prevent_right_click}}",
-                        "draggable": false
-                      }
-                    }
-                  ]
-                },
-                {
-                  "comment": "static: 이미지만 (링크 없음)",
-                  "type": "basic",
-                  "name": "Div",
-                  "if": "{{(ad.type ?? 'static') === 'static' && (ad.image_desktop ?? ad.image_url_desktop ?? ad.image_url ?? ad.image_mobile ?? ad.image_url_mobile) && !ad.link_url}}",
-                  "props": {
-                    "className": "w-full"
-                  },
-                  "children": [
-                    {
-                      "type": "basic",
-                      "name": "Img",
-                      "props": {
-                        "src": "{{ad.image_desktop ?? ad.image_url_desktop ?? ad.image_url}}",
-                        "alt": "{{ad.title ?? 'ad'}}",
-                        "className": "hidden md:block w-full h-auto object-cover rounded-lg",
-                        "preventRightClick": "{{!!ad.prevent_right_click}}",
-                        "draggable": false
-                      }
-                    },
-                    {
-                      "type": "basic",
-                      "name": "Img",
-                      "props": {
-                        "src": "{{ad.image_mobile ?? ad.image_url_mobile ?? ad.image_desktop ?? ad.image_url_desktop ?? ad.image_url}}",
-                        "alt": "{{ad.title ?? 'ad'}}",
-                        "className": "block md:hidden w-full h-auto object-cover rounded-lg",
-                        "preventRightClick": "{{!!ad.prevent_right_click}}",
-                        "draggable": false
-                      }
-                    }
-                  ]
-                },
-                {
-                  "comment": "static: 이미지 배너 (link_url, 새 창) — desktop/mobile/legacy",
-                  "type": "basic",
-                  "name": "A",
-                  "if": "{{(ad.type ?? 'static') === 'static' && !(ad.image_desktop ?? ad.image_url_desktop ?? ad.image_url ?? ad.image_mobile ?? ad.image_url_mobile) && ad.link_url && (ad.open_in_new_tab ?? true)}}",
-                  "props": {
-                    "href": "{{ad.link_url}}",
-                    "target": "_blank",
-                    "rel": "noopener noreferrer",
-                    "className": "block w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm font-medium text-gray-800 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700"
-                  },
-                  "children": [
-                    {
-                      "type": "basic",
-                      "name": "Span",
-                      "text": "{{ad.title ?? 'Ad'}}"
-                    }
-                  ]
-                },
-                {
-                  "comment": "static: 이미지 배너 (link_url, 현재 창) — desktop/mobile/legacy",
-                  "type": "basic",
-                  "name": "A",
-                  "if": "{{(ad.type ?? 'static') === 'static' && !(ad.image_desktop ?? ad.image_url_desktop ?? ad.image_url ?? ad.image_mobile ?? ad.image_url_mobile) && ad.link_url && !(ad.open_in_new_tab ?? true)}}",
-                  "props": {
-                    "href": "{{ad.link_url}}",
-                    "className": "block w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm font-medium text-gray-800 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700"
-                  },
-                  "children": [
-                    {
-                      "type": "basic",
-                      "name": "Span",
-                      "text": "{{ad.title ?? 'Ad'}}"
-                    }
-                  ]
-                },
-                {
-                  "comment": "static: 이미지·링크 없이 제목만",
-                  "type": "basic",
-                  "name": "Div",
-                  "if": "{{(ad.type ?? 'static') === 'static' && !(ad.image_desktop ?? ad.image_url_desktop ?? ad.image_url ?? ad.image_mobile ?? ad.image_url_mobile) && !ad.link_url && ad.title}}",
-                  "props": {
-                    "className": "w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-700 dark:text-gray-200"
-                  },
-                  "children": [
-                    {
-                      "type": "basic",
-                      "name": "Span",
-                      "text": "{{ad.title}}"
-                    }
-                  ]
-                },
-                {
-                  "comment": "dynamic: XSS 방지 — raw script/html 미주입. MVP는 제목만 표시",
-                  "type": "basic",
-                  "name": "Div",
-                  "if": "{{ad.type === 'dynamic'}}",
-                  "props": {
-                    "className": "w-full px-4 py-3 bg-gray-100/80 dark:bg-gray-800/80 border border-dashed border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-500 dark:text-gray-400"
-                  },
-                  "children": [
-                    {
-                      "type": "basic",
-                      "name": "Span",
-                      "text": "{{ad.title ?? 'Ad'}}"
-                    }
-                  ]
-                }
-              ]
-            }
-          ]
+          "children": [],
+          "if": "{{((ad_home_bottom.data ?? ad_home_bottom ?? []).length > 0)}}"
         }
       ]
-    }
-  ],
-  "scripts": [
-    {
-      "id": "cas_hero_carousel",
-      "src": "/api/modules/custom-ad_slots/assets/hero-carousel.js"
     }
   ]
 }

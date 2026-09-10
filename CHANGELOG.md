@@ -8,8 +8,10 @@
 
 ### Fixed
 
-- home.top / global.top carousel builds from **placements API** (full slide list), matching feat theme `AdHeroCarousel` `items` prop — DOM scrape of layout iteration was unreliable (G7 often exposes one slide node).
-- Layout mounts (`ad_home_top_wrap`, `ad_global_top_hero`) are placeholders (`data-cas-hero-slot`); carousel host is 100% API-driven. DOM `extractSlides` kept as fetch-failure fallback.
+- **All page top/bottom ad slots** (home / global / shop / board) render from **placements API** into empty `data-cas-ad-slot` mounts — layout iteration no longer paints banners (G7 often flattened or omitted images on non-home pages).
+- `home.top` / `global.top`: Bunjang carousel (full slide list, arrows/dots/autoplay/swipe), matching feat `AdHeroCarousel` `items`.
+- Other slots: stacked banners (desktop/mobile, link, `prevent_right_click`, `open_in_new_tab`) rendered **inside** the mount.
+- Site-wide script load via `_user_base` extension only; `home.mid` Event Hook injects the same mount stub.
 
 ## [1.2.3] - 2026-09-10
 

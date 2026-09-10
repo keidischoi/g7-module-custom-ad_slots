@@ -48,7 +48,7 @@
 Partials: `resources/layouts/partials/ads/*`  
 리스너: `src/Listeners/AdPlacementLayoutListener.php`
 
-**home.top / global.top**: 모듈 JS 히어로 캐러셀 — mount stub + `hero-carousel.js`가 placements API에서 **전체 슬라이드**를 받아 sibling host DOM 구성 (feat `AdHeroCarousel` items와 동일). 공식 테마 AdHeroCarousel 미사용.
+**모든 슬롯**: 레이아웃은 `data-cas-ad-slot` **마운트만** 두고, `hero-carousel.js`( `_user_base`에서 1회 로드)가 placements API로 렌더. `home.top`/`global.top`=캐러셀, 나머지=스택 배너. 공식 테마 AdHeroCarousel 미사용.
 
 **제외**: 메뉴/검색/아이콘/홈디자인 등 비광고 UI는 포함하지 않습니다.
 

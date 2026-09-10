@@ -5,6 +5,9 @@ namespace Modules\Custom\AdSlots\Support;
 /**
  * Module-owned ad partial fragments (ported from feat theme layouts/partials/ads).
  * Used by Event Hook listener so official theme need not ship those files.
+ *
+ * Layout mounts are empty placeholders with data-cas-ad-slot; hero-carousel.js
+ * fetches placements API and renders carousel/stack into the mount.
  */
 final class AdPlacementFragments
 {
@@ -36,9 +39,11 @@ final class AdPlacementFragments
     }
 
     /**
+     * Empty mount Div for API-driven JS render (data-cas-ad-slot).
+     *
      * @return array<string, mixed>
      */
-    public static function iterWrap(string $wrapId, string $comment, string $dsId, string $className): array
+    public static function mountWrap(string $wrapId, string $comment, string $dsId, string $slotKey, string $className): array
     {
         return [
             'id' => $wrapId,
@@ -48,13 +53,33 @@ final class AdPlacementFragments
             'if' => '{{(('.$dsId.'.data ?? '.$dsId.' ?? []).length > 0)}}',
             'props' => [
                 'className' => $className,
+                'id' => $wrapId,
+                'data-cas-ad-slot' => $slotKey,
             ],
-            'iteration' => [
-                'source' => '{{('.$dsId.'.data ?? '.$dsId.' ?? [])}}',
-                'item_var' => 'ad',
-            ],
-            'children' => [self::bannerItem()],
+            'children' => [],
         ];
+    }
+
+    /**
+     * @deprecated Prefer mountWrap(); kept for callers — now emits API mount stub.
+     *
+     * @return array<string, mixed>
+     */
+    public static function iterWrap(string $wrapId, string $comment, string $dsId, string $className): array
+    {
+        $slotKey = self::dsIdToSlot($dsId);
+
+        return self::mountWrap($wrapId, $comment, $dsId, $slotKey, $className);
+    }
+
+    /**
+     * ad_home_mid → home.mid ; ad_shop_detail_top → shop.detail.top
+     */
+    public static function dsIdToSlot(string $dsId): string
+    {
+        $s = preg_replace('/^ad_/', '', $dsId) ?? $dsId;
+
+        return str_replace('_', '.', $s);
     }
 
     /**
