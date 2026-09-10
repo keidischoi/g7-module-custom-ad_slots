@@ -7,7 +7,7 @@
 | identifier | `custom-ad_slots` |
 | Namespace | `Modules\Custom\AdSlots` |
 | Composer | `modules/custom-ad_slots` |
-| 버전 | `1.3.1` |
+| 버전 | `1.3.2` |
 
 ## 슬롯 키
 
@@ -34,7 +34,7 @@
 
 
 
-## 공식 테마 광고 주입 (v1.3.1 · `_user_base` path-routed mounts; restored from 1.2.8)
+## 공식 테마 광고 주입 (v1.3.2 · `_user_base` path-routed mounts; restored from 1.2.8)
 
 테마 파일을 수정하지 않습니다. **페이지 광고는 `_user_base`에 고정된 마운트**(`cas_page_top_mount` / `cas_page_bottom_mount`)를 `hero-carousel.js`가 **URL 경로로 슬롯 키를 선택**해 채웁니다(Event Hook content 주입 실패와 무관하게 모든 페이지에서 DOM에 존재).
 

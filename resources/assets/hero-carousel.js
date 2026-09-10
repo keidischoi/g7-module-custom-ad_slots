@@ -922,13 +922,20 @@
     clearAndHideMount(mount);
   }
 
-  function applyToMount(mount, slotKey, slides) {
+  function applyToMount(mount, slotKey, slides, opts) {
     if (!mount || mount.nodeType !== 1) return;
+    opts = opts || {};
     var role = mount.getAttribute("data-cas-ad-role") || "";
     var isPageRole = role === "page-top" || role === "page-bottom";
-    // Safety: only operate on recognized ad mounts
-    if (!isPageRole) {
-      if (!slotKey || resolveSlotKey(mount) !== slotKey) return;
+    var force = !!opts.force;
+    // Safety: only operate on recognized ad mounts (force = merged page+global host)
+    if (!force) {
+      if (!isPageRole) {
+        if (!slotKey || resolveSlotKey(mount) !== slotKey) return;
+      } else if (!slotKey) {
+        clearAndHideMount(mount);
+        return;
+      }
     } else if (!slotKey) {
       clearAndHideMount(mount);
       return;
@@ -939,7 +946,13 @@
       return;
     }
 
-    var sig = slotKey + "::" + slideSignature(slides);
+    var useCarousel =
+      opts.carousel != null ? !!opts.carousel : !!CAROUSEL_SLOTS[slotKey];
+    var sig =
+      slotKey +
+      "::" +
+      slideSignature(slides) +
+      (useCarousel ? "::c" : "::s");
     if (
       mount.getAttribute("data-cas-ad-sig") === sig &&
       mount.querySelector("[data-cas-ad-host='1']")
@@ -953,17 +966,138 @@
     mount.removeAttribute("aria-hidden");
     mount.style.display = "";
 
-    if (CAROUSEL_SLOTS[slotKey]) {
+    if (useCarousel) {
       buildCarouselInto(mount, slides);
     } else {
       buildStackInto(mount, slides);
     }
   }
 
+  /** Page items first (API sort_order), then global; dedupe by id. */
+  function mergePageThenGlobal(pageItems, globalItems) {
+    var seen = {};
+    var out = [];
+    function add(list) {
+      var arr = Array.isArray(list) ? list : [];
+      for (var i = 0; i < arr.length; i++) {
+        var it = arr[i];
+        if (!it) continue;
+        var id = it.id != null ? String(it.id) : "";
+        if (id) {
+          if (seen[id]) continue;
+          seen[id] = true;
+        }
+        out.push(it);
+      }
+    }
+    add(pageItems);
+    add(globalItems);
+    return out;
+  }
+
+  function slotItemsReady(slotKey) {
+    if (!slotKey) return { ready: true, items: [] };
+    var cached = slotCache[slotKey];
+    if (cached && cached.status === "ok") {
+      return { ready: true, items: cached.items || [] };
+    }
+    if (cached && cached.status === "err") {
+      return { ready: true, items: [] };
+    }
+    return { ready: false, items: [] };
+  }
+
+  function firstMount(list) {
+    return list && list.length ? list[0] : null;
+  }
+
+  function getGlobalTopMount() {
+    return (
+      document.getElementById("ad_global_top_hero") ||
+      document.getElementById("ad_global_top_wrap") ||
+      null
+    );
+  }
+
+  function getGlobalBottomMount() {
+    return (
+      document.getElementById("ad_global_bottom_stack") ||
+      document.getElementById("ad_global_bottom_wrap") ||
+      null
+    );
+  }
+
+  /**
+   * Choose one host for top/bottom when page + global both may have items.
+   * Prefer page mount when page has items (or when both); global mount when
+   * only global has items. Hide/clear the duplicate mount.
+   */
+  function applyMergedPosition(kind, pageSlotKey, pageItems, globalItems, pageMount, globalMount) {
+    var pageHas = !!(pageItems && pageItems.length);
+    var globalHas = !!(globalItems && globalItems.length);
+    var merged = mergePageThenGlobal(pageItems, globalItems);
+
+    if (!merged.length) {
+      if (pageMount) clearAndHideMount(pageMount);
+      if (globalMount) clearAndHideMount(globalMount);
+      return;
+    }
+
+    var host = null;
+    var other = null;
+    if (pageHas && !globalHas) {
+      // page only → page mount; hide global duplicate
+      host = pageMount || globalMount;
+      other = pageMount && globalMount ? globalMount : null;
+    } else if (globalHas && !pageHas) {
+      // global only → global mount; hide empty page mount
+      host = globalMount || pageMount;
+      other = pageMount && globalMount ? pageMount : null;
+    } else {
+      // both → prefer cas_page_* mount; hide the other
+      host = pageMount || globalMount;
+      other = pageMount && globalMount ? globalMount : null;
+    }
+
+    if (!host) return;
+
+    var sigKey;
+    var useCarousel;
+    if (kind === "top") {
+      // Merged top always carousel; single-side keeps CAROUSEL_SLOTS behavior
+      if (pageHas && globalHas) {
+        sigKey =
+          (pageSlotKey || "page.top") + "+global.top";
+        useCarousel = true;
+      } else if (pageHas) {
+        sigKey = pageSlotKey || "page.top";
+        useCarousel = !!CAROUSEL_SLOTS[sigKey];
+      } else {
+        sigKey = "global.top";
+        useCarousel = true;
+      }
+    } else {
+      if (pageHas && globalHas) {
+        sigKey =
+          (pageSlotKey || "page.bottom") + "+global.bottom";
+      } else if (pageHas) {
+        sigKey = pageSlotKey || "page.bottom";
+      } else {
+        sigKey = "global.bottom";
+      }
+      useCarousel = false;
+    }
+
+    applyToMount(host, sigKey, merged, { force: true, carousel: useCarousel });
+    if (other && other !== host) clearAndHideMount(other);
+  }
+
   function enhanceMount(mount) {
     if (!mount || mount.nodeType !== 1) return;
     var slotKey = resolveSlotKey(mount);
     if (!slotKey) return;
+    // global.top / global.bottom coordinated with page mounts in runPageMounts
+    if (slotKey === "global.top" || slotKey === "global.bottom") return;
 
     var cached = slotCache[slotKey];
     if (cached && cached.status === "ok") {
@@ -1016,31 +1150,104 @@
 
     var tops = findPageRoleMounts("page-top");
     var bottoms = findPageRoleMounts("page-bottom");
+    var pageTopMount = firstMount(tops);
+    var pageBottomMount = firstMount(bottoms);
+    var globalTopMount = getGlobalTopMount();
+    var globalBottomMount = getGlobalBottomMount();
 
-    if (resolved.excluded || (!resolved.top && !resolved.bottom)) {
+    // Extra page-role mounts (if any) always cleared — single host only
+    for (var xi = 1; xi < tops.length; xi++) clearAndHideMount(tops[xi]);
+    for (var xj = 1; xj < bottoms.length; xj++) clearAndHideMount(bottoms[xj]);
+
+    // Checkout / excluded: hide page mounts only; global still via enhanceGlobalMounts
+    if (resolved.excluded) {
       for (var i = 0; i < tops.length; i++) clearAndHideMount(tops[i]);
       for (var j = 0; j < bottoms.length; j++) clearAndHideMount(bottoms[j]);
       lastPageSig = pageSig;
+      enhanceGlobalOnly(globalTopMount, globalBottomMount);
       return;
     }
 
-    // If path/slot pair changed, force rebuild (clear old sig)
     if (pageSig !== lastPageSig) {
-      for (var t = 0; t < tops.length; t++) {
-        tops[t].removeAttribute("data-cas-ad-sig");
-      }
-      for (var b = 0; b < bottoms.length; b++) {
-        bottoms[b].removeAttribute("data-cas-ad-sig");
-      }
+      if (pageTopMount) pageTopMount.removeAttribute("data-cas-ad-sig");
+      if (pageBottomMount) pageBottomMount.removeAttribute("data-cas-ad-sig");
+      if (globalTopMount) globalTopMount.removeAttribute("data-cas-ad-sig");
+      if (globalBottomMount) globalBottomMount.removeAttribute("data-cas-ad-sig");
       lastPageSig = pageSig;
     }
 
-    for (var ti = 0; ti < tops.length; ti++) {
-      fillPageRoleMount(tops[ti], resolved.top);
+    var needFetch = [];
+    if (resolved.top) needFetch.push(resolved.top);
+    if (resolved.bottom) needFetch.push(resolved.bottom);
+    needFetch.push("global.top");
+    needFetch.push("global.bottom");
+
+    var pending = false;
+    for (var fi = 0; fi < needFetch.length; fi++) {
+      var sk = needFetch[fi];
+      var st = slotItemsReady(sk);
+      if (!st.ready) {
+        pending = true;
+        fetchSlot(sk).then(function () {
+          schedule();
+        });
+      }
     }
-    for (var bi = 0; bi < bottoms.length; bi++) {
-      fillPageRoleMount(bottoms[bi], resolved.bottom);
+    if (pending) return;
+
+    var pageTop = resolved.top
+      ? slotItemsReady(resolved.top).items
+      : [];
+    var pageBottom = resolved.bottom
+      ? slotItemsReady(resolved.bottom).items
+      : [];
+    var globalTop = slotItemsReady("global.top").items;
+    var globalBottom = slotItemsReady("global.bottom").items;
+
+    // No page slot keys on this path → page mounts off; global alone
+    if (!resolved.top && !resolved.bottom) {
+      if (pageTopMount) clearAndHideMount(pageTopMount);
+      if (pageBottomMount) clearAndHideMount(pageBottomMount);
+      enhanceGlobalOnly(globalTopMount, globalBottomMount);
+      return;
     }
+
+    applyMergedPosition(
+      "top",
+      resolved.top,
+      pageTop,
+      globalTop,
+      pageTopMount,
+      globalTopMount
+    );
+    applyMergedPosition(
+      "bottom",
+      resolved.bottom,
+      pageBottom,
+      globalBottom,
+      pageBottomMount,
+      globalBottomMount
+    );
+  }
+
+  function enhanceGlobalOnly(globalTopMount, globalBottomMount) {
+    function fillGlobal(mount, slotKey) {
+      if (!mount) return;
+      var st = slotItemsReady(slotKey);
+      if (!st.ready) {
+        fetchSlot(slotKey).then(function () {
+          schedule();
+        });
+        return;
+      }
+      if (!st.items.length) {
+        clearAndHideMount(mount);
+        return;
+      }
+      applyToMount(mount, slotKey, st.items);
+    }
+    fillGlobal(globalTopMount, "global.top");
+    fillGlobal(globalBottomMount, "global.bottom");
   }
 
   function run() {

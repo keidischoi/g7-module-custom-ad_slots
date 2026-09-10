@@ -4,6 +4,28 @@
 형식은 [Keep a Changelog](https://keepachangelog.com/ko/1.1.0/)를 따르며,
 [Semantic Versioning](https://semver.org/lang/ko/)을 준수합니다.
 
+## [1.3.2] - 2026-09-10
+
+### Changed
+
+- **Merge page + global top/bottom into one host** (`hero-carousel.js`): when the current path has a page slot (`home.top` / `shop.*.top` / `board.*.top` / `mypage.top`, matching bottoms) **and** `global.top` / `global.bottom` also have items, render **one carousel (top)** / **one stack (bottom)** instead of two separate mounts.
+- **Dedupe** merged items by ad `id`; order is **page-slot items first** (API `sort_order`), then global items.
+- **Host preference:** prefer `cas_page_top_mount` / `cas_page_bottom_mount` when both sides have items (or page-only); use `ad_global_top_hero` / `ad_global_bottom_stack` when only global has items. The unused mount is cleared/hidden so banners are not shown twice.
+- **Single-side unchanged:** page-only or global-only keeps prior mount + carousel/stack rules (`home.top` / `global.top` carousel). Merged top always uses carousel.
+- **Checkout / excluded pages:** page mounts still cleared; global mounts continue to show when they have items (unchanged).
+
+### Unchanged
+
+- No theme edits; `ad_global__user_base.json` untouched. Home ads (`home.top` / `home.bottom`) still work via the same page mounts.
+
+### Install
+
+```
+php82 artisan module:update custom-ad_slots --source=bundled --force --layout-strategy=overwrite
+php82 artisan hooks:clear
+php82 artisan cache:clear
+```
+
 ## [1.3.1] - 2026-09-10
 
 ### Fixed
