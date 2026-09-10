@@ -1,4 +1,4 @@
-/*! custom-ad_slots — API mounts (carousel + stacks) + path-routed home/global; _user_base page slot mounts (v1.3.0) */
+/*! custom-ad_slots — API-driven ad mounts (carousel + stacked banners) + path-routed page mounts */
 (function () {
   if (window.__casAdRenderInstalled) return;
   window.__casAdRenderInstalled = true;
@@ -48,40 +48,6 @@
    * Liberal heuristics for gnuboard G7 sirsoft-basic URLs.
    * @returns {{ top: ?string, bottom: ?string, excluded: boolean, path: string }}
    */
-  function readShopBase() {
-    try {
-      var st = window.G7Core && window.G7Core.state;
-      if (st && typeof st.shopBase === "string" && st.shopBase) {
-        return normalizePathname(st.shopBase);
-      }
-      if (st && st._global && typeof st._global.shopBase === "string" && st._global.shopBase) {
-        return normalizePathname(st._global.shopBase);
-      }
-    } catch (e) {}
-    try {
-      var g = window._global;
-      if (g && typeof g.shopBase === "string" && g.shopBase) {
-        return normalizePathname(g.shopBase);
-      }
-    } catch (e2) {}
-    return "";
-  }
-
-  /** Strip configured shopBase prefix for shop URL matching only. */
-  function pathWithoutShopBase(pathname, shopBase) {
-    if (!shopBase || shopBase === "/") return pathname;
-    var p = String(pathname || "/");
-    var sb = String(shopBase);
-    var pl = p.toLowerCase();
-    var sbl = sb.toLowerCase();
-    if (pl === sbl) return "/";
-    if (pl.indexOf(sbl + "/") === 0) {
-      var rest = p.slice(sb.length);
-      return rest && rest.charAt(0) === "/" ? rest : "/" + rest;
-    }
-    return pathname;
-  }
-
   function resolvePageSlots() {
     var path = normalizePathname(location.pathname || "/");
     var lower = path.toLowerCase();
@@ -150,15 +116,10 @@
       return { top: null, bottom: null, excluded: true, path: path };
     }
 
-    // Home — keep on original path (do not apply shopBase strip here)
+    // Home
     if (lower === "/" || lower === "/home" || lower === "/index" || lower === "/main") {
       return { top: "home.top", bottom: "home.bottom", excluded: false, path: path };
     }
-
-    // Shop URL matching may need shopBase strip (secondary hardening)
-    var shopBase = readShopBase();
-    var shopPath = pathWithoutShopBase(path, shopBase);
-    var shopLower = shopPath.toLowerCase();
 
     // Mypage (all)
     if (lower === "/mypage" || lower.indexOf("/mypage/") === 0) {
@@ -204,11 +165,11 @@
       return { top: "board.index.top", bottom: "board.index.bottom", excluded: false, path: path };
     }
 
-    // Shop cart (match shopLower so /{shopBase}/cart works)
+    // Shop cart
     if (
-      /\/shop\/cart(\/|$)/i.test(shopLower) ||
-      shopLower === "/cart" ||
-      shopLower.indexOf("/cart/") === 0
+      /\/shop\/cart(\/|$)/i.test(lower) ||
+      lower === "/cart" ||
+      lower.indexOf("/cart/") === 0
     ) {
       // avoid mypage already handled; plain /cart under shopBase '' edge case
       if (lower.indexOf("/mypage") !== 0) {
@@ -218,30 +179,30 @@
 
     // Shop list: /shop, /shop/products, /shop/category/*, /products (no_route)
     if (
-      shopLower === "/shop" ||
-      shopLower === "/shop/products" ||
-      shopLower.indexOf("/shop/products?") === 0 ||
-      /^\/shop\/category(\/|$)/i.test(shopLower) ||
-      shopLower === "/products" ||
-      /^\/category(\/|$)/i.test(shopLower)
+      lower === "/shop" ||
+      lower === "/shop/products" ||
+      lower.indexOf("/shop/products?") === 0 ||
+      /^\/shop\/category(\/|$)/i.test(lower) ||
+      lower === "/products" ||
+      /^\/category(\/|$)/i.test(lower)
     ) {
       return { top: "shop.list.top", bottom: "shop.list.bottom", excluded: false, path: path };
     }
 
     // Shop detail: /shop/products/{code}, /products/{code} — not cart/checkout
     if (
-      /^\/shop\/products\/[^/]+/i.test(shopLower) ||
-      /^\/products\/[^/]+/i.test(shopLower) ||
-      /^\/shop\/[^/]+$/i.test(shopLower)
+      /^\/shop\/products\/[^/]+/i.test(lower) ||
+      /^\/products\/[^/]+/i.test(lower) ||
+      /^\/shop\/[^/]+$/i.test(lower)
     ) {
       // /shop/cart already handled; /shop/checkout excluded
-      if (!/^\/shop\/(cart|checkout|orders|guest|category|products)$/i.test(shopLower)) {
+      if (!/^\/shop\/(cart|checkout|orders|guest|category|products)$/i.test(lower)) {
         return { top: "shop.detail.top", bottom: "shop.detail.bottom", excluded: false, path: path };
       }
     }
 
     // Fallback: /shop/* remaining → detail-ish (liberal)
-    if (shopLower.indexOf("/shop/") === 0) {
+    if (lower.indexOf("/shop/") === 0) {
       return { top: "shop.detail.top", bottom: "shop.detail.bottom", excluded: false, path: path };
     }
 
@@ -283,24 +244,6 @@
       ad_board_boards_bottom_wrap: "board.boards.bottom",
       ad_mypage_top_wrap: "mypage.top",
       ad_mypage_bottom_wrap: "mypage.bottom",
-      ad_shop_list_top_mount: "shop.list.top",
-      ad_shop_list_bottom_mount: "shop.list.bottom",
-      ad_shop_detail_top_mount: "shop.detail.top",
-      ad_shop_detail_bottom_mount: "shop.detail.bottom",
-      ad_shop_cart_top_mount: "shop.cart.top",
-      ad_shop_cart_bottom_mount: "shop.cart.bottom",
-      ad_board_popular_top_mount: "board.popular.top",
-      ad_board_popular_bottom_mount: "board.popular.bottom",
-      ad_board_index_top_mount: "board.index.top",
-      ad_board_index_bottom_mount: "board.index.bottom",
-      ad_board_show_top_mount: "board.show.top",
-      ad_board_show_bottom_mount: "board.show.bottom",
-      ad_board_form_top_mount: "board.form.top",
-      ad_board_form_bottom_mount: "board.form.bottom",
-      ad_board_boards_top_mount: "board.boards.top",
-      ad_board_boards_bottom_mount: "board.boards.bottom",
-      ad_mypage_top_mount: "mypage.top",
-      ad_mypage_bottom_mount: "mypage.bottom",
     };
     return map[id] || null;
   }
@@ -346,35 +289,10 @@
       "ad_board_boards_bottom_wrap",
       "ad_mypage_top_wrap",
       "ad_mypage_bottom_wrap",
-      "ad_shop_list_top_mount",
-      "ad_shop_list_bottom_mount",
-      "ad_shop_detail_top_mount",
-      "ad_shop_detail_bottom_mount",
-      "ad_shop_cart_top_mount",
-      "ad_shop_cart_bottom_mount",
-      "ad_board_popular_top_mount",
-      "ad_board_popular_bottom_mount",
-      "ad_board_index_top_mount",
-      "ad_board_index_bottom_mount",
-      "ad_board_show_top_mount",
-      "ad_board_show_bottom_mount",
-      "ad_board_form_top_mount",
-      "ad_board_form_bottom_mount",
-      "ad_board_boards_top_mount",
-      "ad_board_boards_bottom_mount",
-      "ad_mypage_top_mount",
-      "ad_mypage_bottom_mount",
     ];
     for (var i = 0; i < ids.length; i++) {
       var el = document.getElementById(ids[i]);
-      // Legacy native stacks may reuse wrap ids without data-cas-ad-slot —
-      // do not claim them or JS would wipe layout-rendered banners.
-      if (
-        el &&
-        (el.getAttribute("data-cas-ad-slot") || el.getAttribute("data-cas-hero-slot"))
-      ) {
-        add(el);
-      }
+      if (el) add(el);
     }
 
     // Prefer innermost mount when both wrap + hero exist
@@ -1085,31 +1003,6 @@
     });
   }
 
-  /**
-   * Skip cas_page role fill when a dedicated page mount already owns the slot
-   * (v1.3.0 `_user_base` path mounts) or a legacy native stack wrap is present.
-   * Home stays on cas_page — dedicated mounts intentionally omit home.*.
-   */
-  function hasDedicatedPageMount(slotKey) {
-    if (!slotKey) return false;
-    if (slotKey === "home.top" || slotKey === "home.bottom") return false;
-    try {
-      var sel = '[data-cas-ad-slot="' + String(slotKey).replace(/"/g, "") + '"]';
-      var nodes = document.querySelectorAll(sel);
-      for (var i = 0; i < nodes.length; i++) {
-        var role = nodes[i].getAttribute("data-cas-ad-role") || "";
-        if (role !== "page-top" && role !== "page-bottom") return true;
-      }
-    } catch (e) {}
-    var wrapId = "ad_" + String(slotKey).split(".").join("_") + "_wrap";
-    var el = document.getElementById(wrapId);
-    if (!el) return false;
-    if (el.getAttribute("data-cas-ad-slot") || el.getAttribute("data-cas-hero-slot")) {
-      return false;
-    }
-    return true;
-  }
-
   function runPageMounts() {
     var resolved = resolvePageSlots();
     var pageSig =
@@ -1143,18 +1036,10 @@
     }
 
     for (var ti = 0; ti < tops.length; ti++) {
-      if (hasDedicatedPageMount(resolved.top)) {
-        clearAndHideMount(tops[ti]);
-      } else {
-        fillPageRoleMount(tops[ti], resolved.top);
-      }
+      fillPageRoleMount(tops[ti], resolved.top);
     }
     for (var bi = 0; bi < bottoms.length; bi++) {
-      if (hasDedicatedPageMount(resolved.bottom)) {
-        clearAndHideMount(bottoms[bi]);
-      } else {
-        fillPageRoleMount(bottoms[bi], resolved.bottom);
-      }
+      fillPageRoleMount(bottoms[bi], resolved.bottom);
     }
   }
 
