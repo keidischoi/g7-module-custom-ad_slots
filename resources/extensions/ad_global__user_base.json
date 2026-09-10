@@ -1,5 +1,5 @@
 {
-  "_comment": "공식 sirsoft-basic _user_base: global.top/global.bottom always-on API mounts + hero-carousel.js. No if on API length — JS hides empty mounts. Page mounts owned by Event Hook listener.",
+  "_comment": "공식 sirsoft-basic _user_base: global.top/bottom + ALWAYS-ON page mounts (data-cas-ad-role). JS path-routes page slots. No if on API length — JS hides empty mounts. home.mid still Event Hook.",
   "target_layout": "_user_base",
   "priority": 80,
   "data_sources": [
@@ -63,7 +63,7 @@
       "components": [
         {
           "id": "ad_global_top_wrap",
-          "comment": "=== Ad slot: global.top (모든 페이지 상단) ===",
+          "comment": "=== Ad slot: global.top + page-top mounts (모든 페이지 상단) ===",
           "type": "basic",
           "name": "Div",
           "props": {
@@ -97,6 +97,18 @@
                     "data-cas-hero-slot": "global.top"
                   },
                   "children": []
+                },
+                {
+                  "id": "cas_page_top_mount",
+                  "comment": "Path-routed page top mount (home/shop/board/mypage) — always present; JS fills by URL",
+                  "type": "basic",
+                  "name": "Div",
+                  "props": {
+                    "className": "relative w-full mb-4",
+                    "id": "cas_page_top_mount",
+                    "data-cas-ad-role": "page-top"
+                  },
+                  "children": []
                 }
               ]
             }
@@ -110,7 +122,7 @@
       "components": [
         {
           "id": "ad_global_bottom_wrap",
-          "comment": "=== Ad slot: global.bottom (모든 페이지 하단, 푸터 직전) ===",
+          "comment": "=== Ad slot: page-bottom + global.bottom (모든 페이지 하단, 푸터 직전) ===",
           "type": "basic",
           "name": "Div",
           "props": {
@@ -131,6 +143,18 @@
                 }
               },
               "children": [
+                {
+                  "id": "cas_page_bottom_mount",
+                  "comment": "Path-routed page bottom mount — always present; JS fills by URL",
+                  "type": "basic",
+                  "name": "Div",
+                  "props": {
+                    "className": "mt-4 w-full",
+                    "id": "cas_page_bottom_mount",
+                    "data-cas-ad-role": "page-bottom"
+                  },
+                  "children": []
+                },
                 {
                   "id": "ad_global_bottom_stack",
                   "comment": "global.bottom API mount; stacked banners",

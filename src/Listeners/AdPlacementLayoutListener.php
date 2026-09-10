@@ -6,14 +6,21 @@ use App\Contracts\Extension\HookListenerInterface;
 use Modules\Custom\AdSlots\Support\AdPlacementFragments;
 
 /**
- * Inject empty data-cas-ad-slot mounts into the live layout content tree for every
- * page that should show ads. Official shop/board/mypage layouts have no reliable
- * main_content id for overlay targeting — only slots.content[0] (or composed
- * main_content after merge). This listener owns page top/bottom mount insertion.
+ * Event Hook layout listener for custom-ad_slots.
  *
- * global.top / global.bottom remain on _user_base overlay (always-on mounts + script).
- * home.mid is inserted between official home row1 and row2.
- * shop.detail.top is placed after the back button when possible.
+ * Primary page ads (v1.2.6+): always-on mounts on `_user_base`
+ * (`cas_page_top_mount` / `cas_page_bottom_mount`) filled by hero-carousel.js
+ * via URL path → slot mapping. That path does not depend on per-page content
+ * tree injection.
+ *
+ * This listener still:
+ *  - inserts **home.mid** between official home row1 and row2
+ *  - optionally injects page top/bottom mounts into the content tree as a
+ *    backup (NOT required for ads to show)
+ *  - hard-excludes checkout / order-complete layouts
+ *
+ * global.top / global.bottom remain on `_user_base` overlay.
+ * SLOT_KEYS / admin options are unchanged (owned by forms + lang).
  *
  * Ads only — no menu/search/icon/home-design UI.
  */
@@ -29,6 +36,7 @@ class AdPlacementLayoutListener implements HookListenerInterface
 
     /**
      * Exact layout_name → [topSlot, bottomSlot] (null = skip that side).
+     * Optional backup injection only — primary mounts live on _user_base.
      * home.mid handled separately. mypage/* matched by prefix.
      *
      * @var array<string, array{0:?string,1:?string}>
@@ -44,6 +52,12 @@ class AdPlacementLayoutListener implements HookListenerInterface
         'board/form' => ['board.form.top', 'board.form.bottom'],
         'board/boards' => ['board.boards.top', 'board.boards.bottom'],
     ];
+
+    /**
+     * When false, skip optional per-page content-tree mounts (path-routed
+     * _user_base mounts are enough). home.mid is always attempted.
+     */
+    private const INJECT_PAGE_MOUNTS_BACKUP = false;
 
     public static function getSubscribedHooks(): array
     {
@@ -115,14 +129,17 @@ class AdPlacementLayoutListener implements HookListenerInterface
             return $layout;
         }
 
-        $pair = $this->slotsForLayout($name);
-        if ($pair !== null) {
-            [$topSlot, $bottomSlot] = $pair;
-            if ($topSlot !== null) {
-                $layout = $this->ensurePageMount($layout, $topSlot, 'top', $name);
-            }
-            if ($bottomSlot !== null) {
-                $layout = $this->ensurePageMount($layout, $bottomSlot, 'bottom', $name);
+        // Optional backup: per-page content-tree mounts (primary = _user_base path mounts).
+        if (self::INJECT_PAGE_MOUNTS_BACKUP) {
+            $pair = $this->slotsForLayout($name);
+            if ($pair !== null) {
+                [$topSlot, $bottomSlot] = $pair;
+                if ($topSlot !== null) {
+                    $layout = $this->ensurePageMount($layout, $topSlot, 'top', $name);
+                }
+                if ($bottomSlot !== null) {
+                    $layout = $this->ensurePageMount($layout, $bottomSlot, 'bottom', $name);
+                }
             }
         }
 
@@ -131,7 +148,7 @@ class AdPlacementLayoutListener implements HookListenerInterface
             $layout = $this->insertHomeMid($layout);
         }
 
-        if ($name === self::SHOP_SHOW) {
+        if (self::INJECT_PAGE_MOUNTS_BACKUP && $name === self::SHOP_SHOW) {
             $layout = $this->repositionShopDetailTop($layout);
         }
 
@@ -197,6 +214,7 @@ class AdPlacementLayoutListener implements HookListenerInterface
 
     /**
      * Ensure a top (prepend) or bottom (append) mount exists in the content tree.
+     * Backup only — primary page ads use _user_base path-routed mounts.
      */
     private function ensurePageMount(array $layout, string $slotKey, string $side, string $layoutName): array
     {
@@ -216,7 +234,7 @@ class AdPlacementLayoutListener implements HookListenerInterface
             : 'mt-4 flex flex-col gap-3';
 
         $comment = sprintf(
-            '=== Ad slot: %s (%s %s) — API mount ===',
+            '=== Ad slot: %s (%s %s) — API mount (backup) ===',
             $slotKey,
             $layoutName,
             $side
@@ -461,7 +479,7 @@ class AdPlacementLayoutListener implements HookListenerInterface
         if ($section === null) {
             $section = AdPlacementFragments::mountWrap(
                 self::DETAIL_TOP_WRAP_ID,
-                'Ad slot: shop.detail.top (헤더/뒤로가기 다음) — API mount',
+                'Ad slot: shop.detail.top (헤더/뒤로가기 다음) — API mount (backup)',
                 'ad_shop_detail_top',
                 'shop.detail.top',
                 'mb-4 flex flex-col gap-3'

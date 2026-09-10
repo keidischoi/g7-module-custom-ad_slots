@@ -1,4 +1,4 @@
-/*! custom-ad_slots — API-driven ad mounts (carousel + stacked banners) */
+/*! custom-ad_slots — API-driven ad mounts (carousel + stacked banners) + path-routed page mounts */
 (function () {
   if (window.__casAdRenderInstalled) return;
   window.__casAdRenderInstalled = true;
@@ -12,6 +12,8 @@
   /** @type {Object.<string, {status:string, items:Array, promise:Promise|null, error:*} >} */
   var slotCache = {};
   var mountTimers = {};
+  /** last path-routed page slot pair signature */
+  var lastPageSig = "";
 
   function isExternal(url) {
     return /^https?:\/\//i.test(url || "");
@@ -27,6 +29,184 @@
     try {
       location.assign(path);
     } catch (e2) {}
+  }
+
+  function normalizePathname(pathname) {
+    var p = String(pathname || "/");
+    try {
+      p = decodeURIComponent(p);
+    } catch (e) {}
+    p = p.split("?")[0].split("#")[0];
+    // strip trailing slash except root
+    if (p.length > 1 && p.charAt(p.length - 1) === "/") p = p.slice(0, -1);
+    if (!p) p = "/";
+    return p;
+  }
+
+  /**
+   * Map current URL → page top/bottom slot keys (null = no page ads).
+   * Liberal heuristics for gnuboard G7 sirsoft-basic URLs.
+   * @returns {{ top: ?string, bottom: ?string, excluded: boolean, path: string }}
+   */
+  function resolvePageSlots() {
+    var path = normalizePathname(location.pathname || "/");
+    var lower = path.toLowerCase();
+
+    // Optional G7 route hint if available
+    try {
+      var g7 =
+        (window.G7Core && (window.G7Core.route || window.G7Core.currentRoute)) ||
+        (window.__G7_ROUTE__ ) ||
+        null;
+      if (typeof g7 === "string" && g7) {
+        // layout-like names: shop/index, board/show, mypage/profile
+        var n = g7.toLowerCase().replace(/^\/+/, "");
+        if (
+          n === "shop/checkout" ||
+          n === "checkout" ||
+          n.indexOf("checkout") >= 0 ||
+          n === "order_complete" ||
+          n.indexOf("guest_order") >= 0
+        ) {
+          return { top: null, bottom: null, excluded: true, path: path };
+        }
+        if (n === "home" || n === "home/index") {
+          return { top: "home.top", bottom: "home.bottom", excluded: false, path: path };
+        }
+        if (n === "shop/cart") {
+          return { top: "shop.cart.top", bottom: "shop.cart.bottom", excluded: false, path: path };
+        }
+        if (n === "shop/index" || n === "shop/category") {
+          return { top: "shop.list.top", bottom: "shop.list.bottom", excluded: false, path: path };
+        }
+        if (n === "shop/show") {
+          return { top: "shop.detail.top", bottom: "shop.detail.bottom", excluded: false, path: path };
+        }
+        if (n === "board/popular") {
+          return { top: "board.popular.top", bottom: "board.popular.bottom", excluded: false, path: path };
+        }
+        if (n === "board/boards") {
+          return { top: "board.boards.top", bottom: "board.boards.bottom", excluded: false, path: path };
+        }
+        if (n === "board/form") {
+          return { top: "board.form.top", bottom: "board.form.bottom", excluded: false, path: path };
+        }
+        if (n === "board/show") {
+          return { top: "board.show.top", bottom: "board.show.bottom", excluded: false, path: path };
+        }
+        if (n === "board/index") {
+          return { top: "board.index.top", bottom: "board.index.bottom", excluded: false, path: path };
+        }
+        if (n === "mypage" || n.indexOf("mypage/") === 0) {
+          return { top: "mypage.top", bottom: "mypage.bottom", excluded: false, path: path };
+        }
+      }
+    } catch (e) {}
+
+    // --- Pathname heuristics (liberal) ---
+
+    // Checkout / order complete / guest order — NO page mounts
+    if (
+      /\/checkout(\/|$)/i.test(lower) ||
+      /order[_-]?complete/i.test(lower) ||
+      /guest[_-]?order/i.test(lower) ||
+      /\/orders\/[^/]+\/complete(\/|$)/i.test(lower) ||
+      /\/guest\/orders(\/|$)/i.test(lower)
+    ) {
+      return { top: null, bottom: null, excluded: true, path: path };
+    }
+
+    // Home
+    if (lower === "/" || lower === "/home" || lower === "/index" || lower === "/main") {
+      return { top: "home.top", bottom: "home.bottom", excluded: false, path: path };
+    }
+
+    // Mypage (all)
+    if (lower === "/mypage" || lower.indexOf("/mypage/") === 0) {
+      return { top: "mypage.top", bottom: "mypage.bottom", excluded: false, path: path };
+    }
+
+    // Board popular: /boards/popular or /board/popular
+    if (
+      lower === "/boards/popular" ||
+      lower === "/board/popular" ||
+      lower.indexOf("/boards/popular/") === 0 ||
+      lower.indexOf("/board/popular/") === 0
+    ) {
+      return { top: "board.popular.top", bottom: "board.popular.bottom", excluded: false, path: path };
+    }
+
+    // Board boards list: /boards or /board/boards
+    if (
+      lower === "/boards" ||
+      lower === "/board/boards" ||
+      lower.indexOf("/board/boards/") === 0
+    ) {
+      return { top: "board.boards.top", bottom: "board.boards.bottom", excluded: false, path: path };
+    }
+
+    // Board form: write / edit / form
+    if (
+      /\/board\/[^/]+\/(write|edit)(\/|$)/i.test(lower) ||
+      lower === "/board/form" ||
+      lower.indexOf("/board/form/") === 0 ||
+      /\/boards?\/form(\/|$)/i.test(lower)
+    ) {
+      return { top: "board.form.top", bottom: "board.form.bottom", excluded: false, path: path };
+    }
+
+    // Board show: /board/{slug}/{id}
+    if (/^\/board\/[^/]+\/[^/]+(\/|$)/i.test(lower)) {
+      return { top: "board.show.top", bottom: "board.show.bottom", excluded: false, path: path };
+    }
+
+    // Board index: /board/{slug}
+    if (/^\/board\/[^/]+$/i.test(lower)) {
+      return { top: "board.index.top", bottom: "board.index.bottom", excluded: false, path: path };
+    }
+
+    // Shop cart
+    if (
+      /\/shop\/cart(\/|$)/i.test(lower) ||
+      lower === "/cart" ||
+      lower.indexOf("/cart/") === 0
+    ) {
+      // avoid mypage already handled; plain /cart under shopBase '' edge case
+      if (lower.indexOf("/mypage") !== 0) {
+        return { top: "shop.cart.top", bottom: "shop.cart.bottom", excluded: false, path: path };
+      }
+    }
+
+    // Shop list: /shop, /shop/products, /shop/category/*, /products (no_route)
+    if (
+      lower === "/shop" ||
+      lower === "/shop/products" ||
+      lower.indexOf("/shop/products?") === 0 ||
+      /^\/shop\/category(\/|$)/i.test(lower) ||
+      lower === "/products" ||
+      /^\/category(\/|$)/i.test(lower)
+    ) {
+      return { top: "shop.list.top", bottom: "shop.list.bottom", excluded: false, path: path };
+    }
+
+    // Shop detail: /shop/products/{code}, /products/{code} — not cart/checkout
+    if (
+      /^\/shop\/products\/[^/]+/i.test(lower) ||
+      /^\/products\/[^/]+/i.test(lower) ||
+      /^\/shop\/[^/]+$/i.test(lower)
+    ) {
+      // /shop/cart already handled; /shop/checkout excluded
+      if (!/^\/shop\/(cart|checkout|orders|guest|category|products)$/i.test(lower)) {
+        return { top: "shop.detail.top", bottom: "shop.detail.bottom", excluded: false, path: path };
+      }
+    }
+
+    // Fallback: /shop/* remaining → detail-ish (liberal)
+    if (lower.indexOf("/shop/") === 0) {
+      return { top: "shop.detail.top", bottom: "shop.detail.bottom", excluded: false, path: path };
+    }
+
+    return { top: null, bottom: null, excluded: false, path: path };
   }
 
   function resolveSlotKey(el) {
@@ -73,6 +253,9 @@
     function add(el) {
       if (!el || el.nodeType !== 1) return;
       if (el.getAttribute("data-cas-ad-host") === "1") return;
+      // Skip path-routed role mounts — handled separately
+      var role = el.getAttribute("data-cas-ad-role") || "";
+      if (role === "page-top" || role === "page-bottom") return;
       for (var i = 0; i < found.length; i++) {
         if (found[i] === el) return;
       }
@@ -119,6 +302,28 @@
       }
       return true;
     });
+  }
+
+  function findPageRoleMounts(role) {
+    var out = [];
+    var byId =
+      role === "page-top"
+        ? document.getElementById("cas_page_top_mount")
+        : document.getElementById("cas_page_bottom_mount");
+    if (byId) out.push(byId);
+    var nodes = document.querySelectorAll('[data-cas-ad-role="' + role + '"]');
+    for (var i = 0; i < nodes.length; i++) {
+      var n = nodes[i];
+      var dup = false;
+      for (var j = 0; j < out.length; j++) {
+        if (out[j] === n) {
+          dup = true;
+          break;
+        }
+      }
+      if (!dup) out.push(n);
+    }
+    return out;
   }
 
   function normalizePlacementsPayload(json) {
@@ -230,6 +435,11 @@
       });
 
     return entry.promise;
+  }
+
+  /** Invalidate cache entry so SPA nav can refetch fresh items for a new slot */
+  function invalidateSlot(slotKey) {
+    if (slotKey && slotCache[slotKey]) delete slotCache[slotKey];
   }
 
   function slideSignature(slides) {
@@ -606,7 +816,7 @@
     show(0);
     startTimer();
 
-    var key = (mount.id || "cas") + ":" + (mount.getAttribute("data-cas-ad-slot") || "");
+    var key = (mount.id || "cas") + ":" + (mount.getAttribute("data-cas-ad-slot") || mount.getAttribute("data-cas-ad-role") || "");
     mount.__casMountKey = key;
     mountTimers[key] = clearTimer;
 
@@ -685,34 +895,51 @@
     }
   }
 
-  function hideEmptyMount(mount) {
-    // Only the ad mount itself — never parents or page content.
+  function clearAndHideMount(mount) {
     if (!mount || mount.nodeType !== 1) return;
-    if (!resolveSlotKey(mount)) return;
     clearMountTimers(mount);
     mount.setAttribute("data-cas-ad-sig", "__empty__");
+    mount.setAttribute("data-cas-page-slot", "");
     mount.setAttribute("aria-hidden", "true");
-    // Clear only our previous host inside the mount
     var host = mount.querySelector("[data-cas-ad-host='1']");
     if (host && host.parentNode === mount) {
       try {
         mount.removeChild(host);
       } catch (e) {}
     }
+    // Also clear leftover children inside role mounts
+    try {
+      while (mount.firstChild) mount.removeChild(mount.firstChild);
+    } catch (e2) {}
     mount.style.display = "none";
+  }
+
+  function hideEmptyMount(mount) {
+    // Only the ad mount itself — never parents or page content.
+    if (!mount || mount.nodeType !== 1) return;
+    var role = mount.getAttribute("data-cas-ad-role") || "";
+    if (role !== "page-top" && role !== "page-bottom" && !resolveSlotKey(mount)) return;
+    clearAndHideMount(mount);
   }
 
   function applyToMount(mount, slotKey, slides) {
     if (!mount || mount.nodeType !== 1) return;
+    var role = mount.getAttribute("data-cas-ad-role") || "";
+    var isPageRole = role === "page-top" || role === "page-bottom";
     // Safety: only operate on recognized ad mounts
-    if (!slotKey || resolveSlotKey(mount) !== slotKey) return;
+    if (!isPageRole) {
+      if (!slotKey || resolveSlotKey(mount) !== slotKey) return;
+    } else if (!slotKey) {
+      clearAndHideMount(mount);
+      return;
+    }
 
     if (!slides || !slides.length) {
       hideEmptyMount(mount);
       return;
     }
 
-    var sig = slideSignature(slides);
+    var sig = slotKey + "::" + slideSignature(slides);
     if (
       mount.getAttribute("data-cas-ad-sig") === sig &&
       mount.querySelector("[data-cas-ad-host='1']")
@@ -722,6 +949,7 @@
 
     clearMountTimers(mount);
     mount.setAttribute("data-cas-ad-sig", sig);
+    mount.setAttribute("data-cas-page-slot", slotKey);
     mount.removeAttribute("aria-hidden");
     mount.style.display = "";
 
@@ -751,9 +979,74 @@
     });
   }
 
+  function fillPageRoleMount(mount, slotKey) {
+    if (!mount) return;
+    if (!slotKey) {
+      clearAndHideMount(mount);
+      return;
+    }
+    var cached = slotCache[slotKey];
+    if (cached && cached.status === "ok") {
+      applyToMount(mount, slotKey, cached.items);
+      return;
+    }
+    if (cached && cached.status === "err") {
+      clearAndHideMount(mount);
+      return;
+    }
+    fetchSlot(slotKey).then(function (entry) {
+      if (!entry || entry.status !== "ok" || !entry.items.length) {
+        clearAndHideMount(mount);
+        return;
+      }
+      applyToMount(mount, slotKey, entry.items);
+    });
+  }
+
+  function runPageMounts() {
+    var resolved = resolvePageSlots();
+    var pageSig =
+      (resolved.path || "") +
+      "|" +
+      (resolved.top || "") +
+      "|" +
+      (resolved.bottom || "") +
+      "|" +
+      (resolved.excluded ? "1" : "0");
+
+    var tops = findPageRoleMounts("page-top");
+    var bottoms = findPageRoleMounts("page-bottom");
+
+    if (resolved.excluded || (!resolved.top && !resolved.bottom)) {
+      for (var i = 0; i < tops.length; i++) clearAndHideMount(tops[i]);
+      for (var j = 0; j < bottoms.length; j++) clearAndHideMount(bottoms[j]);
+      lastPageSig = pageSig;
+      return;
+    }
+
+    // If path/slot pair changed, force rebuild (clear old sig)
+    if (pageSig !== lastPageSig) {
+      for (var t = 0; t < tops.length; t++) {
+        tops[t].removeAttribute("data-cas-ad-sig");
+      }
+      for (var b = 0; b < bottoms.length; b++) {
+        bottoms[b].removeAttribute("data-cas-ad-sig");
+      }
+      lastPageSig = pageSig;
+    }
+
+    for (var ti = 0; ti < tops.length; ti++) {
+      fillPageRoleMount(tops[ti], resolved.top);
+    }
+    for (var bi = 0; bi < bottoms.length; bi++) {
+      fillPageRoleMount(bottoms[bi], resolved.bottom);
+    }
+  }
+
   function run() {
     try {
       removeLegacySiblingHosts();
+      runPageMounts();
       var mounts = findMounts();
       for (var i = 0; i < mounts.length; i++) {
         enhanceMount(mounts[i]);
@@ -780,13 +1073,41 @@
     }, 120);
   }
 
+  function onNav() {
+    // Path changed — allow remount even if cache warm
+    lastPageSig = "";
+    schedule();
+  }
+
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", schedule);
   else schedule();
   setInterval(run, 1500);
+  try {
+    window.addEventListener("popstate", onNav);
+  } catch (e) {}
+  try {
+    // Patch pushState/replaceState for SPA navigations
+    var _ps = history.pushState;
+    var _rs = history.replaceState;
+    if (typeof _ps === "function") {
+      history.pushState = function () {
+        var r = _ps.apply(this, arguments);
+        onNav();
+        return r;
+      };
+    }
+    if (typeof _rs === "function") {
+      history.replaceState = function () {
+        var r = _rs.apply(this, arguments);
+        onNav();
+        return r;
+      };
+    }
+  } catch (e2) {}
   try {
     new MutationObserver(schedule).observe(document.documentElement, {
       childList: true,
       subtree: true,
     });
-  } catch (e) {}
+  } catch (e3) {}
 })();
