@@ -124,10 +124,11 @@ class AdPlacementLayoutListener implements HookListenerInterface
             return $layout;
         }
 
-        $wrap = AdPlacementFragments::iterWrap(
+        $wrap = AdPlacementFragments::mountWrap(
             self::MID_WRAP_ID,
-            '=== Ad slot: home.mid (1행과 2행 사이) ===',
+            '=== Ad slot: home.mid (1행과 2행 사이) — API mount ===',
             'ad_home_mid',
+            'home.mid',
             'mb-4 flex flex-col gap-3'
         );
 
@@ -246,10 +247,11 @@ class AdPlacementLayoutListener implements HookListenerInterface
             $layout['slots'] = $this->extractById($layout['slots'], self::DETAIL_WRAP_ID, $section);
         }
         if ($section === null) {
-            $section = AdPlacementFragments::iterWrap(
+            $section = AdPlacementFragments::mountWrap(
                 self::DETAIL_WRAP_ID,
-                'Ad slot: shop.detail.top (헤더/뒤로가기 다음)',
+                'Ad slot: shop.detail.top (헤더/뒤로가기 다음) — API mount',
                 'ad_shop_detail_top',
+                'shop.detail.top',
                 'mb-4 flex flex-col gap-3'
             );
         }

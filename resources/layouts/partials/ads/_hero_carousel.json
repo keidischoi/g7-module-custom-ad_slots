@@ -1,24 +1,15 @@
 {
   "meta": {
     "is_partial": true,
-    "description": "home.top hero mount stub. Carousel is built by hero-carousel.js from GET /api/modules/custom-ad_slots/placements?slot=home.top (full items array, like feat AdHeroCarousel)."
+    "description": "home.top API mount stub. hero-carousel.js fetches placements?slot=home.top and builds Bunjang carousel inside the mount."
   },
   "type": "basic",
   "name": "Div",
   "props": {
-    "className": "relative w-full overflow-hidden rounded-xl cas-hero",
-    "data-cas-hero": "1",
+    "className": "relative w-full overflow-hidden rounded-xl",
+    "data-cas-ad-slot": "home.top",
     "data-cas-hero-slot": "home.top",
-    "aria-hidden": "true"
+    "data-cas-hero": "1"
   },
-  "children": [
-    {
-      "type": "basic",
-      "name": "Div",
-      "props": {
-        "className": "sr-only"
-      },
-      "children": []
-    }
-  ]
+  "children": []
 }

@@ -1,15 +1,17 @@
-/*! custom-ad_slots — Bunjang-style hero carousel (API-fed sibling host; React-safe) */
+/*! custom-ad_slots — API-driven ad mounts (carousel + stacked banners) */
 (function () {
-  if (window.__casHeroCarouselInstalled) return;
-  window.__casHeroCarouselInstalled = true;
+  if (window.__casAdRenderInstalled) return;
+  window.__casAdRenderInstalled = true;
 
   var INTERVAL_MS = 4000;
   var SWIPE_MIN = 40;
   var MD_MQ = "(min-width: 768px)";
   var PLACEMENTS_URL = "/api/modules/custom-ad_slots/placements";
+  var CAROUSEL_SLOTS = { "home.top": true, "global.top": true };
 
   /** @type {Object.<string, {status:string, items:Array, promise:Promise|null, error:*} >} */
   var slotCache = {};
+  var mountTimers = {};
 
   function isExternal(url) {
     return /^https?:\/\//i.test(url || "");
@@ -27,76 +29,76 @@
     } catch (e2) {}
   }
 
-  function truthyFlag(val) {
-    return val === "1" || val === "true" || val === true || val === 1;
-  }
-
   function resolveSlotKey(el) {
     if (!el || el.nodeType !== 1) return null;
     var attr =
+      el.getAttribute("data-cas-ad-slot") ||
       el.getAttribute("data-cas-hero-slot") ||
-      (el.dataset && el.dataset.casHeroSlot) ||
+      (el.dataset && (el.dataset.casAdSlot || el.dataset.casHeroSlot)) ||
       "";
     if (attr) return String(attr).trim();
-    if (el.id === "ad_home_top_wrap") return "home.top";
-    if (el.id === "ad_global_top_hero") return "global.top";
-    if (el.id === "ad_global_top_wrap") return "global.top";
-    var wrap = el.closest && el.closest("#ad_global_top_wrap");
-    if (wrap) return "global.top";
-    var home = el.closest && el.closest("#ad_home_top_wrap");
-    if (home) return "home.top";
-    return null;
+    var id = el.id || "";
+    var map = {
+      ad_home_top_wrap: "home.top",
+      ad_home_mid_wrap: "home.mid",
+      ad_home_bottom_wrap: "home.bottom",
+      ad_global_top_hero: "global.top",
+      ad_global_top_wrap: "global.top",
+      ad_global_bottom_stack: "global.bottom",
+      ad_global_bottom_wrap: "global.bottom",
+      ad_shop_list_top_wrap: "shop.list.top",
+      ad_shop_list_bottom_wrap: "shop.list.bottom",
+      ad_shop_detail_top_wrap: "shop.detail.top",
+      ad_shop_detail_bottom_wrap: "shop.detail.bottom",
+      ad_shop_cart_top_wrap: "shop.cart.top",
+      ad_shop_cart_bottom_wrap: "shop.cart.bottom",
+      ad_board_popular_top_wrap: "board.popular.top",
+      ad_board_popular_bottom_wrap: "board.popular.bottom",
+    };
+    return map[id] || null;
   }
 
   function findMounts() {
     var found = [];
-
     function add(el) {
       if (!el || el.nodeType !== 1) return;
-      if (el.getAttribute("data-cas-hero-host") === "1") return;
-      if (el.classList && el.classList.contains("cas-hero-host")) return;
+      if (el.getAttribute("data-cas-ad-host") === "1") return;
       for (var i = 0; i < found.length; i++) {
         if (found[i] === el) return;
       }
       found.push(el);
     }
 
-    var home = document.getElementById("ad_home_top_wrap");
-    if (home) add(home);
-
-    var globalHero = document.getElementById("ad_global_top_hero");
-    if (globalHero) {
-      add(globalHero);
-    } else {
-      var globalWrap = document.getElementById("ad_global_top_wrap");
-      if (globalWrap) {
-        var inner =
-          globalWrap.querySelector(".cas-hero") ||
-          globalWrap.querySelector("[data-cas-hero]") ||
-          globalWrap.querySelector("[data-cas-hero-slot]");
-        if (inner) add(inner);
-        else add(globalWrap);
-      }
-    }
-
-    var bySlot = document.querySelectorAll("[data-cas-hero-slot]");
-    for (var s = 0; s < bySlot.length; s++) add(bySlot[s]);
-
-    var byClass = document.querySelectorAll(".cas-hero");
-    for (var c = 0; c < byClass.length; c++) add(byClass[c]);
-
-    var byAttr = document.querySelectorAll("[data-cas-hero]");
+    var byAttr = document.querySelectorAll("[data-cas-ad-slot], [data-cas-hero-slot]");
     for (var a = 0; a < byAttr.length; a++) add(byAttr[a]);
 
-    return found;
-  }
-
-  function hideSourceRoot(root) {
-    root.style.display = "none";
-    root.setAttribute("aria-hidden", "true");
-    if (!root.classList.contains("cas-hero-source")) {
-      root.classList.add("cas-hero-source");
+    var ids = [
+      "ad_home_top_wrap",
+      "ad_home_mid_wrap",
+      "ad_home_bottom_wrap",
+      "ad_global_top_hero",
+      "ad_global_bottom_stack",
+      "ad_shop_list_top_wrap",
+      "ad_shop_list_bottom_wrap",
+      "ad_shop_detail_top_wrap",
+      "ad_shop_detail_bottom_wrap",
+      "ad_shop_cart_top_wrap",
+      "ad_shop_cart_bottom_wrap",
+      "ad_board_popular_top_wrap",
+      "ad_board_popular_bottom_wrap",
+    ];
+    for (var i = 0; i < ids.length; i++) {
+      var el = document.getElementById(ids[i]);
+      if (el) add(el);
     }
+
+    // Prefer innermost mount when both wrap + hero exist
+    return found.filter(function (el) {
+      for (var j = 0; j < found.length; j++) {
+        if (found[j] !== el && el.contains(found[j])) return false;
+      }
+      return true;
+    });
   }
 
   function normalizePlacementsPayload(json) {
@@ -104,10 +106,6 @@
     var data = json.data !== undefined ? json.data : json;
     if (Array.isArray(data)) return data;
     if (data && Array.isArray(data.data)) return data.data;
-    if (data && typeof data === "object") {
-      // slot-grouped map → flatten unlikely for ?slot=; treat as empty
-      return [];
-    }
     return [];
   }
 
@@ -214,92 +212,6 @@
     return entry.promise;
   }
 
-  function pickDesktopMobile(imgs) {
-    var list = Array.prototype.slice.call(imgs || []);
-    var desktop = null;
-    var mobile = null;
-
-    for (var i = 0; i < list.length; i++) {
-      var img = list[i];
-      var cn = (img.className && String(img.className)) || "";
-      if (!desktop && cn.indexOf("md:block") !== -1) desktop = img;
-      else if (!mobile && cn.indexOf("md:hidden") !== -1) mobile = img;
-    }
-
-    if (!desktop && list[0]) desktop = list[0];
-    if (!mobile && list[1]) mobile = list[1];
-    if (!mobile) mobile = desktop;
-    if (!desktop) desktop = mobile;
-
-    return {
-      desktopSrc: desktop ? desktop.getAttribute("src") || desktop.src || "" : "",
-      mobileSrc: mobile ? mobile.getAttribute("src") || mobile.src || "" : "",
-      alt:
-        (desktop && (desktop.getAttribute("alt") || "")) ||
-        (mobile && (mobile.getAttribute("alt") || "")) ||
-        "ad",
-    };
-  }
-
-  function extractSlides(root) {
-    var slides = [];
-    var candidates = [];
-
-    var marked = root.querySelectorAll(":scope > [data-cas-slide]");
-    if (marked && marked.length) {
-      candidates = Array.prototype.slice.call(marked);
-    } else {
-      candidates = Array.prototype.filter.call(root.children, function (el) {
-        return el.nodeType === 1 && el.querySelector && el.querySelector("img");
-      });
-      if (!candidates.length) {
-        candidates = Array.prototype.filter.call(root.children, function (el) {
-          return el.nodeType === 1;
-        });
-      }
-    }
-
-    for (var i = 0; i < candidates.length; i++) {
-      var node = candidates[i];
-      var imgs = node.querySelectorAll("img");
-      if (!imgs || !imgs.length) continue;
-
-      var media = pickDesktopMobile(imgs);
-      if (!media.desktopSrc && !media.mobileSrc) continue;
-
-      var a = node.querySelector("a");
-      var href = a ? a.getAttribute("href") || "" : "";
-      var target = a ? a.getAttribute("target") || "" : "";
-      var rel = a ? a.getAttribute("rel") || "" : "";
-      var title = (a && (a.getAttribute("title") || "")) || media.alt || "";
-
-      var prevent =
-        truthyFlag(node.getAttribute("data-prevent-right-click")) ||
-        truthyFlag(node.dataset && node.dataset.preventRightClick) ||
-        Array.prototype.some.call(imgs, function (img) {
-          return (
-            truthyFlag(img.getAttribute("data-prevent-right-click")) ||
-            truthyFlag(img.dataset && img.dataset.preventRightClick) ||
-            truthyFlag(img.getAttribute("preventrightclick"))
-          );
-        });
-
-      slides.push({
-        id: null,
-        desktopSrc: media.desktopSrc,
-        mobileSrc: media.mobileSrc || media.desktopSrc,
-        href: href,
-        target: target,
-        rel: rel,
-        title: title,
-        bg_color: "",
-        preventRightClick: !!prevent,
-      });
-    }
-
-    return slides;
-  }
-
   function slideSignature(slides) {
     return slides
       .map(function (s) {
@@ -308,31 +220,12 @@
           "|" +
           (s.desktopSrc || "") +
           "|" +
-          (s.mobileSrc || "")
+          (s.mobileSrc || "") +
+          "|" +
+          (s.href || "")
         );
       })
       .join("||");
-  }
-
-  function hostIdFor(root) {
-    return (root.id || "cas") + "-host";
-  }
-
-  function findExistingHost(root) {
-    var next = root.nextElementSibling;
-    if (next && next.getAttribute("data-cas-hero-host") === "1") return next;
-    var byId = document.getElementById(hostIdFor(root));
-    if (byId && byId.getAttribute("data-cas-hero-host") === "1") return byId;
-    return null;
-  }
-
-  function chevronSvg(dir) {
-    var points = dir === "left" ? "15 18 9 12 15 6" : "9 18 15 12 9 6";
-    return (
-      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:1.25rem;height:1.25rem" aria-hidden="true"><polyline points="' +
-      points +
-      '"/></svg>'
-    );
   }
 
   function applyAspect(el) {
@@ -363,14 +256,23 @@
     img.draggable = false;
   }
 
-  function destroyHost(host) {
-    if (!host) return;
-    if (host.__casHeroClear) {
-      try {
-        host.__casHeroClear();
-      } catch (e) {}
-    }
-    if (host.parentNode) host.parentNode.removeChild(host);
+  function styleStackImg(img) {
+    img.style.display = "block";
+    img.style.width = "100%";
+    img.style.height = "auto";
+    img.style.objectFit = "cover";
+    img.style.borderRadius = "0.5rem";
+    img.style.margin = "0";
+    img.draggable = false;
+  }
+
+  function chevronSvg(dir) {
+    var points = dir === "left" ? "15 18 9 12 15 6" : "9 18 15 12 9 6";
+    return (
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:1.25rem;height:1.25rem" aria-hidden="true"><polyline points="' +
+      points +
+      '"/></svg>'
+    );
   }
 
   function makeControlBtn(label) {
@@ -382,21 +284,38 @@
     return b;
   }
 
-  function buildSlideBody(slide) {
+  function clearMountTimers(mount) {
+    var key = mount.__casMountKey;
+    if (key && mountTimers[key]) {
+      try {
+        mountTimers[key]();
+      } catch (e) {}
+      delete mountTimers[key];
+    }
+  }
+
+  function buildLinkedMedia(slide, fillMode) {
     var mediaWrap = document.createElement("div");
-    mediaWrap.style.position = "relative";
-    mediaWrap.style.width = "100%";
-    mediaWrap.style.height = "100%";
+    if (fillMode) {
+      mediaWrap.style.position = "relative";
+      mediaWrap.style.width = "100%";
+      mediaWrap.style.height = "100%";
+    } else {
+      mediaWrap.style.position = "relative";
+      mediaWrap.style.width = "100%";
+    }
 
     var desktopImg = document.createElement("img");
     desktopImg.src = slide.desktopSrc || slide.mobileSrc;
     desktopImg.alt = slide.title || "ad";
-    styleFillImg(desktopImg);
+    if (fillMode) styleFillImg(desktopImg);
+    else styleStackImg(desktopImg);
 
     var mobileImg = document.createElement("img");
     mobileImg.src = slide.mobileSrc || slide.desktopSrc;
     mobileImg.alt = slide.title || "ad";
-    styleFillImg(mobileImg);
+    if (fillMode) styleFillImg(mobileImg);
+    else styleStackImg(mobileImg);
 
     applyImgVisibility(desktopImg, mobileImg);
     mediaWrap.appendChild(desktopImg);
@@ -410,16 +329,20 @@
         var a = document.createElement("a");
         a.href = link;
         a.title = slide.title || "";
-        a.style.position = "absolute";
-        a.style.inset = "0";
-        a.style.display = "block";
-        a.style.width = "100%";
-        a.style.height = "100%";
+        if (fillMode) {
+          a.style.position = "absolute";
+          a.style.inset = "0";
+          a.style.display = "block";
+          a.style.width = "100%";
+          a.style.height = "100%";
+        } else {
+          a.style.display = "block";
+          a.style.width = "100%";
+        }
         if (slide.target && slide.target !== "_self") {
           a.target = slide.target;
           a.rel = slide.rel || "noopener noreferrer";
         } else if (!slide.target) {
-          // default new tab for external when unspecified
           a.target = "_blank";
           a.rel = "noopener noreferrer";
         }
@@ -430,11 +353,13 @@
         btn.type = "button";
         btn.title = slide.title || "";
         btn.setAttribute("aria-label", slide.title || "ad");
-        btn.style.position = "absolute";
-        btn.style.inset = "0";
+        if (fillMode) {
+          btn.style.position = "absolute";
+          btn.style.inset = "0";
+          btn.style.height = "100%";
+        }
         btn.style.display = "block";
         btn.style.width = "100%";
-        btn.style.height = "100%";
         btn.style.padding = "0";
         btn.style.margin = "0";
         btn.style.border = "0";
@@ -450,8 +375,11 @@
       }
     } else {
       var div = document.createElement("div");
-      div.style.position = "absolute";
-      div.style.inset = "0";
+      if (fillMode) {
+        div.style.position = "absolute";
+        div.style.inset = "0";
+      }
+      div.style.width = "100%";
       div.appendChild(mediaWrap);
       body = div;
     }
@@ -459,17 +387,13 @@
     return { body: body, desktopImg: desktopImg, mobileImg: mobileImg };
   }
 
-  function buildHost(root, slides) {
-    destroyHost(findExistingHost(root));
-
+  function buildCarouselInto(mount, slides) {
     var host = document.createElement("div");
-    host.id = hostIdFor(root);
-    host.setAttribute("data-cas-hero-host", "1");
-    host.setAttribute("data-cas-hero-sig", slideSignature(slides));
+    host.setAttribute("data-cas-ad-host", "1");
     host.setAttribute("role", "region");
     host.setAttribute("aria-roledescription", "carousel");
     host.setAttribute("aria-label", (slides[0] && slides[0].title) || "ads");
-    host.className = "cas-hero-host relative w-full overflow-hidden rounded-xl";
+    host.className = "cas-ad-carousel relative w-full overflow-hidden rounded-xl";
     host.style.position = "relative";
     host.style.width = "100%";
     host.style.overflow = "hidden";
@@ -477,10 +401,6 @@
     if (slides[0] && slides[0].bg_color) {
       host.style.backgroundColor = slides[0].bg_color;
     }
-
-    var rootCn = (root.className && String(root.className)) || "";
-    if (rootCn.indexOf("mb-4") !== -1) host.style.marginBottom = "1rem";
-    else if (rootCn.indexOf("mb-2") !== -1) host.style.marginBottom = "0.5rem";
 
     var frame = document.createElement("div");
     frame.style.position = "relative";
@@ -506,12 +426,11 @@
       if (slide.bg_color) layer.style.backgroundColor = slide.bg_color;
       layer.setAttribute("data-cas-host-slide", String(i));
 
-      var built = buildSlideBody(slide);
+      var built = buildLinkedMedia(slide, true);
       layer.appendChild(built.body);
       layer.__casDesktop = built.desktopImg;
       layer.__casMobile = built.mobileImg;
       layer.__casPrevent = slide.preventRightClick;
-      layer.__casBg = slide.bg_color || "";
       frame.appendChild(layer);
       state.slideEls.push(layer);
     });
@@ -549,19 +468,8 @@
 
     if (slides.length > 1) {
       var prev = makeControlBtn("Previous");
-      prev.style.position = "absolute";
-      prev.style.left = "0.5rem";
-      prev.style.top = "50%";
-      prev.style.transform = "translateY(-50%)";
-      prev.style.zIndex = "10";
-      prev.style.width = "2.25rem";
-      prev.style.height = "2.25rem";
-      prev.style.borderRadius = "9999px";
-      prev.style.background = "rgba(0,0,0,0.35)";
-      prev.style.color = "#fff";
-      prev.style.display = "flex";
-      prev.style.alignItems = "center";
-      prev.style.justifyContent = "center";
+      prev.style.cssText =
+        "position:absolute;left:0.5rem;top:50%;transform:translateY(-50%);z-index:10;width:2.25rem;height:2.25rem;border-radius:9999px;background:rgba(0,0,0,0.35);color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;border:0";
       prev.innerHTML = chevronSvg("left");
       prev.addEventListener("click", function (e) {
         e.preventDefault();
@@ -570,19 +478,8 @@
       });
 
       var next = makeControlBtn("Next");
-      next.style.position = "absolute";
-      next.style.right = "0.5rem";
-      next.style.top = "50%";
-      next.style.transform = "translateY(-50%)";
-      next.style.zIndex = "10";
-      next.style.width = "2.25rem";
-      next.style.height = "2.25rem";
-      next.style.borderRadius = "9999px";
-      next.style.background = "rgba(0,0,0,0.35)";
-      next.style.color = "#fff";
-      next.style.display = "flex";
-      next.style.alignItems = "center";
-      next.style.justifyContent = "center";
+      next.style.cssText =
+        "position:absolute;right:0.5rem;top:50%;transform:translateY(-50%);z-index:10;width:2.25rem;height:2.25rem;border-radius:9999px;background:rgba(0,0,0,0.35);color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;border:0";
       next.innerHTML = chevronSvg("right");
       next.addEventListener("click", function (e) {
         e.preventDefault();
@@ -591,24 +488,13 @@
       });
 
       var dots = document.createElement("div");
-      dots.style.position = "absolute";
-      dots.style.bottom = "0.5rem";
-      dots.style.left = "0";
-      dots.style.right = "0";
-      dots.style.zIndex = "10";
-      dots.style.display = "flex";
-      dots.style.alignItems = "center";
-      dots.style.justifyContent = "center";
-      dots.style.gap = "0.375rem";
+      dots.style.cssText =
+        "position:absolute;bottom:0.5rem;left:0;right:0;z-index:10;display:flex;align-items:center;justify-content:center;gap:0.375rem";
 
       slides.forEach(function (_s, i) {
         var d = makeControlBtn("Slide " + (i + 1));
-        d.style.padding = "0";
-        d.style.margin = "0";
-        d.style.borderRadius = "9999px";
-        d.style.background = "rgba(255,255,255,0.5)";
-        d.style.width = "0.5rem";
-        d.style.height = "0.5rem";
+        d.style.cssText =
+          "padding:0;margin:0;border-radius:9999px;background:rgba(255,255,255,0.5);width:0.5rem;height:0.5rem;cursor:pointer;border:0";
         d.addEventListener("click", function (e) {
           e.preventDefault();
           e.stopPropagation();
@@ -700,108 +586,158 @@
     show(0);
     startTimer();
 
-    host.__casHeroClear = clearTimer;
-    host.__casHeroState = state;
+    var key = (mount.id || "cas") + ":" + (mount.getAttribute("data-cas-ad-slot") || "");
+    mount.__casMountKey = key;
+    mountTimers[key] = clearTimer;
 
-    if (root.parentNode) {
-      root.parentNode.insertBefore(host, root.nextSibling);
-    }
-
+    mount.innerHTML = "";
+    mount.appendChild(host);
     return host;
   }
 
-  function applySlidesToMount(root, slides) {
+  function buildStackInto(mount, slides) {
+    var host = document.createElement("div");
+    host.setAttribute("data-cas-ad-host", "1");
+    host.className = "cas-ad-stack flex flex-col gap-3 w-full";
+    host.style.display = "flex";
+    host.style.flexDirection = "column";
+    host.style.gap = "0.75rem";
+    host.style.width = "100%";
+
+    var imgPairs = [];
+
+    slides.forEach(function (slide) {
+      var row = document.createElement("div");
+      row.className = "w-full overflow-hidden rounded-lg";
+      row.style.width = "100%";
+      row.style.overflow = "hidden";
+      row.style.borderRadius = "0.5rem";
+      if (slide.bg_color) row.style.backgroundColor = slide.bg_color;
+
+      var built = buildLinkedMedia(slide, false);
+      row.appendChild(built.body);
+      row.__casPrevent = slide.preventRightClick;
+      imgPairs.push(built);
+      host.appendChild(row);
+    });
+
+    Array.prototype.forEach.call(host.children, function (row) {
+      if (!row.__casPrevent) return;
+      row.addEventListener(
+        "contextmenu",
+        function (e) {
+          if (e.target && e.target.closest && e.target.closest("img")) {
+            e.preventDefault();
+          }
+        },
+        true
+      );
+    });
+
+    try {
+      var mql = window.matchMedia(MD_MQ);
+      var onMq = function () {
+        imgPairs.forEach(function (p) {
+          applyImgVisibility(p.desktopImg, p.mobileImg);
+        });
+      };
+      if (mql.addEventListener) mql.addEventListener("change", onMq);
+      else if (mql.addListener) mql.addListener(onMq);
+      onMq();
+    } catch (e) {}
+
+    clearMountTimers(mount);
+    mount.innerHTML = "";
+    mount.appendChild(host);
+    return host;
+  }
+
+  function removeLegacySiblingHosts() {
+    var hosts = document.querySelectorAll("[data-cas-hero-host='1']");
+    for (var i = 0; i < hosts.length; i++) {
+      var h = hosts[i];
+      if (h.__casHeroClear) {
+        try {
+          h.__casHeroClear();
+        } catch (e) {}
+      }
+      if (h.parentNode) h.parentNode.removeChild(h);
+    }
+  }
+
+  function applyToMount(mount, slotKey, slides) {
     if (!slides || !slides.length) return;
 
     var sig = slideSignature(slides);
-    var existing = findExistingHost(root);
-
-    hideSourceRoot(root);
-
-    if (existing && existing.getAttribute("data-cas-hero-sig") === sig) {
+    if (
+      mount.getAttribute("data-cas-ad-sig") === sig &&
+      mount.querySelector("[data-cas-ad-host='1']")
+    ) {
       return;
     }
 
-    buildHost(root, slides);
-    hideSourceRoot(root);
+    clearMountTimers(mount);
+    mount.setAttribute("data-cas-ad-sig", sig);
+    mount.removeAttribute("aria-hidden");
+    if (mount.style.display === "none") mount.style.display = "";
+
+    if (CAROUSEL_SLOTS[slotKey]) {
+      buildCarouselInto(mount, slides);
+    } else {
+      buildStackInto(mount, slides);
+    }
   }
 
-  function enhanceMount(root) {
-    if (!root || root.nodeType !== 1) return;
-    if (root.getAttribute("data-cas-hero-host") === "1") return;
-    if (root.classList.contains("cas-hero-host")) return;
+  function enhanceMount(mount) {
+    if (!mount || mount.nodeType !== 1) return;
+    var slotKey = resolveSlotKey(mount);
+    if (!slotKey) return;
 
-    var slotKey = resolveSlotKey(root);
-
-    // Always hide React/layout source every tick once we know it's a mount
-    if (slotKey || root.classList.contains("cas-hero") || root.hasAttribute("data-cas-hero")) {
-      // hide only after we have (or fail) slides — still hide empty mount stubs when API ok
-    }
-
-    if (slotKey) {
-      var cached = slotCache[slotKey];
-      if (cached && cached.status === "ok") {
-        if (cached.items.length) {
-          applySlidesToMount(root, cached.items);
-        } else {
-          // API returned empty — try DOM backup if any images exist
-          var domEmpty = extractSlides(root);
-          if (domEmpty.length) applySlidesToMount(root, domEmpty);
-          else hideSourceRoot(root);
-        }
-        return;
-      }
-      if (cached && cached.status === "err") {
-        var fallback = extractSlides(root);
-        if (fallback.length) applySlidesToMount(root, fallback);
-        return;
-      }
-      // pending or not started — kick fetch; hide mount to avoid flash of stub
-      hideSourceRoot(root);
-      fetchSlot(slotKey).then(function () {
-        schedule();
-      });
+    var cached = slotCache[slotKey];
+    if (cached && cached.status === "ok") {
+      if (cached.items.length) applyToMount(mount, slotKey, cached.items);
       return;
     }
-
-    // No slot key: legacy DOM-only path
-    var imgs = root.querySelectorAll("img");
-    if (!imgs || !imgs.length) return;
-    var slides = extractSlides(root);
-    if (!slides.length) return;
-    applySlidesToMount(root, slides);
+    if (cached && cached.status === "err") {
+      return;
+    }
+    fetchSlot(slotKey).then(function () {
+      schedule();
+    });
   }
 
   function run() {
     try {
+      removeLegacySiblingHosts();
       var mounts = findMounts();
       for (var i = 0; i < mounts.length; i++) {
         enhanceMount(mounts[i]);
-      }
-      var sources = document.querySelectorAll(".cas-hero-source");
-      for (var s = 0; s < sources.length; s++) {
-        hideSourceRoot(sources[s]);
       }
     } catch (e) {}
   }
 
   var scheduled = null;
+  var debounceTimer = null;
   function schedule() {
-    if (scheduled) return;
-    scheduled = requestAnimationFrame
-      ? requestAnimationFrame(function () {
-          scheduled = null;
-          run();
-        })
-      : setTimeout(function () {
-          scheduled = null;
-          run();
-        }, 80);
+    if (debounceTimer) clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(function () {
+      debounceTimer = null;
+      if (scheduled) return;
+      scheduled = requestAnimationFrame
+        ? requestAnimationFrame(function () {
+            scheduled = null;
+            run();
+          })
+        : setTimeout(function () {
+            scheduled = null;
+            run();
+          }, 16);
+    }, 120);
   }
 
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", schedule);
   else schedule();
-  setInterval(run, 1000);
+  setInterval(run, 1500);
   try {
     new MutationObserver(schedule).observe(document.documentElement, {
       childList: true,

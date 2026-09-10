@@ -1,7 +1,7 @@
 {
   "meta": {
     "is_partial": true,
-    "description": "custom-ad_slots 배너 아이템(리스트용). desktop/mobile/legacy image_url 병행. 부모가 data_sources를 로드하고 iteration(item_var=ad)로 호출. self-fetch 없음."
+    "description": "Legacy banner item markup (unused by API mounts). Stack banners are now rendered by hero-carousel.js from placements API into data-cas-ad-slot mounts."
   },
   "type": "basic",
   "name": "Div",
