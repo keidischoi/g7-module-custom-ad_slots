@@ -1077,19 +1077,28 @@
         useCarousel = true;
       }
     } else {
+      // bottom — merged page+global uses carousel (same as top); controls when >= 2 slides
       if (pageHas && globalHas) {
         sigKey =
           (pageSlotKey || "page.bottom") + "+global.bottom";
+        useCarousel = merged.length >= 1;
       } else if (pageHas) {
         sigKey = pageSlotKey || "page.bottom";
+        useCarousel = !!CAROUSEL_SLOTS[sigKey];
       } else {
         sigKey = "global.bottom";
+        useCarousel = !!CAROUSEL_SLOTS[sigKey];
       }
-      useCarousel = false;
     }
 
     applyToMount(host, sigKey, merged, { force: true, carousel: useCarousel });
-    if (other && other !== host) clearAndHideMount(other);
+    // Always hide/clear the non-primary mount so only ONE host is visible
+    if (pageMount && globalMount) {
+      if (host === pageMount) clearAndHideMount(globalMount);
+      else clearAndHideMount(pageMount);
+    } else if (other && other !== host) {
+      clearAndHideMount(other);
+    }
   }
 
   function enhanceMount(mount) {
