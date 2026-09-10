@@ -4,6 +4,24 @@
 형식은 [Keep a Changelog](https://keepachangelog.com/ko/1.1.0/)를 따르며,
 [Semantic Versioning](https://semver.org/lang/ko/)을 준수합니다.
 
+## [1.2.8] - 2026-09-10
+
+### Fixed
+
+- **Reverted 1.2.7 native path stacks that broke home ads;** restored **1.2.6** behavior (path-routed mounts + home/global carousel).
+
+### Changed
+
+- Tree restored from `efad177` (v1.2.6). Version bumped to **1.2.8** (do not reuse 1.2.6).
+
+### Install
+
+```
+php82 artisan module:update custom-ad_slots --source=bundled --force --layout-strategy=overwrite
+php82 artisan hooks:clear
+php82 artisan cache:clear
+```
+
 ## [1.2.7] - 2026-09-10
 
 ### Fixed

@@ -6,9 +6,9 @@ namespace Modules\Custom\AdSlots\Support;
  * Module-owned ad partial fragments (ported from feat theme layouts/partials/ads).
  * Used by Event Hook listener so official theme need not ship those files.
  *
- * v1.2.7+: page stacks use native layout iteration with **inlined** banner markup
- * (module `partial:` paths often do not resolve inside official theme). Hero
- * carousels (home.top / global.top) remain empty mounts filled by hero-carousel.js.
+ * Layout mounts are empty placeholders with data-cas-ad-slot; hero-carousel.js
+ * fetches placements API and renders carousel/stack into the mount.
+ * Mounts are always present (no layout `if` on API length) — JS hides when empty.
  */
 final class AdPlacementFragments
 {
@@ -40,40 +40,8 @@ final class AdPlacementFragments
     }
 
     /**
-     * Native stacked-banner wrap (feat theme pattern): iteration + inlined banner item.
-     *
-     * @return array<string, mixed>
-     */
-    public static function iterWrap(string $wrapId, string $comment, string $dsId, string $className, ?string $ifExpr = null): array
-    {
-        $wrap = [
-            'id' => $wrapId,
-            'comment' => $comment,
-            'type' => 'basic',
-            'name' => 'Div',
-            'props' => [
-                'className' => $className,
-                'id' => $wrapId,
-            ],
-            'iteration' => [
-                'source' => '{{'.$dsId.'.data ?? '.$dsId.' ?? []}}',
-                'item_var' => 'ad',
-            ],
-            'children' => [self::bannerItem()],
-        ];
-
-        if ($ifExpr !== null && $ifExpr !== '') {
-            $wrap['if'] = $ifExpr;
-        } else {
-            $wrap['if'] = '{{(('.$dsId.'.data ?? '.$dsId.' ?? []).length > 0)}}';
-        }
-
-        return $wrap;
-    }
-
-    /**
      * Empty mount Div for API-driven JS render (data-cas-ad-slot).
-     * Used for hero carousel slots only (home.top / global.top).
+     * Always present — no `if` on data_source length.
      *
      * @return array<string, mixed>
      */
@@ -94,7 +62,7 @@ final class AdPlacementFragments
     }
 
     /**
-     * Hero-capable mount (home.top / global.top) — empty stub with hero markers.
+     * Hero-capable mount (home.top / global.top) — same empty stub with hero markers.
      *
      * @return array<string, mixed>
      */
@@ -114,6 +82,18 @@ final class AdPlacementFragments
             ],
             'children' => [],
         ];
+    }
+
+    /**
+     * @deprecated Prefer mountWrap(); kept for callers — now emits API mount stub.
+     *
+     * @return array<string, mixed>
+     */
+    public static function iterWrap(string $wrapId, string $comment, string $dsId, string $className): array
+    {
+        $slotKey = self::dsIdToSlot($dsId);
+
+        return self::mountWrap($wrapId, $comment, $dsId, $slotKey, $className);
     }
 
     /**
