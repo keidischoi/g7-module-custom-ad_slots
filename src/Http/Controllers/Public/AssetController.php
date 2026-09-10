@@ -6,25 +6,19 @@ use Illuminate\Http\Response;
 use Illuminate\Routing\Controller;
 
 /**
- * Serve whitelisted module static assets (JS) from resources/assets.
+ * Serve module static assets (JS) from resources/assets.
  */
 class AssetController extends Controller
 {
-    /** @var list<string> */
-    private const ALLOWED = [
-        'hero-carousel.js',
-    ];
-
-    public function show(string $file): Response
+    public function show(): Response
     {
-        $basename = basename($file);
-        if (! in_array($basename, self::ALLOWED, true)) {
-            abort(404);
-        }
-
-        $path = dirname(__DIR__, 3).'/resources/assets/'.$basename;
+        // Controller is under Http/Controllers/Public → 4 levels up = module root
+        $path = dirname(__DIR__, 4).'/resources/assets/hero-carousel.js';
         if (! is_file($path)) {
-            abort(404);
+            return response('/* missing */', 200, [
+                'Content-Type' => 'application/javascript; charset=UTF-8',
+                'Cache-Control' => 'no-store',
+            ]);
         }
 
         $js = (string) file_get_contents($path);

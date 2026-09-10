@@ -54,7 +54,6 @@ Route::prefix('admin/ads')
             ->name('destroy');
     });
 
-Route::get('assets/{file}', [AssetController::class, 'show'])
-    ->where('file', 'hero-carousel\\.js')
+Route::get('assets/hero-carousel.js', [AssetController::class, 'show'])
     ->middleware(['throttle:600,1'])
     ->name('assets.show');

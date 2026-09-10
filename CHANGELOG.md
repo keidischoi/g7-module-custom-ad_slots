@@ -4,6 +4,12 @@
 형식은 [Keep a Changelog](https://keepachangelog.com/ko/1.1.0/)를 따르며,
 [Semantic Versioning](https://semver.org/lang/ko/)을 준수합니다.
 
+## [1.2.2] - 2026-09-10
+
+### Fixed
+
+- `AssetController` asset path: `dirname(__DIR__, 3)` resolved to `src/` (controller under `Public/`), so `hero-carousel.js` 404'd. Use `dirname(__DIR__, 4)` (module root). Fixed route `assets/hero-carousel.js`; missing file returns `/* missing */` 200 instead of hard 404.
+
 ## [1.2.1] - 2026-09-10
 
 ### Added
