@@ -1,7 +1,7 @@
 {
   "meta": {
     "is_partial": true,
-    "description": "Legacy banner item markup (unused by API mounts). Stack banners are now rendered by hero-carousel.js from placements API into data-cas-ad-slot mounts."
+    "description": "Banner item markup for native layout iteration (feat theme pattern). Inlined into _user_base stacks and Event Hook home.mid — do not rely on theme partial resolution."
   },
   "type": "basic",
   "name": "Div",

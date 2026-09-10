@@ -4,6 +4,28 @@
 형식은 [Keep a Changelog](https://keepachangelog.com/ko/1.1.0/)를 따르며,
 [Semantic Versioning](https://semver.org/lang/ko/)을 준수합니다.
 
+## [1.2.7] - 2026-09-10
+
+### Fixed
+
+- **Ads on all pages (feat-style native stacks):** `_user_base` overlay now embeds **path-conditioned** banner stacks (shop/board/mypage/home bottoms + tops) with `data_sources` + `iteration` + **inlined** `_banner_list.json` body. Layout engine renders images — no dependency on empty `data-cas-ad-slot` mounts or `cas_page_*` path JS (those only worked reliably on home).
+- Module `partial: partials/ads/_banner_list.json` often does **not** resolve inside official theme; Event Hook / overlay **inline** the banner item children (same markup as feat theme).
+
+### Changed
+
+- Keep **JS hero carousel** only for `global.top` and `home.top` (official theme has no `AdHeroCarousel`).
+- `global.bottom` and all page top/bottom slots: native stacked banners with path `if` using `_global.shopBase` + `location.pathname` (checkout / order-complete excluded).
+- Remove `cas_page_top_mount` / `cas_page_bottom_mount` to prevent double ads.
+- Event Hook **home.mid** uses native `iterWrap` (iteration + inlined banners).
+- Page overlay files (`ad_shop_*`, `ad_board_popular`) retired to stubs; slot data_sources live on `_user_base`.
+
+### Install
+
+```
+php82 artisan module:update custom-ad_slots --source=bundled --force --layout-strategy=overwrite
+php82 artisan hooks:clear && php82 artisan cache:clear
+```
+
 ## [1.2.6] - 2026-09-10
 
 ### Fixed
