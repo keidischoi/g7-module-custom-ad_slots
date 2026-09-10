@@ -4,6 +4,31 @@
 형식은 [Keep a Changelog](https://keepachangelog.com/ko/1.1.0/)를 따르며,
 [Semantic Versioning](https://semver.org/lang/ko/)을 준수합니다.
 
+## [1.3.0] - 2026-09-10
+
+### Added
+
+- **`ad_page_slots__user_base.json`** (priority 81): path-conditioned empty Div mounts on official `_user_base` `main_content` for shop / board / mypage top+bottom slots (same channel as working home `cas_page_*`). Path `if` only (feat-style `_global.shopBase` / `location.pathname`); **no** API-length gate — JS hides empty mounts.
+- Slot mounts use stable ids (`ad_shop_list_top_mount`, …) + `data-cas-ad-slot` so existing `hero-carousel.js` fills them.
+
+### Changed
+
+- **Event Hook:** disable v1.2.9 native content-tree stacks (`INJECT_NATIVE_PAGE_STACKS=false`) to avoid duplicate ads once `_user_base` mounts work. **`home.mid` still injected.**
+- **JS:** map new `*_mount` ids; when a dedicated `[data-cas-ad-slot]` page mount exists, skip `cas_page` fill for that slot (home unchanged). `resolvePageSlots` shopBase hardening retained as backup.
+
+### Unchanged
+
+- **`ad_global__user_base.json`** — do not edit; `global.top` / `global.bottom` / `cas_page_*` home path mounts stay as in 1.2.8/1.2.9.
+- Checkout / order-complete exclusion; no theme edits.
+
+### Install
+
+```
+php82 artisan module:update custom-ad_slots --source=bundled --force --layout-strategy=overwrite
+php82 artisan hooks:clear
+php82 artisan cache:clear
+```
+
 ## [1.2.9] - 2026-09-10
 
 ### Fixed

@@ -1,4 +1,4 @@
-/*! custom-ad_slots — API mounts (carousel + stacks) + path-routed home/global; native stacks for non-home */
+/*! custom-ad_slots — API mounts (carousel + stacks) + path-routed home/global; _user_base page slot mounts (v1.3.0) */
 (function () {
   if (window.__casAdRenderInstalled) return;
   window.__casAdRenderInstalled = true;
@@ -283,6 +283,24 @@
       ad_board_boards_bottom_wrap: "board.boards.bottom",
       ad_mypage_top_wrap: "mypage.top",
       ad_mypage_bottom_wrap: "mypage.bottom",
+      ad_shop_list_top_mount: "shop.list.top",
+      ad_shop_list_bottom_mount: "shop.list.bottom",
+      ad_shop_detail_top_mount: "shop.detail.top",
+      ad_shop_detail_bottom_mount: "shop.detail.bottom",
+      ad_shop_cart_top_mount: "shop.cart.top",
+      ad_shop_cart_bottom_mount: "shop.cart.bottom",
+      ad_board_popular_top_mount: "board.popular.top",
+      ad_board_popular_bottom_mount: "board.popular.bottom",
+      ad_board_index_top_mount: "board.index.top",
+      ad_board_index_bottom_mount: "board.index.bottom",
+      ad_board_show_top_mount: "board.show.top",
+      ad_board_show_bottom_mount: "board.show.bottom",
+      ad_board_form_top_mount: "board.form.top",
+      ad_board_form_bottom_mount: "board.form.bottom",
+      ad_board_boards_top_mount: "board.boards.top",
+      ad_board_boards_bottom_mount: "board.boards.bottom",
+      ad_mypage_top_mount: "mypage.top",
+      ad_mypage_bottom_mount: "mypage.bottom",
     };
     return map[id] || null;
   }
@@ -328,10 +346,28 @@
       "ad_board_boards_bottom_wrap",
       "ad_mypage_top_wrap",
       "ad_mypage_bottom_wrap",
+      "ad_shop_list_top_mount",
+      "ad_shop_list_bottom_mount",
+      "ad_shop_detail_top_mount",
+      "ad_shop_detail_bottom_mount",
+      "ad_shop_cart_top_mount",
+      "ad_shop_cart_bottom_mount",
+      "ad_board_popular_top_mount",
+      "ad_board_popular_bottom_mount",
+      "ad_board_index_top_mount",
+      "ad_board_index_bottom_mount",
+      "ad_board_show_top_mount",
+      "ad_board_show_bottom_mount",
+      "ad_board_form_top_mount",
+      "ad_board_form_bottom_mount",
+      "ad_board_boards_top_mount",
+      "ad_board_boards_bottom_mount",
+      "ad_mypage_top_mount",
+      "ad_mypage_bottom_mount",
     ];
     for (var i = 0; i < ids.length; i++) {
       var el = document.getElementById(ids[i]);
-      // Native stacks (v1.2.9) reuse wrap ids but have no data-cas-ad-slot —
+      // Legacy native stacks may reuse wrap ids without data-cas-ad-slot —
       // do not claim them or JS would wipe layout-rendered banners.
       if (
         el &&
@@ -1050,13 +1086,23 @@
   }
 
   /**
-   * Event Hook may inject feat-style native stacks (no data-cas-ad-slot).
-   * When present, skip cas_page role fill to avoid double ads.
+   * Skip cas_page role fill when a dedicated page mount already owns the slot
+   * (v1.3.0 `_user_base` path mounts) or a legacy native stack wrap is present.
+   * Home stays on cas_page — dedicated mounts intentionally omit home.*.
    */
-  function hasNativePageStack(slotKey) {
+  function hasDedicatedPageMount(slotKey) {
     if (!slotKey) return false;
-    var id = "ad_" + String(slotKey).split(".").join("_") + "_wrap";
-    var el = document.getElementById(id);
+    if (slotKey === "home.top" || slotKey === "home.bottom") return false;
+    try {
+      var sel = '[data-cas-ad-slot="' + String(slotKey).replace(/"/g, "") + '"]';
+      var nodes = document.querySelectorAll(sel);
+      for (var i = 0; i < nodes.length; i++) {
+        var role = nodes[i].getAttribute("data-cas-ad-role") || "";
+        if (role !== "page-top" && role !== "page-bottom") return true;
+      }
+    } catch (e) {}
+    var wrapId = "ad_" + String(slotKey).split(".").join("_") + "_wrap";
+    var el = document.getElementById(wrapId);
     if (!el) return false;
     if (el.getAttribute("data-cas-ad-slot") || el.getAttribute("data-cas-hero-slot")) {
       return false;
@@ -1097,14 +1143,14 @@
     }
 
     for (var ti = 0; ti < tops.length; ti++) {
-      if (hasNativePageStack(resolved.top)) {
+      if (hasDedicatedPageMount(resolved.top)) {
         clearAndHideMount(tops[ti]);
       } else {
         fillPageRoleMount(tops[ti], resolved.top);
       }
     }
     for (var bi = 0; bi < bottoms.length; bi++) {
-      if (hasNativePageStack(resolved.bottom)) {
+      if (hasDedicatedPageMount(resolved.bottom)) {
         clearAndHideMount(bottoms[bi]);
       } else {
         fillPageRoleMount(bottoms[bi], resolved.bottom);
