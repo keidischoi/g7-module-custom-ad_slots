@@ -6,7 +6,7 @@
   "type": "basic",
   "name": "Div",
   "props": {
-    "className": "relative w-full overflow-hidden rounded-xl",
+    "className": "relative w-full overflow-hidden rounded-xl cas-hero",
     "data-cas-hero": "1",
     "role": "region",
     "aria-roledescription": "carousel",

@@ -89,11 +89,12 @@
                   "type": "basic",
                   "name": "Div",
                   "props": {
-                    "className": "relative w-full overflow-hidden rounded-xl mb-2",
+                    "className": "relative w-full overflow-hidden rounded-xl mb-2 cas-hero",
                     "data-cas-hero": "1",
                     "role": "region",
                     "aria-roledescription": "carousel",
-                    "aria-label": "ads"
+                    "aria-label": "ads",
+                    "id": "ad_global_top_hero"
                   },
                   "iteration": {
                     "source": "{{ad_global_top.data ?? ad_global_top ?? []}}",

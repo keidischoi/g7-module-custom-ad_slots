@@ -4,6 +4,13 @@
 형식은 [Keep a Changelog](https://keepachangelog.com/ko/1.1.0/)를 따르며,
 [Semantic Versioning](https://semver.org/lang/ko/)을 준수합니다.
 
+## [1.2.3] - 2026-09-10
+
+### Fixed
+
+- Carousel now builds a sibling **host DOM** outside React management (React was resetting inline styles on slide nodes → stacked banners). Source roots stay `display:none`; host owns aspect ratio, one-slide-visible, autoplay/controls/swipe.
+- Hero roots get reliable `cas-hero` className (and `ad_global_top_hero` id on global) in addition to `data-cas-hero`.
+
 ## [1.2.2] - 2026-09-10
 
 ### Fixed
