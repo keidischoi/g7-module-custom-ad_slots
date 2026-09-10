@@ -1,4 +1,4 @@
-/*! custom-ad_slots — API-driven ad mounts (carousel + stacked banners) + path-routed page mounts */
+/*! custom-ad_slots — API-driven ad mounts (carousel + stacked banners) + path-routed page mounts; native stacks for board/popular */
 (function () {
   if (window.__casAdRenderInstalled) return;
   window.__casAdRenderInstalled = true;
@@ -126,7 +126,8 @@
       return { top: "mypage.top", bottom: "mypage.bottom", excluded: false, path: path };
     }
 
-    // Board popular: /boards/popular or /board/popular
+    // Board popular (first-class): /boards/popular and /boards/popular/ (slash stripped)
+    // Also /board/popular. Event Hook injects native stacks for layout board/popular.
     if (
       lower === "/boards/popular" ||
       lower === "/board/popular" ||
@@ -292,7 +293,14 @@
     ];
     for (var i = 0; i < ids.length; i++) {
       var el = document.getElementById(ids[i]);
-      if (el) add(el);
+      // Native stacks (board/popular) reuse wrap ids but have no data-cas-ad-slot —
+      // do not claim them or JS would wipe layout-rendered banners.
+      if (
+        el &&
+        (el.getAttribute("data-cas-ad-slot") || el.getAttribute("data-cas-hero-slot"))
+      ) {
+        add(el);
+      }
     }
 
     // Prefer innermost mount when both wrap + hero exist
@@ -1003,6 +1011,21 @@
     });
   }
 
+  /**
+   * Event Hook may inject feat-style native stacks (no data-cas-ad-slot).
+   * When present, skip cas_page role fill to avoid double ads.
+   */
+  function hasNativePageStack(slotKey) {
+    if (!slotKey) return false;
+    var id = "ad_" + String(slotKey).split(".").join("_") + "_wrap";
+    var el = document.getElementById(id);
+    if (!el) return false;
+    if (el.getAttribute("data-cas-ad-slot") || el.getAttribute("data-cas-hero-slot")) {
+      return false;
+    }
+    return true;
+  }
+
   function runPageMounts() {
     var resolved = resolvePageSlots();
     var pageSig =
@@ -1036,10 +1059,18 @@
     }
 
     for (var ti = 0; ti < tops.length; ti++) {
-      fillPageRoleMount(tops[ti], resolved.top);
+      if (hasNativePageStack(resolved.top)) {
+        clearAndHideMount(tops[ti]);
+      } else {
+        fillPageRoleMount(tops[ti], resolved.top);
+      }
     }
     for (var bi = 0; bi < bottoms.length; bi++) {
-      fillPageRoleMount(bottoms[bi], resolved.bottom);
+      if (hasNativePageStack(resolved.bottom)) {
+        clearAndHideMount(bottoms[bi]);
+      } else {
+        fillPageRoleMount(bottoms[bi], resolved.bottom);
+      }
     }
   }
 

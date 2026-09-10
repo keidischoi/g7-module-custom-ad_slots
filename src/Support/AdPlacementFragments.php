@@ -9,6 +9,8 @@ namespace Modules\Custom\AdSlots\Support;
  * Layout mounts are empty placeholders with data-cas-ad-slot; hero-carousel.js
  * fetches placements API and renders carousel/stack into the mount.
  * Mounts are always present (no layout `if` on API length) — JS hides when empty.
+ *
+ * nativeStackWrap(): feat-style if+iteration+_banner_list for board/popular (v1.3.2).
  */
 final class AdPlacementFragments
 {
@@ -37,6 +39,34 @@ final class AdPlacementFragments
         self::$bannerItem = $data;
 
         return self::$bannerItem;
+    }
+
+
+    /**
+     * Feat-style native banner stack: if length>0 + iteration + inlined banner item.
+     * No data-cas-ad-slot — layout engine paints; JS must not claim these wraps.
+     *
+     * @return array<string, mixed>
+     */
+    public static function nativeStackWrap(string $wrapId, string $comment, string $dsId, string $className): array
+    {
+        return [
+            'id' => $wrapId,
+            'comment' => $comment,
+            'type' => 'basic',
+            'name' => 'Div',
+            'if' => '{{(('.$dsId.'.data ?? '.$dsId.' ?? []).length > 0)}}',
+            'props' => [
+                'className' => $className,
+                // HTML id for hasNativePageStack / tree checks — NO data-cas-ad-slot
+                'id' => $wrapId,
+            ],
+            'iteration' => [
+                'source' => '{{'.$dsId.'.data ?? '.$dsId.' ?? []}}',
+                'item_var' => 'ad',
+            ],
+            'children' => [self::bannerItem()],
+        ];
     }
 
     /**
@@ -85,7 +115,7 @@ final class AdPlacementFragments
     }
 
     /**
-     * @deprecated Prefer mountWrap(); kept for callers — now emits API mount stub.
+     * @deprecated Prefer nativeStackWrap() for page stacks or mountWrap() for JS mounts.
      *
      * @return array<string, mixed>
      */

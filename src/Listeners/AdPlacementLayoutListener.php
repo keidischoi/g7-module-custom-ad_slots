@@ -8,18 +8,17 @@ use Modules\Custom\AdSlots\Support\AdPlacementFragments;
 /**
  * Event Hook layout listener for custom-ad_slots.
  *
- * Primary page ads (v1.2.6+): always-on mounts on `_user_base`
- * (`cas_page_top_mount` / `cas_page_bottom_mount`) filled by hero-carousel.js
- * via URL path → slot mapping. That path does not depend on per-page content
- * tree injection.
+ * Home / global (unchanged from 1.3.1 / 1.2.8):
+ *  - `home.top` / `home.bottom` via `_user_base` path mounts (`cas_page_*`) + JS
+ *  - `global.top` / `global.bottom` on `_user_base` overlay
+ *  - `home.mid` inserted between official home row1 and row2 (API mount)
  *
- * This listener still:
- *  - inserts **home.mid** between official home row1 and row2
- *  - optionally injects page top/bottom mounts into the content tree as a
- *    backup (NOT required for ads to show)
- *  - hard-excludes checkout / order-complete layouts
+ * board/popular ONLY (v1.3.2): feat-style **native** banner stacks
+ * (data_source + if + iteration + inlined `_banner_list`) injected into
+ * slots.content[0].children — path JS alone is unreliable for that URL.
+ * Do NOT enable native injection for other pages yet.
  *
- * global.top / global.bottom remain on `_user_base` overlay.
+ * Checkout / order-complete layouts stay excluded.
  * SLOT_KEYS / admin options are unchanged (owned by forms + lang).
  *
  * Ads only — no menu/search/icon/home-design UI.
@@ -27,6 +26,8 @@ use Modules\Custom\AdSlots\Support\AdPlacementFragments;
 class AdPlacementLayoutListener implements HookListenerInterface
 {
     private const HOME = 'home';
+
+    private const BOARD_POPULAR = 'board/popular';
 
     private const SHOP_SHOW = 'shop/show';
 
@@ -36,8 +37,9 @@ class AdPlacementLayoutListener implements HookListenerInterface
 
     /**
      * Exact layout_name → [topSlot, bottomSlot] (null = skip that side).
-     * Optional backup injection only — primary mounts live on _user_base.
-     * home.mid handled separately. mypage/* matched by prefix.
+     * board/popular uses native stacks (v1.3.2). Other non-home pairs are for
+     * optional INJECT_PAGE_MOUNTS_BACKUP only. home.mid handled separately.
+     * mypage/* matched by prefix.
      *
      * @var array<string, array{0:?string,1:?string}>
      */
@@ -129,7 +131,14 @@ class AdPlacementLayoutListener implements HookListenerInterface
             return $layout;
         }
 
-        // Optional backup: per-page content-tree mounts (primary = _user_base path mounts).
+        // board/popular ONLY: feat-style native stacks into page content.
+        // Home top/bottom stay on cas_page path mounts — do not inject here.
+        if ($name === self::BOARD_POPULAR) {
+            $layout = $this->ensureNativeStack($layout, 'board.popular.top', 'top', $name);
+            $layout = $this->ensureNativeStack($layout, 'board.popular.bottom', 'bottom', $name);
+        }
+
+        // Optional backup: per-page JS mounts (disabled; primary = _user_base path mounts).
         if (self::INJECT_PAGE_MOUNTS_BACKUP) {
             $pair = $this->slotsForLayout($name);
             if ($pair !== null) {
@@ -210,6 +219,49 @@ class AdPlacementLayoutListener implements HookListenerInterface
         }
 
         return null;
+    }
+
+
+    /**
+     * Ensure a top (prepend) or bottom (append) feat-style native banner stack.
+     * Used for board/popular only (v1.3.2). Always ensureDataSource for the slot.
+     */
+    private function ensureNativeStack(array $layout, string $slotKey, string $side, string $layoutName): array
+    {
+        $wrapId = AdPlacementFragments::wrapIdForSlot($slotKey);
+        if ($this->treeHasId($layout, $wrapId)) {
+            // Still ensure DS even if wrap already present (extensions may add wrap-less DS).
+            $dsId = AdPlacementFragments::dsIdForSlot($slotKey);
+            $layout = $this->ensureDataSource($layout, $dsId, $slotKey, 'Ad '.$slotKey);
+
+            return $layout;
+        }
+
+        $dsId = AdPlacementFragments::dsIdForSlot($slotKey);
+        $layout = $this->ensureDataSource($layout, $dsId, $slotKey, 'Ad '.$slotKey);
+
+        $className = $side === 'top'
+            ? 'mb-4 flex flex-col gap-3'
+            : 'mt-4 flex flex-col gap-3';
+
+        $comment = sprintf(
+            '=== Ad slot: %s (%s %s) — native stack ===',
+            $slotKey,
+            $layoutName,
+            $side
+        );
+
+        $wrap = AdPlacementFragments::nativeStackWrap($wrapId, $comment, $dsId, $className);
+
+        $done = false;
+        if (isset($layout['slots']) && is_array($layout['slots'])) {
+            $layout['slots'] = $this->prependOrAppendInContent($layout['slots'], $wrap, $side, $done);
+        }
+        if (! $done && isset($layout['components']) && is_array($layout['components'])) {
+            $layout['components'] = $this->prependOrAppendInContent($layout['components'], $wrap, $side, $done);
+        }
+
+        return $layout;
     }
 
     /**

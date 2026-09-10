@@ -1,5 +1,5 @@
 {
-  "_comment": "data_sources only for board/popular. Mount Divs are injected by AdPlacementLayoutListener (official layouts lack reliable main_content for overlay inject).",
+  "_comment": "data_sources for board/popular. v1.3.2: AdPlacementLayoutListener injects feat-style nativeStackWrap (if length>0 + iteration + bannerItem) for board.popular.top/bottom into slots.content[0].children. Keep data_sources; injections stay empty.",
   "target_layout": "board/popular",
   "priority": 85,
   "data_sources": [

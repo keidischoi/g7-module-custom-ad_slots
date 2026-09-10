@@ -4,6 +4,32 @@
 형식은 [Keep a Changelog](https://keepachangelog.com/ko/1.1.0/)를 따르며,
 [Semantic Versioning](https://semver.org/lang/ko/)을 준수합니다.
 
+## [1.3.2] - 2026-09-10
+
+### Fixed
+
+- **`/boards/popular` only:** Event Hook injects feat-style **native** banner stacks (`if` length>0 + `iteration` + inlined `_banner_list`) for `board.popular.top` / `board.popular.bottom` into `slots.content[0].children`. Path-routed `cas_page_*` alone was unreliable on that URL.
+- **Home untouched:** `home.top` / `home.bottom` / `home.mid` / `global.*` and `ad_global__user_base.json` unchanged. Other pages not enabled yet.
+
+### Added
+
+- Restored `AdPlacementFragments::nativeStackWrap()` (from 1.2.9) for board/popular native stacks.
+- JS: `findMounts` skips wrap ids without `data-cas-ad-slot`; `hasNativePageStack` clears `cas_page` when native stack is present (no double ads). `resolvePageSlots` keeps `/boards/popular` first-class.
+
+### Unchanged
+
+- **`ad_global__user_base.json`** — do not edit.
+- **`ad_home.json`** injections / home.top/bottom behavior.
+- No theme edits. Checkout / order-complete exclusion.
+
+### Install
+
+```
+php82 artisan module:update custom-ad_slots --source=bundled --force --layout-strategy=overwrite
+php82 artisan hooks:clear
+php82 artisan cache:clear
+```
+
 ## [1.3.1] - 2026-09-10
 
 ### Fixed
