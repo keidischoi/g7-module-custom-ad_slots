@@ -7,7 +7,7 @@
 | identifier | `custom-ad_slots` |
 | Namespace | `Modules\Custom\AdSlots` |
 | Composer | `modules/custom-ad_slots` |
-| 버전 | `1.2.3` |
+| 버전 | `1.2.4` |
 
 ## 슬롯 키
 
@@ -29,7 +29,7 @@
 
 
 
-## 공식 테마 광고 주입 (v1.2.3 · Layout Extensions + Event Hook)
+## 공식 테마 광고 주입 (v1.2.4 · Layout Extensions + Event Hook)
 
 테마 파일을 수정하지 않습니다. 모듈이 **공식** `gnuboard/g7-template-sirsoft-basic` 앵커에만 광고 UI를 주입합니다.
 
@@ -48,7 +48,7 @@
 Partials: `resources/layouts/partials/ads/*`  
 리스너: `src/Listeners/AdPlacementLayoutListener.php`
 
-**home.top / global.top**: 모듈 JS 히어로 캐러셀 (`data-cas-hero` + `/api/modules/custom-ad_slots/assets/hero-carousel.js`). 공식 테마 AdHeroCarousel 미사용.
+**home.top / global.top**: 모듈 JS 히어로 캐러셀 — mount stub + `hero-carousel.js`가 placements API에서 **전체 슬라이드**를 받아 sibling host DOM 구성 (feat `AdHeroCarousel` items와 동일). 공식 테마 AdHeroCarousel 미사용.
 
 **제외**: 메뉴/검색/아이콘/홈디자인 등 비광고 UI는 포함하지 않습니다.
 

@@ -1,4 +1,4 @@
-/*! custom-ad_slots — Bunjang-style hero carousel (sibling host DOM; React-safe) */
+/*! custom-ad_slots — Bunjang-style hero carousel (API-fed sibling host; React-safe) */
 (function () {
   if (window.__casHeroCarouselInstalled) return;
   window.__casHeroCarouselInstalled = true;
@@ -6,6 +6,10 @@
   var INTERVAL_MS = 4000;
   var SWIPE_MIN = 40;
   var MD_MQ = "(min-width: 768px)";
+  var PLACEMENTS_URL = "/api/modules/custom-ad_slots/placements";
+
+  /** @type {Object.<string, {status:string, items:Array, promise:Promise|null, error:*} >} */
+  var slotCache = {};
 
   function isExternal(url) {
     return /^https?:\/\//i.test(url || "");
@@ -23,12 +27,34 @@
     } catch (e2) {}
   }
 
-  function findRoots() {
+  function truthyFlag(val) {
+    return val === "1" || val === "true" || val === true || val === 1;
+  }
+
+  function resolveSlotKey(el) {
+    if (!el || el.nodeType !== 1) return null;
+    var attr =
+      el.getAttribute("data-cas-hero-slot") ||
+      (el.dataset && el.dataset.casHeroSlot) ||
+      "";
+    if (attr) return String(attr).trim();
+    if (el.id === "ad_home_top_wrap") return "home.top";
+    if (el.id === "ad_global_top_hero") return "global.top";
+    if (el.id === "ad_global_top_wrap") return "global.top";
+    var wrap = el.closest && el.closest("#ad_global_top_wrap");
+    if (wrap) return "global.top";
+    var home = el.closest && el.closest("#ad_home_top_wrap");
+    if (home) return "home.top";
+    return null;
+  }
+
+  function findMounts() {
     var found = [];
 
     function add(el) {
       if (!el || el.nodeType !== 1) return;
       if (el.getAttribute("data-cas-hero-host") === "1") return;
+      if (el.classList && el.classList.contains("cas-hero-host")) return;
       for (var i = 0; i < found.length; i++) {
         if (found[i] === el) return;
       }
@@ -38,15 +64,23 @@
     var home = document.getElementById("ad_home_top_wrap");
     if (home) add(home);
 
-    var globalWrap = document.getElementById("ad_global_top_wrap");
-    if (globalWrap) {
-      var inner =
-        document.getElementById("ad_global_top_hero") ||
-        globalWrap.querySelector(".cas-hero") ||
-        globalWrap.querySelector("[data-cas-hero]");
-      if (inner) add(inner);
-      else if (globalWrap.querySelector("img")) add(globalWrap);
+    var globalHero = document.getElementById("ad_global_top_hero");
+    if (globalHero) {
+      add(globalHero);
+    } else {
+      var globalWrap = document.getElementById("ad_global_top_wrap");
+      if (globalWrap) {
+        var inner =
+          globalWrap.querySelector(".cas-hero") ||
+          globalWrap.querySelector("[data-cas-hero]") ||
+          globalWrap.querySelector("[data-cas-hero-slot]");
+        if (inner) add(inner);
+        else add(globalWrap);
+      }
     }
+
+    var bySlot = document.querySelectorAll("[data-cas-hero-slot]");
+    for (var s = 0; s < bySlot.length; s++) add(bySlot[s]);
 
     var byClass = document.querySelectorAll(".cas-hero");
     for (var c = 0; c < byClass.length; c++) add(byClass[c]);
@@ -65,8 +99,119 @@
     }
   }
 
-  function truthyFlag(val) {
-    return val === "1" || val === "true" || val === true || val === 1;
+  function normalizePlacementsPayload(json) {
+    if (!json) return [];
+    var data = json.data !== undefined ? json.data : json;
+    if (Array.isArray(data)) return data;
+    if (data && Array.isArray(data.data)) return data.data;
+    if (data && typeof data === "object") {
+      // slot-grouped map → flatten unlikely for ?slot=; treat as empty
+      return [];
+    }
+    return [];
+  }
+
+  function hasAnyImage(ad) {
+    return !!(
+      ad.image_desktop ||
+      ad.image_url_desktop ||
+      ad.image_url ||
+      ad.image_mobile ||
+      ad.image_url_mobile
+    );
+  }
+
+  function mapApiItem(ad) {
+    var desktop =
+      ad.image_desktop || ad.image_url_desktop || ad.image_url || "";
+    var mobile =
+      ad.image_mobile ||
+      ad.image_url_mobile ||
+      ad.image_desktop ||
+      ad.image_url_desktop ||
+      ad.image_url ||
+      "";
+    var openNew = ad.open_in_new_tab;
+    if (openNew === undefined || openNew === null) openNew = true;
+    openNew = !!openNew;
+    var prevent = !!(ad.prevent_right_click || ad.preventRightClick);
+    var href = (ad.link_url || "").trim();
+    var target = "";
+    var rel = "";
+    if (href && isExternal(href)) {
+      if (openNew) {
+        target = "_blank";
+        rel = "noopener noreferrer";
+      } else {
+        target = "_self";
+      }
+    }
+    return {
+      id: ad.id,
+      desktopSrc: desktop,
+      mobileSrc: mobile || desktop,
+      href: href,
+      target: target,
+      rel: rel,
+      openInNewTab: openNew,
+      title: ad.title || "",
+      bg_color: ad.bg_color || "",
+      preventRightClick: prevent,
+    };
+  }
+
+  function filterAndMapItems(items) {
+    var list = Array.isArray(items) ? items : [];
+    var out = [];
+    for (var i = 0; i < list.length; i++) {
+      var ad = list[i];
+      if (!ad) continue;
+      var t = ad.type != null ? ad.type : "static";
+      if (t !== "static") continue;
+      if (!hasAnyImage(ad)) continue;
+      out.push(mapApiItem(ad));
+    }
+    return out;
+  }
+
+  function fetchSlot(slotKey) {
+    if (!slotKey) {
+      return Promise.resolve({ status: "err", items: [], error: "no-slot" });
+    }
+    var cached = slotCache[slotKey];
+    if (cached && (cached.status === "ok" || cached.status === "err")) {
+      return Promise.resolve(cached);
+    }
+    if (cached && cached.status === "pending" && cached.promise) {
+      return cached.promise;
+    }
+
+    var entry = { status: "pending", items: [], promise: null, error: null };
+    slotCache[slotKey] = entry;
+
+    entry.promise = fetch(
+      PLACEMENTS_URL + "?slot=" + encodeURIComponent(slotKey),
+      { credentials: "same-origin", headers: { Accept: "application/json" } }
+    )
+      .then(function (res) {
+        if (!res.ok) throw new Error("HTTP " + res.status);
+        return res.json();
+      })
+      .then(function (json) {
+        var raw = normalizePlacementsPayload(json);
+        entry.items = filterAndMapItems(raw);
+        entry.status = "ok";
+        entry.error = null;
+        return entry;
+      })
+      .catch(function (err) {
+        entry.status = "err";
+        entry.items = [];
+        entry.error = err;
+        return entry;
+      });
+
+    return entry.promise;
   }
 
   function pickDesktopMobile(imgs) {
@@ -140,12 +285,14 @@
         });
 
       slides.push({
+        id: null,
         desktopSrc: media.desktopSrc,
         mobileSrc: media.mobileSrc || media.desktopSrc,
         href: href,
         target: target,
         rel: rel,
         title: title,
+        bg_color: "",
         preventRightClick: !!prevent,
       });
     }
@@ -156,7 +303,13 @@
   function slideSignature(slides) {
     return slides
       .map(function (s) {
-        return (s.desktopSrc || "") + "|" + (s.mobileSrc || "") + "|" + (s.href || "");
+        return (
+          (s.id != null ? String(s.id) : "") +
+          "|" +
+          (s.desktopSrc || "") +
+          "|" +
+          (s.mobileSrc || "")
+        );
       })
       .join("||");
   }
@@ -262,11 +415,11 @@
         a.style.display = "block";
         a.style.width = "100%";
         a.style.height = "100%";
-        // Mirror source: target=_blank from layout (open_in_new_tab); else default new tab for external
         if (slide.target && slide.target !== "_self") {
           a.target = slide.target;
           a.rel = slide.rel || "noopener noreferrer";
         } else if (!slide.target) {
+          // default new tab for external when unspecified
           a.target = "_blank";
           a.rel = "noopener noreferrer";
         }
@@ -321,6 +474,9 @@
     host.style.width = "100%";
     host.style.overflow = "hidden";
     host.style.borderRadius = "0.75rem";
+    if (slides[0] && slides[0].bg_color) {
+      host.style.backgroundColor = slides[0].bg_color;
+    }
 
     var rootCn = (root.className && String(root.className)) || "";
     if (rootCn.indexOf("mb-4") !== -1) host.style.marginBottom = "1rem";
@@ -347,6 +503,7 @@
       layer.style.inset = "0";
       layer.style.width = "100%";
       layer.style.height = "100%";
+      if (slide.bg_color) layer.style.backgroundColor = slide.bg_color;
       layer.setAttribute("data-cas-host-slide", String(i));
 
       var built = buildSlideBody(slide);
@@ -354,6 +511,7 @@
       layer.__casDesktop = built.desktopImg;
       layer.__casMobile = built.mobileImg;
       layer.__casPrevent = slide.preventRightClick;
+      layer.__casBg = slide.bg_color || "";
       frame.appendChild(layer);
       state.slideEls.push(layer);
     });
@@ -379,7 +537,10 @@
           else d.removeAttribute("aria-current");
         });
       }
-      host.setAttribute("aria-label", (slides[n] && slides[n].title) || "ads");
+      var cur = slides[n];
+      host.setAttribute("aria-label", (cur && cur.title) || "ads");
+      if (cur && cur.bg_color) host.style.backgroundColor = cur.bg_color;
+      else host.style.backgroundColor = "";
     }
 
     state.go = function (next) {
@@ -549,16 +710,8 @@
     return host;
   }
 
-  function enhanceRoot(root) {
-    if (!root || root.nodeType !== 1) return;
-    if (root.getAttribute("data-cas-hero-host") === "1") return;
-    if (root.classList.contains("cas-hero-host")) return;
-
-    var imgs = root.querySelectorAll("img");
-    if (!imgs || !imgs.length) return;
-
-    var slides = extractSlides(root);
-    if (!slides.length) return;
+  function applySlidesToMount(root, slides) {
+    if (!slides || !slides.length) return;
 
     var sig = slideSignature(slides);
     var existing = findExistingHost(root);
@@ -573,11 +726,57 @@
     hideSourceRoot(root);
   }
 
+  function enhanceMount(root) {
+    if (!root || root.nodeType !== 1) return;
+    if (root.getAttribute("data-cas-hero-host") === "1") return;
+    if (root.classList.contains("cas-hero-host")) return;
+
+    var slotKey = resolveSlotKey(root);
+
+    // Always hide React/layout source every tick once we know it's a mount
+    if (slotKey || root.classList.contains("cas-hero") || root.hasAttribute("data-cas-hero")) {
+      // hide only after we have (or fail) slides — still hide empty mount stubs when API ok
+    }
+
+    if (slotKey) {
+      var cached = slotCache[slotKey];
+      if (cached && cached.status === "ok") {
+        if (cached.items.length) {
+          applySlidesToMount(root, cached.items);
+        } else {
+          // API returned empty — try DOM backup if any images exist
+          var domEmpty = extractSlides(root);
+          if (domEmpty.length) applySlidesToMount(root, domEmpty);
+          else hideSourceRoot(root);
+        }
+        return;
+      }
+      if (cached && cached.status === "err") {
+        var fallback = extractSlides(root);
+        if (fallback.length) applySlidesToMount(root, fallback);
+        return;
+      }
+      // pending or not started — kick fetch; hide mount to avoid flash of stub
+      hideSourceRoot(root);
+      fetchSlot(slotKey).then(function () {
+        schedule();
+      });
+      return;
+    }
+
+    // No slot key: legacy DOM-only path
+    var imgs = root.querySelectorAll("img");
+    if (!imgs || !imgs.length) return;
+    var slides = extractSlides(root);
+    if (!slides.length) return;
+    applySlidesToMount(root, slides);
+  }
+
   function run() {
     try {
-      var roots = findRoots();
-      for (var i = 0; i < roots.length; i++) {
-        enhanceRoot(roots[i]);
+      var mounts = findMounts();
+      for (var i = 0; i < mounts.length; i++) {
+        enhanceMount(mounts[i]);
       }
       var sources = document.querySelectorAll(".cas-hero-source");
       for (var s = 0; s < sources.length; s++) {
