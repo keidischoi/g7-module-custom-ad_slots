@@ -4,6 +4,26 @@
 형식은 [Keep a Changelog](https://keepachangelog.com/ko/1.1.0/)를 따르며,
 [Semantic Versioning](https://semver.org/lang/ko/)을 준수합니다.
 
+## [1.3.3] - 2026-09-10
+
+### Fixed
+
+- **Bottom merge carousel** (`hero-carousel.js`): when page bottom + `global.bottom` both have items, render as **one carousel** (same as top), not a stacked list that looked like duplicates.
+- **Single bottom/top host:** always clear/hide the non-primary mount after merge so only one host stays visible (defensive against duplicate mounts).
+- Merged bottom uses carousel path when slide count ≥ 1; carousel controls/autoplay when ≥ 2 slides (unchanged carousel builder).
+
+### Changed
+
+- Version **1.3.3**. Prefer `hero-carousel.js` only — no theme edits.
+
+### Install
+
+```
+php82 artisan module:update custom-ad_slots --source=bundled --force --layout-strategy=overwrite
+php82 artisan hooks:clear
+php82 artisan cache:clear
+```
+
 ## [1.3.2] - 2026-09-10
 
 ### Changed

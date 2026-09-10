@@ -5,7 +5,7 @@
         "ko": "광고 슬롯",
         "en": "Ad Slots"
     },
-    "version": "1.3.2",
+    "version": "1.3.3",
     "license": "MIT",
     "description": {
         "ko": "전역/홈/쇼핑몰/게시판/마이페이지 영역별 정적·동적 광고 슬롯 관리 모듈",
