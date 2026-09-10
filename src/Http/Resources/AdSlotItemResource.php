@@ -16,7 +16,7 @@ class AdSlotItemResource extends JsonResource
     /**
      * @var array<string, string>
      */
-        private const SLOT_LABELS = [
+    private const SLOT_LABELS = [
         'home.top' => '홈 상단',
         'home.mid' => '홈 중단',
         'home.bottom' => '홈 하단',
@@ -28,6 +28,16 @@ class AdSlotItemResource extends JsonResource
         'shop.cart.bottom' => '장바구니 하단',
         'board.popular.top' => '인기글 상단',
         'board.popular.bottom' => '인기글 하단',
+        'board.index.top' => '게시판 목록 상단',
+        'board.index.bottom' => '게시판 목록 하단',
+        'board.show.top' => '게시글 상세 상단',
+        'board.show.bottom' => '게시글 상세 하단',
+        'board.form.top' => '게시글 작성 상단',
+        'board.form.bottom' => '게시글 작성 하단',
+        'board.boards.top' => '게시판 목록(전체) 상단',
+        'board.boards.bottom' => '게시판 목록(전체) 하단',
+        'mypage.top' => '마이페이지 상단',
+        'mypage.bottom' => '마이페이지 하단',
         'global.top' => '전체 · 상단',
         'global.bottom' => '전체 · 하단',
     ];

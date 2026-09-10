@@ -227,6 +227,46 @@
                                                 {
                                                     "label": "$t:custom-ad_slots.slots.board.popular.bottom",
                                                     "value": "board.popular.bottom"
+                                                },
+                                                {
+                                                    "label": "$t:custom-ad_slots.slots.board.index.top",
+                                                    "value": "board.index.top"
+                                                },
+                                                {
+                                                    "label": "$t:custom-ad_slots.slots.board.index.bottom",
+                                                    "value": "board.index.bottom"
+                                                },
+                                                {
+                                                    "label": "$t:custom-ad_slots.slots.board.show.top",
+                                                    "value": "board.show.top"
+                                                },
+                                                {
+                                                    "label": "$t:custom-ad_slots.slots.board.show.bottom",
+                                                    "value": "board.show.bottom"
+                                                },
+                                                {
+                                                    "label": "$t:custom-ad_slots.slots.board.form.top",
+                                                    "value": "board.form.top"
+                                                },
+                                                {
+                                                    "label": "$t:custom-ad_slots.slots.board.form.bottom",
+                                                    "value": "board.form.bottom"
+                                                },
+                                                {
+                                                    "label": "$t:custom-ad_slots.slots.board.boards.top",
+                                                    "value": "board.boards.top"
+                                                },
+                                                {
+                                                    "label": "$t:custom-ad_slots.slots.board.boards.bottom",
+                                                    "value": "board.boards.bottom"
+                                                },
+                                                {
+                                                    "label": "$t:custom-ad_slots.slots.mypage.top",
+                                                    "value": "mypage.top"
+                                                },
+                                                {
+                                                    "label": "$t:custom-ad_slots.slots.mypage.bottom",
+                                                    "value": "mypage.bottom"
                                                 }
                                             ]
                                         },

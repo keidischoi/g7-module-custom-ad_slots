@@ -4,6 +4,22 @@
 형식은 [Keep a Changelog](https://keepachangelog.com/ko/1.1.0/)를 따르며,
 [Semantic Versioning](https://semver.org/lang/ko/)을 준수합니다.
 
+## [1.2.5] - 2026-09-10
+
+### Fixed
+
+- **Ads on all pages (not only home):** `AdPlacementLayoutListener` injects empty `data-cas-ad-slot` mounts into the live content tree (`main_content` **or** `slots.content[0]` children). Official shop/board/mypage layouts have no reliable `main_content` for overlay inject — overlays no longer own page mounts.
+- **Always-on mounts:** removed brittle `if: length>0` from mount wraps and `_user_base` global top/bottom. JS hides empty mounts (`display:none`) and shows them when placements exist — never clears non-mount page content.
+- **Checkout safety:** never inject ad mounts into `shop/checkout`, `checkout`, `order_complete`, `guest_order_show`, or any layout name containing `checkout`.
+
+### Added
+
+- Slot keys: `mypage.top` / `mypage.bottom`, `board.index.top/bottom`, `board.show.top/bottom`, `board.form.top/bottom`, `board.boards.top/bottom` (admin form + ko/en + resource labels). Q&A boards use normal `board/index`·`board/show`; `mypage/inquiries` maps to mypage slots.
+
+### Changed
+
+- Page overlay extensions (`ad_home`, `ad_shop_*`, `ad_board_popular`) are **data_sources only**; listener owns mount insertion by layout map. `_user_base` still loads `hero-carousel.js` and hosts `global.top` / `global.bottom`.
+
 ## [1.2.4] - 2026-09-10
 
 ### Fixed

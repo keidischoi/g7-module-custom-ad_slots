@@ -7,7 +7,7 @@
 | identifier | `custom-ad_slots` |
 | Namespace | `Modules\Custom\AdSlots` |
 | Composer | `modules/custom-ad_slots` |
-| 버전 | `1.2.4` |
+| 버전 | `1.2.5` |
 
 ## 슬롯 키
 
@@ -26,31 +26,34 @@
 | `shop.cart.bottom` | 장바구니 하단 |
 | `board.popular.top` | 인기글 상단 |
 | `board.popular.bottom` | 인기글 하단 |
+| `board.index.top` / `board.index.bottom` | 게시판 목록 (Q&A 등) |
+| `board.show.top` / `board.show.bottom` | 게시글 상세 |
+| `board.form.top` / `board.form.bottom` | 게시글 작성 |
+| `board.boards.top` / `board.boards.bottom` | 게시판 전체 목록 |
+| `mypage.top` / `mypage.bottom` | 마이페이지 전 화면 |
 
 
 
-## 공식 테마 광고 주입 (v1.2.4 · Layout Extensions + Event Hook)
+## 공식 테마 광고 주입 (v1.2.5 · Event Hook mounts + `_user_base` global)
 
-테마 파일을 수정하지 않습니다. 모듈이 **공식** `gnuboard/g7-template-sirsoft-basic` 앵커에만 광고 UI를 주입합니다.
+테마 파일을 수정하지 않습니다. **페이지별 마운트는 Event Hook**이 `main_content` 또는 `slots.content[0]` 자식에 빈 Div를 넣습니다(공식 shop/board/mypage에는 overlay용 `main_content`가 없음).
 
 | 슬롯 | 방식 | 앵커 |
 |------|------|------|
-| `global.top` | overlay `ad_global__user_base.json` | `_user_base` → `main_content_area` prepend(**hero carousel**) |
-| `global.bottom` | 동일 | `_user_base` → `footer` `prepend` |
-| `home.top` / `home.bottom` | overlay `ad_home.json` | `home` → `main_content` prepend(**hero carousel**)/append(stack) |
-| `home.mid` | Event Hook `AdPlacementLayoutListener` | 홈 1행·2행 사이 |
-| `shop.list.top` / `shop.list.bottom` | overlay `ad_shop_list.json` | `shop/index` → `main_content` prepend/append |
-| `shop.detail.top` / `shop.detail.bottom` | overlay + Event Hook 재배치 | `shop/show` → top after back / bottom append |
-| `shop.cart.top` / `shop.cart.bottom` | overlay `ad_shop_cart.json` | `shop/cart` → `main_content` prepend/append |
-| `board.popular.top` / `board.popular.bottom` | overlay `ad_board_popular.json` | `board/popular` → `main_content` prepend/append |
+| `global.top` / `global.bottom` | overlay `ad_global__user_base.json` (always-on) | `_user_base` → `main_content_area` / `footer` + script |
+| `home.top` / `home.bottom` / `home.mid` | Event Hook | content tree prepend/append; mid = 1행·2행 사이 |
+| `shop.list.*` / `shop.detail.*` / `shop.cart.*` | Event Hook | `shop/index`·`shop/show`·`shop/cart` content tree |
+| `board.popular.*` / `board.index.*` / `board.show.*` / `board.form.*` / `board.boards.*` | Event Hook | 해당 board 레이아웃 content tree |
+| `mypage.top` / `mypage.bottom` | Event Hook | `mypage` 및 `mypage/*` (문의·주문 등 포함) |
 
-확장 파일: `resources/extensions/*.json`  
-Partials: `resources/layouts/partials/ads/*`  
+**제외(주입 안 함):** `shop/checkout`, `checkout`, `order_complete`, `guest_order_show`, 이름에 `checkout` 포함 레이아웃 — 결제 화면 공백 방지.
+
+확장 파일: `resources/extensions/ad_global__user_base.json` (+ page overlays는 data_sources only)  
 리스너: `src/Listeners/AdPlacementLayoutListener.php`
 
-**모든 슬롯**: 레이아웃은 `data-cas-ad-slot` **마운트만** 두고, `hero-carousel.js`( `_user_base`에서 1회 로드)가 placements API로 렌더. `home.top`/`global.top`=캐러셀, 나머지=스택 배너. 공식 테마 AdHeroCarousel 미사용.
+**모든 슬롯**: 레이아웃은 `data-cas-ad-slot` **마운트만** 두고, `hero-carousel.js`가 placements API로 렌더. 빈 슬롯은 마운트만 `display:none`(페이지 콘텐츠는 건드리지 않음). `home.top`/`global.top`=캐러셀, 나머지=스택 배너.
 
-**제외**: 메뉴/검색/아이콘/홈디자인 등 비광고 UI는 포함하지 않습니다.
+**제외 UI**: 메뉴/검색/아이콘/홈디자인 등 비광고 UI는 포함하지 않습니다.
 
 ## 공개 API
 

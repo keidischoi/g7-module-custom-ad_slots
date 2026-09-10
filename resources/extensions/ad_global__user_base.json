@@ -1,5 +1,5 @@
 {
-  "_comment": "공식 sirsoft-basic _user_base: global.top(hero carousel)·global.bottom(stack). 메뉴/검색/아이콘/홈디자인 UI 없음.",
+  "_comment": "공식 sirsoft-basic _user_base: global.top/global.bottom always-on API mounts + hero-carousel.js. No if on API length — JS hides empty mounts. Page mounts owned by Event Hook listener.",
   "target_layout": "_user_base",
   "priority": 80,
   "data_sources": [
@@ -66,7 +66,6 @@
           "comment": "=== Ad slot: global.top (모든 페이지 상단) ===",
           "type": "basic",
           "name": "Div",
-          "if": "{{((ad_global_top.data ?? ad_global_top ?? []).length > 0)}}",
           "props": {
             "className": "w-full"
           },
@@ -114,7 +113,6 @@
           "comment": "=== Ad slot: global.bottom (모든 페이지 하단, 푸터 직전) ===",
           "type": "basic",
           "name": "Div",
-          "if": "{{((ad_global_bottom.data ?? ad_global_bottom ?? []).length > 0)}}",
           "props": {
             "className": "w-full"
           },

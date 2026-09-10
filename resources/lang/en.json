@@ -81,6 +81,22 @@
             "popular": {
                 "top": "Popular Posts Top",
                 "bottom": "Popular Posts Bottom"
+            },
+            "index": {
+                "top": "Board List Top",
+                "bottom": "Board List Bottom"
+            },
+            "show": {
+                "top": "Post Detail Top",
+                "bottom": "Post Detail Bottom"
+            },
+            "form": {
+                "top": "Post Form Top",
+                "bottom": "Post Form Bottom"
+            },
+            "boards": {
+                "top": "Boards Index Top",
+                "bottom": "Boards Index Bottom"
             }
         },
         "board.popular.top": "Popular Posts Top",
@@ -93,6 +109,20 @@
         "shop.list.bottom": "Shop List Bottom",
         "shop.detail.bottom": "Shop Detail Bottom",
         "shop.cart.bottom": "Shop Cart Bottom",
-        "board.popular.bottom": "Popular Posts Bottom"
+        "board.popular.bottom": "Popular Posts Bottom",
+        "board.index.top": "Board List Top",
+        "board.index.bottom": "Board List Bottom",
+        "board.show.top": "Post Detail Top",
+        "board.show.bottom": "Post Detail Bottom",
+        "board.form.top": "Post Form Top",
+        "board.form.bottom": "Post Form Bottom",
+        "board.boards.top": "Boards Index Top",
+        "board.boards.bottom": "Boards Index Bottom",
+        "mypage.top": "My Page Top",
+        "mypage.bottom": "My Page Bottom",
+        "mypage": {
+            "top": "My Page Top",
+            "bottom": "My Page Bottom"
+        }
     }
 }

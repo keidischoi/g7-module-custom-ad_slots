@@ -33,7 +33,7 @@ class AdSlotItem extends Model
      *
      * @var list<string>
      */
-        public const SLOT_KEYS = [
+    public const SLOT_KEYS = [
         'home.top',
         'home.mid',
         'home.bottom',
@@ -45,6 +45,16 @@ class AdSlotItem extends Model
         'shop.cart.bottom',
         'board.popular.top',
         'board.popular.bottom',
+        'board.index.top',
+        'board.index.bottom',
+        'board.show.top',
+        'board.show.bottom',
+        'board.form.top',
+        'board.form.bottom',
+        'board.boards.top',
+        'board.boards.bottom',
+        'mypage.top',
+        'mypage.bottom',
         'global.top',
         'global.bottom',
     ];

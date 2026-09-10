@@ -6,11 +6,14 @@ use App\Contracts\Extension\HookListenerInterface;
 use Modules\Custom\AdSlots\Support\AdPlacementFragments;
 
 /**
- * Official sirsoft-basic lacks stable ids inside home/shop/board slot trees.
- * Layout extensions cover global + page *.top/bottom via main_content anchors.
- * This Event Hook inserts home.mid between official home row1 and row2 (feat parity),
- * ensures home.mid data_source exists, and repositions shop.detail.top after the
- * back-button when the overlay left it at the very top.
+ * Inject empty data-cas-ad-slot mounts into the live layout content tree for every
+ * page that should show ads. Official shop/board/mypage layouts have no reliable
+ * main_content id for overlay targeting — only slots.content[0] (or composed
+ * main_content after merge). This listener owns page top/bottom mount insertion.
+ *
+ * global.top / global.bottom remain on _user_base overlay (always-on mounts + script).
+ * home.mid is inserted between official home row1 and row2.
+ * shop.detail.top is placed after the back button when possible.
  *
  * Ads only — no menu/search/icon/home-design UI.
  */
@@ -22,7 +25,25 @@ class AdPlacementLayoutListener implements HookListenerInterface
 
     private const MID_WRAP_ID = 'ad_home_mid_wrap';
 
-    private const DETAIL_WRAP_ID = 'ad_shop_detail_top_wrap';
+    private const DETAIL_TOP_WRAP_ID = 'ad_shop_detail_top_wrap';
+
+    /**
+     * Exact layout_name → [topSlot, bottomSlot] (null = skip that side).
+     * home.mid handled separately. mypage/* matched by prefix.
+     *
+     * @var array<string, array{0:?string,1:?string}>
+     */
+    private const LAYOUT_SLOTS = [
+        'home' => ['home.top', 'home.bottom'],
+        'shop/index' => ['shop.list.top', 'shop.list.bottom'],
+        'shop/show' => ['shop.detail.top', 'shop.detail.bottom'],
+        'shop/cart' => ['shop.cart.top', 'shop.cart.bottom'],
+        'board/popular' => ['board.popular.top', 'board.popular.bottom'],
+        'board/index' => ['board.index.top', 'board.index.bottom'],
+        'board/show' => ['board.show.top', 'board.show.bottom'],
+        'board/form' => ['board.form.top', 'board.form.bottom'],
+        'board/boards' => ['board.boards.top', 'board.boards.bottom'],
+    ];
 
     public static function getSubscribedHooks(): array
     {
@@ -84,7 +105,26 @@ class AdPlacementLayoutListener implements HookListenerInterface
 
     private function apply(array $layout): array
     {
-        $name = (string) ($layout['layout_name'] ?? $layout['name'] ?? '');
+        $name = $this->resolveLayoutName($layout);
+        if ($name === '' || $name === '_user_base') {
+            return $layout;
+        }
+
+        // Never inject into checkout / order-complete flows (blank-page risk).
+        if ($this->isExcludedLayout($name)) {
+            return $layout;
+        }
+
+        $pair = $this->slotsForLayout($name);
+        if ($pair !== null) {
+            [$topSlot, $bottomSlot] = $pair;
+            if ($topSlot !== null) {
+                $layout = $this->ensurePageMount($layout, $topSlot, 'top', $name);
+            }
+            if ($bottomSlot !== null) {
+                $layout = $this->ensurePageMount($layout, $bottomSlot, 'bottom', $name);
+            }
+        }
 
         if ($name === self::HOME) {
             $layout = $this->ensureDataSource($layout, 'ad_home_mid', 'home.mid', 'Ad home.mid');
@@ -92,11 +132,193 @@ class AdPlacementLayoutListener implements HookListenerInterface
         }
 
         if ($name === self::SHOP_SHOW) {
-            $layout = $this->ensureDataSource($layout, 'ad_shop_detail_top', 'shop.detail.top', 'Ad shop.detail.top');
             $layout = $this->repositionShopDetailTop($layout);
         }
 
         return $layout;
+    }
+
+    private function resolveLayoutName(array $layout): string
+    {
+        $name = (string) ($layout['layout_name'] ?? $layout['name'] ?? '');
+        // Strip module prefix if present (e.g. custom-foo.home)
+        if ($name !== '' && ! str_contains($name, '/') && str_contains($name, '.')) {
+            // Keep dotted board-like names only when they look prefixed
+            // layout_name is usually "home", "shop/index", "mypage/profile"
+        }
+
+        return $name;
+    }
+
+    /**
+     * Checkout / order layouts must never receive ad mounts.
+     */
+    private function isExcludedLayout(string $name): bool
+    {
+        $lower = strtolower($name);
+        if ($lower === '') {
+            return false;
+        }
+
+        $exact = [
+            'shop/checkout',
+            'checkout',
+            'order_complete',
+            'guest_order_show',
+        ];
+        if (in_array($lower, $exact, true)) {
+            return true;
+        }
+
+        // Any layout path/name containing "checkout"
+        if (str_contains($lower, 'checkout')) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * @return array{0:?string,1:?string}|null
+     */
+    private function slotsForLayout(string $name): ?array
+    {
+        if (isset(self::LAYOUT_SLOTS[$name])) {
+            return self::LAYOUT_SLOTS[$name];
+        }
+
+        // mypage, mypage/profile, mypage/orders/show, …
+        if ($name === 'mypage' || str_starts_with($name, 'mypage/')) {
+            return ['mypage.top', 'mypage.bottom'];
+        }
+
+        return null;
+    }
+
+    /**
+     * Ensure a top (prepend) or bottom (append) mount exists in the content tree.
+     */
+    private function ensurePageMount(array $layout, string $slotKey, string $side, string $layoutName): array
+    {
+        $wrapId = AdPlacementFragments::wrapIdForSlot($slotKey);
+        if ($this->treeHasId($layout, $wrapId)) {
+            return $layout;
+        }
+
+        $dsId = AdPlacementFragments::dsIdForSlot($slotKey);
+        $layout = $this->ensureDataSource($layout, $dsId, $slotKey, 'Ad '.$slotKey);
+
+        $isHero = in_array($slotKey, ['home.top', 'global.top'], true);
+        $className = $side === 'top'
+            ? ($isHero
+                ? 'relative w-full overflow-hidden rounded-xl mb-4'
+                : 'mb-4 flex flex-col gap-3')
+            : 'mt-4 flex flex-col gap-3';
+
+        $comment = sprintf(
+            '=== Ad slot: %s (%s %s) — API mount ===',
+            $slotKey,
+            $layoutName,
+            $side
+        );
+
+        $wrap = $isHero
+            ? AdPlacementFragments::heroMountWrap($wrapId, $comment, $slotKey, $className)
+            : AdPlacementFragments::mountWrap($wrapId, $comment, $dsId, $slotKey, $className);
+
+        // shop.detail.top: prefer after back button (repositionShopDetailTop finalizes)
+        if ($slotKey === 'shop.detail.top') {
+            $done = false;
+            if (isset($layout['slots']) && is_array($layout['slots'])) {
+                $layout['slots'] = $this->prependOrAppendInContent($layout['slots'], $wrap, 'top', $done);
+            }
+            if (! $done && isset($layout['components']) && is_array($layout['components'])) {
+                $layout['components'] = $this->prependOrAppendInContent($layout['components'], $wrap, 'top', $done);
+            }
+
+            return $layout;
+        }
+
+        $done = false;
+        if (isset($layout['slots']) && is_array($layout['slots'])) {
+            $layout['slots'] = $this->prependOrAppendInContent($layout['slots'], $wrap, $side, $done);
+        }
+        if (! $done && isset($layout['components']) && is_array($layout['components'])) {
+            $layout['components'] = $this->prependOrAppendInContent($layout['components'], $wrap, $side, $done);
+        }
+
+        return $layout;
+    }
+
+    /**
+     * Find main_content OR slots.content[0] / first content Container and prepend/append.
+     *
+     * @param  array<mixed>  $node
+     * @param  array<string, mixed>  $wrap
+     * @return array<mixed>
+     */
+    private function prependOrAppendInContent(array $node, array $wrap, string $side, bool &$done): array
+    {
+        if ($done) {
+            return $node;
+        }
+
+        // Prefer explicit main_content (composed / _user_base slot host)
+        if (($node['id'] ?? '') === 'main_content' && isset($node['children']) && is_array($node['children'])) {
+            $children = $node['children'];
+            if ($side === 'top') {
+                array_unshift($children, $wrap);
+            } else {
+                $children[] = $wrap;
+            }
+            $node['children'] = $children;
+            $done = true;
+
+            return $node;
+        }
+
+        // slots.content[0] pattern (official page layouts)
+        if (isset($node['content']) && is_array($node['content']) && $this->isList($node['content'])) {
+            $content = $node['content'];
+            if (isset($content[0]) && is_array($content[0])) {
+                $host = $content[0];
+                if (isset($host['children']) && is_array($host['children'])) {
+                    $children = $host['children'];
+                    if ($side === 'top') {
+                        array_unshift($children, $wrap);
+                    } else {
+                        $children[] = $wrap;
+                    }
+                    $host['children'] = $children;
+                    $content[0] = $host;
+                    $node['content'] = $content;
+                    $done = true;
+
+                    return $node;
+                }
+                // content[0] has no children — wrap as sibling list
+                if ($side === 'top') {
+                    array_unshift($content, $wrap);
+                } else {
+                    $content[] = $wrap;
+                }
+                $node['content'] = $content;
+                $done = true;
+
+                return $node;
+            }
+        }
+
+        foreach ($node as $key => $value) {
+            if (is_array($value)) {
+                $node[$key] = $this->prependOrAppendInContent($value, $wrap, $side, $done);
+                if ($done) {
+                    return $node;
+                }
+            }
+        }
+
+        return $node;
     }
 
     private function ensureDataSource(array $layout, string $id, string $slot, string $label): array
@@ -144,10 +366,6 @@ class AdPlacementLayoutListener implements HookListenerInterface
     }
 
     /**
-     * Official home: slots.content[0] = Container; children[0]=row1, [1]=row2, [2]=bottom.
-     * Insert mid between row1 and row2. Also works if extension already prepended home.top
-     * as a sibling under main_content (merged tree) — then look for row comments.
-     *
      * @param  array<mixed>  $node
      * @param  array<string, mixed>  $wrap
      * @return array<mixed>
@@ -158,7 +376,6 @@ class AdPlacementLayoutListener implements HookListenerInterface
             return $node;
         }
 
-        // Prefer explicit home Container children list
         if ($this->looksLikeHomeOuterContainer($node)) {
             $children = $node['children'] ?? [];
             if (is_array($children) && count($children) >= 2) {
@@ -203,7 +420,6 @@ class AdPlacementLayoutListener implements HookListenerInterface
         }
         $joined = implode("\n", $comments);
 
-        // Official / feat home rows
         return str_contains($joined, '1행') || str_contains($joined, 'Welcome')
             || str_contains($joined, '2행') || str_contains($joined, '최근 게시글');
     }
@@ -219,36 +435,32 @@ class AdPlacementLayoutListener implements HookListenerInterface
             }
             $comment = (string) ($child['comment'] ?? '');
             $id = (string) ($child['id'] ?? '');
-            // Skip already-injected top ad wrap
             if ($id === 'ad_home_top_wrap' || str_contains($comment, 'home.top')) {
                 continue;
             }
-            // First real content row
             if (str_contains($comment, '1행') || str_contains($comment, 'Welcome') || $comment !== '') {
                 return $i + 1;
             }
         }
 
-        // Fallback: after first child
         return min(1, count($children));
     }
 
     /**
-     * Move shop.detail.top wrap to immediately after the first child (back button),
-     * matching feat theme placement.
+     * Move shop.detail.top wrap to immediately after the first child (back button).
      */
     private function repositionShopDetailTop(array $layout): array
     {
         $section = null;
         if (isset($layout['components']) && is_array($layout['components'])) {
-            $layout['components'] = $this->extractById($layout['components'], self::DETAIL_WRAP_ID, $section);
+            $layout['components'] = $this->extractById($layout['components'], self::DETAIL_TOP_WRAP_ID, $section);
         }
         if ($section === null && isset($layout['slots']) && is_array($layout['slots'])) {
-            $layout['slots'] = $this->extractById($layout['slots'], self::DETAIL_WRAP_ID, $section);
+            $layout['slots'] = $this->extractById($layout['slots'], self::DETAIL_TOP_WRAP_ID, $section);
         }
         if ($section === null) {
             $section = AdPlacementFragments::mountWrap(
-                self::DETAIL_WRAP_ID,
+                self::DETAIL_TOP_WRAP_ID,
                 'Ad slot: shop.detail.top (헤더/뒤로가기 다음) — API mount',
                 'ad_shop_detail_top',
                 'shop.detail.top',
@@ -280,17 +492,14 @@ class AdPlacementLayoutListener implements HookListenerInterface
 
         if (($node['name'] ?? '') === 'Container' && isset($node['children']) && is_array($node['children'])) {
             $children = $node['children'];
-            // Prefer the shop/show outer container (has back button as first Button)
             $first = $children[0] ?? null;
             if (is_array($first) && (($first['name'] ?? '') === 'Button' || str_contains((string) ($first['comment'] ?? ''), '뒤로'))) {
-                // Remove if already present at index 0 (prepended by overlay)
-                if (is_array($children[0] ?? null) && ($children[0]['id'] ?? '') === self::DETAIL_WRAP_ID) {
+                if (is_array($children[0] ?? null) && ($children[0]['id'] ?? '') === self::DETAIL_TOP_WRAP_ID) {
                     array_shift($children);
                     $first = $children[0] ?? null;
                 }
                 $insertAt = 1;
-                // If first is still the ad wrap somehow, place after next
-                if (is_array($first) && ($first['id'] ?? '') === self::DETAIL_WRAP_ID) {
+                if (is_array($first) && ($first['id'] ?? '') === self::DETAIL_TOP_WRAP_ID) {
                     $insertAt = 2;
                 }
                 array_splice($children, $insertAt, 0, [$section]);
@@ -320,7 +529,7 @@ class AdPlacementLayoutListener implements HookListenerInterface
      */
     private function extractById(array $node, string $id, ?array &$extracted): array
     {
-        $isList = array_keys($node) === range(0, count($node) - 1);
+        $isList = $this->isList($node);
         if ($isList) {
             $out = [];
             foreach ($node as $child) {
@@ -364,5 +573,17 @@ class AdPlacementLayoutListener implements HookListenerInterface
         }
 
         return false;
+    }
+
+    /**
+     * @param  array<mixed>  $arr
+     */
+    private function isList(array $arr): bool
+    {
+        if ($arr === []) {
+            return true;
+        }
+
+        return array_keys($arr) === range(0, count($arr) - 1);
     }
 }
