@@ -4,6 +4,24 @@
 형식은 [Keep a Changelog](https://keepachangelog.com/ko/1.1.0/)를 따르며,
 [Semantic Versioning](https://semver.org/lang/ko/)을 준수합니다.
 
+## [1.3.1] - 2026-09-10
+
+### Fixed
+
+- **Reverted 1.2.9 / 1.3.0;** restored **1.2.8** home-working behavior (path-routed mounts + home/global carousel). Main page top/bottom ads confirmed working on 1.2.8.
+
+### Changed
+
+- Tree restored from `5b3a1b7` (v1.2.8). Removed `ad_page_slots__user_base.json` (1.3.0 multi-page experiment). Version bumped to **1.3.1**.
+
+### Install
+
+```
+php82 artisan module:update custom-ad_slots --source=bundled --force --layout-strategy=overwrite
+php82 artisan hooks:clear
+php82 artisan cache:clear
+```
+
 ## [1.3.0] - 2026-09-10
 
 ### Added

@@ -6,10 +6,9 @@ namespace Modules\Custom\AdSlots\Support;
  * Module-owned ad partial fragments (ported from feat theme layouts/partials/ads).
  * Used by Event Hook listener so official theme need not ship those files.
  *
- * - Hero / home / global: empty `data-cas-ad-slot` mounts filled by hero-carousel.js.
- * - Non-home page stacks (shop/board/mypage): feat-style `nativeStackWrap` with
- *   layout `if` + `iteration` + inlined `_banner_list` body (module `partial:`
- *   paths often do not resolve inside official theme).
+ * Layout mounts are empty placeholders with data-cas-ad-slot; hero-carousel.js
+ * fetches placements API and renders carousel/stack into the mount.
+ * Mounts are always present (no layout `if` on API length) — JS hides when empty.
  */
 final class AdPlacementFragments
 {
@@ -38,31 +37,6 @@ final class AdPlacementFragments
         self::$bannerItem = $data;
 
         return self::$bannerItem;
-    }
-
-    /**
-     * Feat-style native banner stack: if length>0 + iteration + inlined banner item.
-     * No data-cas-ad-slot — layout engine paints; JS must not claim these wraps.
-     *
-     * @return array<string, mixed>
-     */
-    public static function nativeStackWrap(string $wrapId, string $comment, string $dsId, string $className): array
-    {
-        return [
-            'id' => $wrapId,
-            'comment' => $comment,
-            'type' => 'basic',
-            'name' => 'Div',
-            'if' => '{{(('.$dsId.'.data ?? '.$dsId.' ?? []).length > 0)}}',
-            'props' => [
-                'className' => $className,
-            ],
-            'iteration' => [
-                'source' => '{{'.$dsId.'.data ?? '.$dsId.' ?? []}}',
-                'item_var' => 'ad',
-            ],
-            'children' => [self::bannerItem()],
-        ];
     }
 
     /**
@@ -111,13 +85,15 @@ final class AdPlacementFragments
     }
 
     /**
-     * @deprecated Prefer nativeStackWrap() for page stacks or mountWrap() for JS mounts.
+     * @deprecated Prefer mountWrap(); kept for callers — now emits API mount stub.
      *
      * @return array<string, mixed>
      */
     public static function iterWrap(string $wrapId, string $comment, string $dsId, string $className): array
     {
-        return self::nativeStackWrap($wrapId, $comment, $dsId, $className);
+        $slotKey = self::dsIdToSlot($dsId);
+
+        return self::mountWrap($wrapId, $comment, $dsId, $slotKey, $className);
     }
 
     /**
