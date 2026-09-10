@@ -1,0 +1,60 @@
+{
+  "_comment": "data_sources only for board/popular. Mount Divs are injected by AdPlacementLayoutListener (official layouts lack reliable main_content for overlay inject).",
+  "target_layout": "board/popular",
+  "priority": 85,
+  "data_sources": [
+    {
+      "id": "ad_board_popular_top",
+      "label_key": "Ad board.popular.top",
+      "type": "api",
+      "endpoint": "/api/modules/custom-ad_slots/placements",
+      "method": "GET",
+      "auto_fetch": true,
+      "auth_mode": "optional",
+      "loading_strategy": "progressive",
+      "params": {
+        "slot": "board.popular.top"
+      },
+      "fallback": {
+        "data": []
+      },
+      "errorHandling": {
+        "404": {
+          "handler": "suppress",
+          "comment": "모듈 미설치 시 조용히 무시"
+        },
+        "500": {
+          "handler": "suppress"
+        }
+      },
+      "comment": "custom-ad_slots board.popular.top"
+    },
+    {
+      "id": "ad_board_popular_bottom",
+      "label_key": "Ad board.popular.bottom",
+      "type": "api",
+      "endpoint": "/api/modules/custom-ad_slots/placements",
+      "method": "GET",
+      "auto_fetch": true,
+      "auth_mode": "optional",
+      "loading_strategy": "progressive",
+      "params": {
+        "slot": "board.popular.bottom"
+      },
+      "fallback": {
+        "data": []
+      },
+      "errorHandling": {
+        "404": {
+          "handler": "suppress",
+          "comment": "모듈 미설치 시 조용히 무시"
+        },
+        "500": {
+          "handler": "suppress"
+        }
+      },
+      "comment": "custom-ad_slots board.popular.bottom"
+    }
+  ],
+  "injections": []
+}

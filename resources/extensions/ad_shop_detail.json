@@ -1,0 +1,60 @@
+{
+  "_comment": "data_sources only for shop/show. Mount Divs are injected by AdPlacementLayoutListener (official layouts lack reliable main_content for overlay inject).",
+  "target_layout": "shop/show",
+  "priority": 85,
+  "data_sources": [
+    {
+      "id": "ad_shop_detail_top",
+      "label_key": "Ad shop.detail.top",
+      "type": "api",
+      "endpoint": "/api/modules/custom-ad_slots/placements",
+      "method": "GET",
+      "auto_fetch": true,
+      "auth_mode": "optional",
+      "loading_strategy": "progressive",
+      "params": {
+        "slot": "shop.detail.top"
+      },
+      "fallback": {
+        "data": []
+      },
+      "errorHandling": {
+        "404": {
+          "handler": "suppress",
+          "comment": "모듈 미설치 시 조용히 무시"
+        },
+        "500": {
+          "handler": "suppress"
+        }
+      },
+      "comment": "custom-ad_slots shop.detail.top"
+    },
+    {
+      "id": "ad_shop_detail_bottom",
+      "label_key": "Ad shop.detail.bottom",
+      "type": "api",
+      "endpoint": "/api/modules/custom-ad_slots/placements",
+      "method": "GET",
+      "auto_fetch": true,
+      "auth_mode": "optional",
+      "loading_strategy": "progressive",
+      "params": {
+        "slot": "shop.detail.bottom"
+      },
+      "fallback": {
+        "data": []
+      },
+      "errorHandling": {
+        "404": {
+          "handler": "suppress",
+          "comment": "모듈 미설치 시 조용히 무시"
+        },
+        "500": {
+          "handler": "suppress"
+        }
+      },
+      "comment": "custom-ad_slots shop.detail.bottom"
+    }
+  ],
+  "injections": []
+}

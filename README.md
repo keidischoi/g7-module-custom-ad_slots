@@ -7,7 +7,7 @@
 | identifier | `custom-ad_slots` |
 | Namespace | `Modules\Custom\AdSlots` |
 | Composer | `modules/custom-ad_slots` |
-| 버전 | `1.2.7` |
+| 버전 | `1.2.8` |
 
 ## 슬롯 키
 
@@ -34,23 +34,23 @@
 
 
 
-## 공식 테마 광고 주입 (v1.2.7 · feat-style native `_user_base` stacks)
+## 공식 테마 광고 주입 (v1.2.8 · `_user_base` path-routed mounts)
 
-테마 파일을 수정하지 않습니다. **페이지 광고는 feat 테마와 같이** `_user_base`에 **경로 `if` + `data_sources` + `iteration` + inlined `_banner_list` 배너**로 심습니다. 레이아웃 엔진이 이미지를 그립니다(빈 JS 마운트/`cas_page_*`에 의존하지 않음).
+테마 파일을 수정하지 않습니다. **페이지 광고는 `_user_base`에 고정된 마운트**(`cas_page_top_mount` / `cas_page_bottom_mount`)를 `hero-carousel.js`가 **URL 경로로 슬롯 키를 선택**해 채웁니다(Event Hook content 주입 실패와 무관하게 모든 페이지에서 DOM에 존재).
 
 | 슬롯 | 방식 | 앵커 |
 |------|------|------|
-| `global.top` / `home.top` | JS hero carousel mount | `_user_base` → `main_content_area` + `hero-carousel.js` |
-| `global.bottom` + shop/board/mypage/home bottoms·tops | native path stacks | `_user_base` → `main_content_area` / `footer` |
-| `home.mid` | Event Hook native iteration | 홈 1행·2행 사이 |
+| `global.top` / `global.bottom` | overlay `ad_global__user_base.json` (always-on) | `_user_base` → `main_content_area` / `footer` + script |
+| `home.top` / `home.bottom` / shop.* / board.* / mypage.* | `_user_base` path-routed mounts + JS | `#cas_page_top_mount` / `#cas_page_bottom_mount` (`data-cas-ad-role`) |
+| `home.mid` | Event Hook | 홈 1행·2행 사이 |
 
-**제외:** checkout / order_complete / guest_order — 페이지 스택 `if`에서 제외.
+**제외(페이지 마운트 숨김):** checkout / order_complete / guest_order URL·레이아웃 — 결제 화면 공백 방지.
 
 확장 파일: `resources/extensions/ad_global__user_base.json`  
-리스너: `src/Listeners/AdPlacementLayoutListener.php` (`home.mid`)  
-스크립트: `resources/assets/hero-carousel.js` (hero only)
+리스너: `src/Listeners/AdPlacementLayoutListener.php` (`home.mid` + optional backup mounts)  
+스크립트: `resources/assets/hero-carousel.js` (`resolvePageSlots()`)
 
-**렌더**: 페이지 스택은 레이아웃 iteration; 히어로만 JS. 배너 markup은 모듈 partial 경로 해석 불확실 → **inline**.
+**렌더**: JS가 placements API로 캐러셀(`home.top`/`global.top`) 또는 스택 배너를 마운트 안에 그림. 빈 슬롯은 마운트만 `display:none`.
 
 **제외 UI**: 메뉴/검색/아이콘/홈디자인 등 비광고 UI는 포함하지 않습니다.
 

@@ -1,7 +1,7 @@
 {
   "meta": {
     "is_partial": true,
-    "description": "global.top API mount stub for JS Bunjang carousel (v1.2.7: still used; page stacks are native)."
+    "description": "global.top API mount stub. hero-carousel.js fetches placements?slot=global.top and builds Bunjang carousel inside the mount."
   },
   "type": "basic",
   "name": "Div",
