@@ -4,6 +4,13 @@
 형식은 [Keep a Changelog](https://keepachangelog.com/ko/1.1.0/)를 따르며,
 [Semantic Versioning](https://semver.org/lang/ko/)을 준수합니다.
 
+## [1.2.4] - 2026-09-10
+
+### Fixed
+
+- home.top / global.top carousel builds from **placements API** (full slide list), matching feat theme `AdHeroCarousel` `items` prop — DOM scrape of layout iteration was unreliable (G7 often exposes one slide node).
+- Layout mounts (`ad_home_top_wrap`, `ad_global_top_hero`) are placeholders (`data-cas-hero-slot`); carousel host is 100% API-driven. DOM `extractSlides` kept as fetch-failure fallback.
+
 ## [1.2.3] - 2026-09-10
 
 ### Fixed
