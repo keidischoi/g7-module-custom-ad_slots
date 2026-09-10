@@ -1,34 +1,8 @@
 {
-  "_comment": "data_sources only for home. Mount Divs are injected by AdPlacementLayoutListener (official layouts lack reliable main_content for overlay inject).",
+  "_comment": "v1.2.7: home.mid data_source for Event Hook native insert. home.top/bottom live on _user_base (hero JS + native bottom).",
   "target_layout": "home",
   "priority": 85,
   "data_sources": [
-    {
-      "id": "ad_home_top",
-      "label_key": "Ad home.top",
-      "type": "api",
-      "endpoint": "/api/modules/custom-ad_slots/placements",
-      "method": "GET",
-      "auto_fetch": true,
-      "auth_mode": "optional",
-      "loading_strategy": "progressive",
-      "params": {
-        "slot": "home.top"
-      },
-      "fallback": {
-        "data": []
-      },
-      "errorHandling": {
-        "404": {
-          "handler": "suppress",
-          "comment": "모듈 미설치 시 조용히 무시"
-        },
-        "500": {
-          "handler": "suppress"
-        }
-      },
-      "comment": "custom-ad_slots home.top"
-    },
     {
       "id": "ad_home_mid",
       "label_key": "Ad home.mid",
@@ -53,33 +27,7 @@
           "handler": "suppress"
         }
       },
-      "comment": "custom-ad_slots home.mid — Event Hook inserts UI"
-    },
-    {
-      "id": "ad_home_bottom",
-      "label_key": "Ad home.bottom",
-      "type": "api",
-      "endpoint": "/api/modules/custom-ad_slots/placements",
-      "method": "GET",
-      "auto_fetch": true,
-      "auth_mode": "optional",
-      "loading_strategy": "progressive",
-      "params": {
-        "slot": "home.bottom"
-      },
-      "fallback": {
-        "data": []
-      },
-      "errorHandling": {
-        "404": {
-          "handler": "suppress",
-          "comment": "모듈 미설치 시 조용히 무시"
-        },
-        "500": {
-          "handler": "suppress"
-        }
-      },
-      "comment": "custom-ad_slots home.bottom"
+      "comment": "custom-ad_slots home.mid — Event Hook inserts native stack"
     }
   ],
   "injections": []

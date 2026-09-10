@@ -1,4 +1,4 @@
-/*! custom-ad_slots — API-driven ad mounts (carousel + stacked banners) + path-routed page mounts */
+/*! custom-ad_slots — hero carousel (global.top / home.top); page stacks are native layout (v1.2.7) */
 (function () {
   if (window.__casAdRenderInstalled) return;
   window.__casAdRenderInstalled = true;

@@ -8,18 +8,16 @@ use Modules\Custom\AdSlots\Support\AdPlacementFragments;
 /**
  * Event Hook layout listener for custom-ad_slots.
  *
- * Primary page ads (v1.2.6+): always-on mounts on `_user_base`
- * (`cas_page_top_mount` / `cas_page_bottom_mount`) filled by hero-carousel.js
- * via URL path → slot mapping. That path does not depend on per-page content
- * tree injection.
+ * Primary page ads (v1.2.7+): native banner stacks on `_user_base` overlay
+ * (path `if` + iteration + inlined `_banner_list` body). Layout engine paints
+ * images — no dependency on empty JS mounts or path-routed cas_page_* DOM.
  *
  * This listener still:
- *  - inserts **home.mid** between official home row1 and row2
- *  - optionally injects page top/bottom mounts into the content tree as a
- *    backup (NOT required for ads to show)
+ *  - inserts **home.mid** between official home row1 and row2 (native iteration)
+ *  - optionally injects page top/bottom stacks as backup (`INJECT_PAGE_MOUNTS_BACKUP`)
  *  - hard-excludes checkout / order-complete layouts
  *
- * global.top / global.bottom remain on `_user_base` overlay.
+ * global.top / home.top hero carousels stay JS mounts on `_user_base`.
  * SLOT_KEYS / admin options are unchanged (owned by forms + lang).
  *
  * Ads only — no menu/search/icon/home-design UI.
@@ -54,8 +52,8 @@ class AdPlacementLayoutListener implements HookListenerInterface
     ];
 
     /**
-     * When false, skip optional per-page content-tree mounts (path-routed
-     * _user_base mounts are enough). home.mid is always attempted.
+     * When false, skip optional per-page content-tree stacks (_user_base native
+     * path stacks are enough). home.mid is always attempted.
      */
     private const INJECT_PAGE_MOUNTS_BACKUP = false;
 
@@ -213,8 +211,8 @@ class AdPlacementLayoutListener implements HookListenerInterface
     }
 
     /**
-     * Ensure a top (prepend) or bottom (append) mount exists in the content tree.
-     * Backup only — primary page ads use _user_base path-routed mounts.
+     * Ensure a top (prepend) or bottom (append) native stack exists in the content tree.
+     * Backup only — primary page ads use _user_base path-conditioned stacks.
      */
     private function ensurePageMount(array $layout, string $slotKey, string $side, string $layoutName): array
     {
@@ -234,7 +232,7 @@ class AdPlacementLayoutListener implements HookListenerInterface
             : 'mt-4 flex flex-col gap-3';
 
         $comment = sprintf(
-            '=== Ad slot: %s (%s %s) — API mount (backup) ===',
+            '=== Ad slot: %s (%s %s) — native stack (backup) ===',
             $slotKey,
             $layoutName,
             $side
@@ -242,7 +240,7 @@ class AdPlacementLayoutListener implements HookListenerInterface
 
         $wrap = $isHero
             ? AdPlacementFragments::heroMountWrap($wrapId, $comment, $slotKey, $className)
-            : AdPlacementFragments::mountWrap($wrapId, $comment, $dsId, $slotKey, $className);
+            : AdPlacementFragments::iterWrap($wrapId, $comment, $dsId, $className);
 
         // shop.detail.top: prefer after back button (repositionShopDetailTop finalizes)
         if ($slotKey === 'shop.detail.top') {
@@ -364,11 +362,10 @@ class AdPlacementLayoutListener implements HookListenerInterface
             return $layout;
         }
 
-        $wrap = AdPlacementFragments::mountWrap(
+        $wrap = AdPlacementFragments::iterWrap(
             self::MID_WRAP_ID,
-            '=== Ad slot: home.mid (1행과 2행 사이) — API mount ===',
+            '=== Ad slot: home.mid (1행과 2행 사이) — native stack ===',
             'ad_home_mid',
-            'home.mid',
             'mb-4 flex flex-col gap-3'
         );
 
@@ -477,11 +474,10 @@ class AdPlacementLayoutListener implements HookListenerInterface
             $layout['slots'] = $this->extractById($layout['slots'], self::DETAIL_TOP_WRAP_ID, $section);
         }
         if ($section === null) {
-            $section = AdPlacementFragments::mountWrap(
+            $section = AdPlacementFragments::iterWrap(
                 self::DETAIL_TOP_WRAP_ID,
-                'Ad slot: shop.detail.top (헤더/뒤로가기 다음) — API mount (backup)',
+                'Ad slot: shop.detail.top (헤더/뒤로가기 다음) — native stack (backup)',
                 'ad_shop_detail_top',
-                'shop.detail.top',
                 'mb-4 flex flex-col gap-3'
             );
         }
