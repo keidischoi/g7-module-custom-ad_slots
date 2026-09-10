@@ -1,5 +1,5 @@
 {
-  "_comment": "공식 테마 board/popular: board.popular.top prepend + board.popular.bottom append (stacked banners)",
+  "_comment": "data_sources only for board/popular. Mount Divs are injected by AdPlacementLayoutListener (official layouts lack reliable main_content for overlay inject).",
   "target_layout": "board/popular",
   "priority": 85,
   "data_sources": [
@@ -56,44 +56,5 @@
       "comment": "custom-ad_slots board.popular.bottom"
     }
   ],
-  "injections": [
-    {
-      "target_id": "main_content",
-      "position": "prepend_child",
-      "components": [
-        {
-          "id": "ad_board_popular_top_wrap",
-          "comment": "Ad slot: board.popular.top — API mount",
-          "type": "basic",
-          "name": "Div",
-          "props": {
-            "className": "mb-6 flex flex-col gap-3",
-            "data-cas-ad-slot": "board.popular.top",
-            "id": "ad_board_popular_top_wrap"
-          },
-          "children": [],
-          "if": "{{((ad_board_popular_top.data ?? ad_board_popular_top ?? []).length > 0)}}"
-        }
-      ]
-    },
-    {
-      "target_id": "main_content",
-      "position": "append_child",
-      "components": [
-        {
-          "id": "ad_board_popular_bottom_wrap",
-          "comment": "Ad slot: board.popular.bottom — API mount",
-          "type": "basic",
-          "name": "Div",
-          "props": {
-            "className": "mt-6 flex flex-col gap-3",
-            "data-cas-ad-slot": "board.popular.bottom",
-            "id": "ad_board_popular_bottom_wrap"
-          },
-          "children": [],
-          "if": "{{((ad_board_popular_bottom.data ?? ad_board_popular_bottom ?? []).length > 0)}}"
-        }
-      ]
-    }
-  ]
+  "injections": []
 }

@@ -1,5 +1,5 @@
 {
-  "_comment": "공식 테마 shop/index: shop.list.top prepend + shop.list.bottom append (stacked banners)",
+  "_comment": "data_sources only for shop/index. Mount Divs are injected by AdPlacementLayoutListener (official layouts lack reliable main_content for overlay inject).",
   "target_layout": "shop/index",
   "priority": 85,
   "data_sources": [
@@ -56,44 +56,5 @@
       "comment": "custom-ad_slots shop.list.bottom"
     }
   ],
-  "injections": [
-    {
-      "target_id": "main_content",
-      "position": "prepend_child",
-      "components": [
-        {
-          "id": "ad_shop_list_top_wrap",
-          "comment": "Ad slot: shop.list.top — API mount",
-          "type": "basic",
-          "name": "Div",
-          "props": {
-            "className": "mb-6 flex flex-col gap-3",
-            "data-cas-ad-slot": "shop.list.top",
-            "id": "ad_shop_list_top_wrap"
-          },
-          "children": [],
-          "if": "{{((ad_shop_list_top.data ?? ad_shop_list_top ?? []).length > 0)}}"
-        }
-      ]
-    },
-    {
-      "target_id": "main_content",
-      "position": "append_child",
-      "components": [
-        {
-          "id": "ad_shop_list_bottom_wrap",
-          "comment": "Ad slot: shop.list.bottom — API mount",
-          "type": "basic",
-          "name": "Div",
-          "props": {
-            "className": "mt-6 flex flex-col gap-3",
-            "data-cas-ad-slot": "shop.list.bottom",
-            "id": "ad_shop_list_bottom_wrap"
-          },
-          "children": [],
-          "if": "{{((ad_shop_list_bottom.data ?? ad_shop_list_bottom ?? []).length > 0)}}"
-        }
-      ]
-    }
-  ]
+  "injections": []
 }

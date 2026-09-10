@@ -54,6 +54,16 @@
       ad_shop_cart_bottom_wrap: "shop.cart.bottom",
       ad_board_popular_top_wrap: "board.popular.top",
       ad_board_popular_bottom_wrap: "board.popular.bottom",
+      ad_board_index_top_wrap: "board.index.top",
+      ad_board_index_bottom_wrap: "board.index.bottom",
+      ad_board_show_top_wrap: "board.show.top",
+      ad_board_show_bottom_wrap: "board.show.bottom",
+      ad_board_form_top_wrap: "board.form.top",
+      ad_board_form_bottom_wrap: "board.form.bottom",
+      ad_board_boards_top_wrap: "board.boards.top",
+      ad_board_boards_bottom_wrap: "board.boards.bottom",
+      ad_mypage_top_wrap: "mypage.top",
+      ad_mypage_bottom_wrap: "mypage.bottom",
     };
     return map[id] || null;
   }
@@ -86,6 +96,16 @@
       "ad_shop_cart_bottom_wrap",
       "ad_board_popular_top_wrap",
       "ad_board_popular_bottom_wrap",
+      "ad_board_index_top_wrap",
+      "ad_board_index_bottom_wrap",
+      "ad_board_show_top_wrap",
+      "ad_board_show_bottom_wrap",
+      "ad_board_form_top_wrap",
+      "ad_board_form_bottom_wrap",
+      "ad_board_boards_top_wrap",
+      "ad_board_boards_bottom_wrap",
+      "ad_mypage_top_wrap",
+      "ad_mypage_bottom_wrap",
     ];
     for (var i = 0; i < ids.length; i++) {
       var el = document.getElementById(ids[i]);
@@ -665,8 +685,32 @@
     }
   }
 
+  function hideEmptyMount(mount) {
+    // Only the ad mount itself — never parents or page content.
+    if (!mount || mount.nodeType !== 1) return;
+    if (!resolveSlotKey(mount)) return;
+    clearMountTimers(mount);
+    mount.setAttribute("data-cas-ad-sig", "__empty__");
+    mount.setAttribute("aria-hidden", "true");
+    // Clear only our previous host inside the mount
+    var host = mount.querySelector("[data-cas-ad-host='1']");
+    if (host && host.parentNode === mount) {
+      try {
+        mount.removeChild(host);
+      } catch (e) {}
+    }
+    mount.style.display = "none";
+  }
+
   function applyToMount(mount, slotKey, slides) {
-    if (!slides || !slides.length) return;
+    if (!mount || mount.nodeType !== 1) return;
+    // Safety: only operate on recognized ad mounts
+    if (!slotKey || resolveSlotKey(mount) !== slotKey) return;
+
+    if (!slides || !slides.length) {
+      hideEmptyMount(mount);
+      return;
+    }
 
     var sig = slideSignature(slides);
     if (
@@ -679,7 +723,7 @@
     clearMountTimers(mount);
     mount.setAttribute("data-cas-ad-sig", sig);
     mount.removeAttribute("aria-hidden");
-    if (mount.style.display === "none") mount.style.display = "";
+    mount.style.display = "";
 
     if (CAROUSEL_SLOTS[slotKey]) {
       buildCarouselInto(mount, slides);
@@ -695,10 +739,11 @@
 
     var cached = slotCache[slotKey];
     if (cached && cached.status === "ok") {
-      if (cached.items.length) applyToMount(mount, slotKey, cached.items);
+      applyToMount(mount, slotKey, cached.items);
       return;
     }
     if (cached && cached.status === "err") {
+      hideEmptyMount(mount);
       return;
     }
     fetchSlot(slotKey).then(function () {

@@ -1,5 +1,5 @@
 {
-  "_comment": "공식 테마 home: main_content에 home.top(prepend·hero carousel)·home.bottom(append·stack). home.mid는 Event Hook 삽입.",
+  "_comment": "data_sources only for home. Mount Divs are injected by AdPlacementLayoutListener (official layouts lack reliable main_content for overlay inject).",
   "target_layout": "home",
   "priority": 85,
   "data_sources": [
@@ -82,46 +82,5 @@
       "comment": "custom-ad_slots home.bottom"
     }
   ],
-  "injections": [
-    {
-      "target_id": "main_content",
-      "position": "prepend_child",
-      "components": [
-        {
-          "id": "ad_home_top_wrap",
-          "comment": "=== Ad slot: home.top — API mount; hero-carousel.js carousel ===",
-          "type": "basic",
-          "name": "Div",
-          "props": {
-            "className": "relative w-full overflow-hidden rounded-xl mb-4",
-            "data-cas-ad-slot": "home.top",
-            "id": "ad_home_top_wrap",
-            "data-cas-hero": "1",
-            "data-cas-hero-slot": "home.top"
-          },
-          "children": [],
-          "if": "{{((ad_home_top.data ?? ad_home_top ?? []).length > 0)}}"
-        }
-      ]
-    },
-    {
-      "target_id": "main_content",
-      "position": "append_child",
-      "components": [
-        {
-          "id": "ad_home_bottom_wrap",
-          "comment": "=== Ad slot: home.bottom — API mount; stacked banners ===",
-          "type": "basic",
-          "name": "Div",
-          "props": {
-            "className": "mt-4 flex flex-col gap-3",
-            "data-cas-ad-slot": "home.bottom",
-            "id": "ad_home_bottom_wrap"
-          },
-          "children": [],
-          "if": "{{((ad_home_bottom.data ?? ad_home_bottom ?? []).length > 0)}}"
-        }
-      ]
-    }
-  ]
+  "injections": []
 }

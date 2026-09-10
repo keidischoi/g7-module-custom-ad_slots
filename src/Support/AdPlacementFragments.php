@@ -8,6 +8,7 @@ namespace Modules\Custom\AdSlots\Support;
  *
  * Layout mounts are empty placeholders with data-cas-ad-slot; hero-carousel.js
  * fetches placements API and renders carousel/stack into the mount.
+ * Mounts are always present (no layout `if` on API length) — JS hides when empty.
  */
 final class AdPlacementFragments
 {
@@ -40,6 +41,7 @@ final class AdPlacementFragments
 
     /**
      * Empty mount Div for API-driven JS render (data-cas-ad-slot).
+     * Always present — no `if` on data_source length.
      *
      * @return array<string, mixed>
      */
@@ -50,11 +52,33 @@ final class AdPlacementFragments
             'comment' => $comment,
             'type' => 'basic',
             'name' => 'Div',
-            'if' => '{{(('.$dsId.'.data ?? '.$dsId.' ?? []).length > 0)}}',
             'props' => [
                 'className' => $className,
                 'id' => $wrapId,
                 'data-cas-ad-slot' => $slotKey,
+            ],
+            'children' => [],
+        ];
+    }
+
+    /**
+     * Hero-capable mount (home.top / global.top) — same empty stub with hero markers.
+     *
+     * @return array<string, mixed>
+     */
+    public static function heroMountWrap(string $wrapId, string $comment, string $slotKey, string $className): array
+    {
+        return [
+            'id' => $wrapId,
+            'comment' => $comment,
+            'type' => 'basic',
+            'name' => 'Div',
+            'props' => [
+                'className' => $className,
+                'id' => $wrapId,
+                'data-cas-ad-slot' => $slotKey,
+                'data-cas-hero' => '1',
+                'data-cas-hero-slot' => $slotKey,
             ],
             'children' => [],
         ];
@@ -80,6 +104,22 @@ final class AdPlacementFragments
         $s = preg_replace('/^ad_/', '', $dsId) ?? $dsId;
 
         return str_replace('_', '.', $s);
+    }
+
+    /**
+     * Slot key → stable wrap id (ad_shop_list_top_wrap).
+     */
+    public static function wrapIdForSlot(string $slotKey): string
+    {
+        return 'ad_'.str_replace('.', '_', $slotKey).'_wrap';
+    }
+
+    /**
+     * Slot key → data_source id (ad_shop_list_top).
+     */
+    public static function dsIdForSlot(string $slotKey): string
+    {
+        return 'ad_'.str_replace('.', '_', $slotKey);
     }
 
     /**
