@@ -8,9 +8,9 @@
 
 ### Fixed
 
-- **Bottom merge carousel** (`hero-carousel.js`): when page bottom + `global.bottom` both have items, render as **one carousel** (same as top), not a stacked list that looked like duplicates.
-- **Single bottom/top host:** always clear/hide the non-primary mount after merge so only one host stays visible (defensive against duplicate mounts).
-- Merged bottom uses carousel path when slide count ≥ 1; carousel controls/autoplay when ≥ 2 slides (unchanged carousel builder).
+- **Bottom merge = one stack** (`hero-carousel.js`): when page bottom + `global.bottom` both have items, place them **in sequence** (page-slot banners first, then global) as **one continuous vertical stack** on a single mount — not two separate sections, and **not** a carousel.
+- **Single bottom/top host:** always clear/hide the non-primary mount after merge so only one host stays visible (fixes duplicate bottom sections).
+- **Top unchanged:** page + `global.top` still merge into one carousel (same as 1.3.2).
 
 ### Changed
 

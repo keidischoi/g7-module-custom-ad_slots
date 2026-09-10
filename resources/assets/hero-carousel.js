@@ -1077,18 +1077,16 @@
         useCarousel = true;
       }
     } else {
-      // bottom — merged page+global uses carousel (same as top); controls when >= 2 slides
+      // bottom — always one vertical stack (page items first, then global); never carousel
       if (pageHas && globalHas) {
         sigKey =
           (pageSlotKey || "page.bottom") + "+global.bottom";
-        useCarousel = merged.length >= 1;
       } else if (pageHas) {
         sigKey = pageSlotKey || "page.bottom";
-        useCarousel = !!CAROUSEL_SLOTS[sigKey];
       } else {
         sigKey = "global.bottom";
-        useCarousel = !!CAROUSEL_SLOTS[sigKey];
       }
+      useCarousel = false;
     }
 
     applyToMount(host, sigKey, merged, { force: true, carousel: useCarousel });
