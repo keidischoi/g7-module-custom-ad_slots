@@ -1,4 +1,4 @@
-/*! custom-ad_slots — API-driven ad mounts (carousel + stacked banners) + path-routed page mounts */
+/*! custom-ad_slots — API mounts (carousel + stacks) + path-routed home/global; native stacks for non-home */
 (function () {
   if (window.__casAdRenderInstalled) return;
   window.__casAdRenderInstalled = true;
@@ -48,6 +48,40 @@
    * Liberal heuristics for gnuboard G7 sirsoft-basic URLs.
    * @returns {{ top: ?string, bottom: ?string, excluded: boolean, path: string }}
    */
+  function readShopBase() {
+    try {
+      var st = window.G7Core && window.G7Core.state;
+      if (st && typeof st.shopBase === "string" && st.shopBase) {
+        return normalizePathname(st.shopBase);
+      }
+      if (st && st._global && typeof st._global.shopBase === "string" && st._global.shopBase) {
+        return normalizePathname(st._global.shopBase);
+      }
+    } catch (e) {}
+    try {
+      var g = window._global;
+      if (g && typeof g.shopBase === "string" && g.shopBase) {
+        return normalizePathname(g.shopBase);
+      }
+    } catch (e2) {}
+    return "";
+  }
+
+  /** Strip configured shopBase prefix for shop URL matching only. */
+  function pathWithoutShopBase(pathname, shopBase) {
+    if (!shopBase || shopBase === "/") return pathname;
+    var p = String(pathname || "/");
+    var sb = String(shopBase);
+    var pl = p.toLowerCase();
+    var sbl = sb.toLowerCase();
+    if (pl === sbl) return "/";
+    if (pl.indexOf(sbl + "/") === 0) {
+      var rest = p.slice(sb.length);
+      return rest && rest.charAt(0) === "/" ? rest : "/" + rest;
+    }
+    return pathname;
+  }
+
   function resolvePageSlots() {
     var path = normalizePathname(location.pathname || "/");
     var lower = path.toLowerCase();
@@ -116,10 +150,15 @@
       return { top: null, bottom: null, excluded: true, path: path };
     }
 
-    // Home
+    // Home — keep on original path (do not apply shopBase strip here)
     if (lower === "/" || lower === "/home" || lower === "/index" || lower === "/main") {
       return { top: "home.top", bottom: "home.bottom", excluded: false, path: path };
     }
+
+    // Shop URL matching may need shopBase strip (secondary hardening)
+    var shopBase = readShopBase();
+    var shopPath = pathWithoutShopBase(path, shopBase);
+    var shopLower = shopPath.toLowerCase();
 
     // Mypage (all)
     if (lower === "/mypage" || lower.indexOf("/mypage/") === 0) {
@@ -165,11 +204,11 @@
       return { top: "board.index.top", bottom: "board.index.bottom", excluded: false, path: path };
     }
 
-    // Shop cart
+    // Shop cart (match shopLower so /{shopBase}/cart works)
     if (
-      /\/shop\/cart(\/|$)/i.test(lower) ||
-      lower === "/cart" ||
-      lower.indexOf("/cart/") === 0
+      /\/shop\/cart(\/|$)/i.test(shopLower) ||
+      shopLower === "/cart" ||
+      shopLower.indexOf("/cart/") === 0
     ) {
       // avoid mypage already handled; plain /cart under shopBase '' edge case
       if (lower.indexOf("/mypage") !== 0) {
@@ -179,30 +218,30 @@
 
     // Shop list: /shop, /shop/products, /shop/category/*, /products (no_route)
     if (
-      lower === "/shop" ||
-      lower === "/shop/products" ||
-      lower.indexOf("/shop/products?") === 0 ||
-      /^\/shop\/category(\/|$)/i.test(lower) ||
-      lower === "/products" ||
-      /^\/category(\/|$)/i.test(lower)
+      shopLower === "/shop" ||
+      shopLower === "/shop/products" ||
+      shopLower.indexOf("/shop/products?") === 0 ||
+      /^\/shop\/category(\/|$)/i.test(shopLower) ||
+      shopLower === "/products" ||
+      /^\/category(\/|$)/i.test(shopLower)
     ) {
       return { top: "shop.list.top", bottom: "shop.list.bottom", excluded: false, path: path };
     }
 
     // Shop detail: /shop/products/{code}, /products/{code} — not cart/checkout
     if (
-      /^\/shop\/products\/[^/]+/i.test(lower) ||
-      /^\/products\/[^/]+/i.test(lower) ||
-      /^\/shop\/[^/]+$/i.test(lower)
+      /^\/shop\/products\/[^/]+/i.test(shopLower) ||
+      /^\/products\/[^/]+/i.test(shopLower) ||
+      /^\/shop\/[^/]+$/i.test(shopLower)
     ) {
       // /shop/cart already handled; /shop/checkout excluded
-      if (!/^\/shop\/(cart|checkout|orders|guest|category|products)$/i.test(lower)) {
+      if (!/^\/shop\/(cart|checkout|orders|guest|category|products)$/i.test(shopLower)) {
         return { top: "shop.detail.top", bottom: "shop.detail.bottom", excluded: false, path: path };
       }
     }
 
     // Fallback: /shop/* remaining → detail-ish (liberal)
-    if (lower.indexOf("/shop/") === 0) {
+    if (shopLower.indexOf("/shop/") === 0) {
       return { top: "shop.detail.top", bottom: "shop.detail.bottom", excluded: false, path: path };
     }
 
@@ -292,7 +331,14 @@
     ];
     for (var i = 0; i < ids.length; i++) {
       var el = document.getElementById(ids[i]);
-      if (el) add(el);
+      // Native stacks (v1.2.9) reuse wrap ids but have no data-cas-ad-slot —
+      // do not claim them or JS would wipe layout-rendered banners.
+      if (
+        el &&
+        (el.getAttribute("data-cas-ad-slot") || el.getAttribute("data-cas-hero-slot"))
+      ) {
+        add(el);
+      }
     }
 
     // Prefer innermost mount when both wrap + hero exist
@@ -1003,6 +1049,21 @@
     });
   }
 
+  /**
+   * Event Hook may inject feat-style native stacks (no data-cas-ad-slot).
+   * When present, skip cas_page role fill to avoid double ads.
+   */
+  function hasNativePageStack(slotKey) {
+    if (!slotKey) return false;
+    var id = "ad_" + String(slotKey).split(".").join("_") + "_wrap";
+    var el = document.getElementById(id);
+    if (!el) return false;
+    if (el.getAttribute("data-cas-ad-slot") || el.getAttribute("data-cas-hero-slot")) {
+      return false;
+    }
+    return true;
+  }
+
   function runPageMounts() {
     var resolved = resolvePageSlots();
     var pageSig =
@@ -1036,10 +1097,18 @@
     }
 
     for (var ti = 0; ti < tops.length; ti++) {
-      fillPageRoleMount(tops[ti], resolved.top);
+      if (hasNativePageStack(resolved.top)) {
+        clearAndHideMount(tops[ti]);
+      } else {
+        fillPageRoleMount(tops[ti], resolved.top);
+      }
     }
     for (var bi = 0; bi < bottoms.length; bi++) {
-      fillPageRoleMount(bottoms[bi], resolved.bottom);
+      if (hasNativePageStack(resolved.bottom)) {
+        clearAndHideMount(bottoms[bi]);
+      } else {
+        fillPageRoleMount(bottoms[bi], resolved.bottom);
+      }
     }
   }
 

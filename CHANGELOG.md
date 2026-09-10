@@ -4,6 +4,26 @@
 형식은 [Keep a Changelog](https://keepachangelog.com/ko/1.1.0/)를 따르며,
 [Semantic Versioning](https://semver.org/lang/ko/)을 준수합니다.
 
+## [1.2.9] - 2026-09-10
+
+### Fixed
+
+- **Non-home ads (shop / board / mypage):** Event Hook injects feat-style **native** banner stacks (`if` + `iteration` + inlined `_banner_list`) into page content. Path-routed `cas_page_*` JS alone was unreliable for those URLs.
+- **Home / global untouched:** `home.top` / `home.bottom` still via `cas_page` path mounts; `global.top` / `global.bottom` and hero-carousel script on `_user_base` unchanged. `home.mid` insertion unchanged. Checkout / order layouts still excluded.
+- **JS safety:** `findMounts` no longer claims wrap ids without `data-cas-ad-slot` (avoids wiping native stacks). If a native stack is present, `cas_page` role mounts are cleared to prevent double ads. Optional `shopBase` hardening in `resolvePageSlots` (home `/` detection unchanged).
+
+### Added
+
+- `AdPlacementFragments::nativeStackWrap()` — feat-style native stack fragment.
+
+### Install
+
+```
+php82 artisan module:update custom-ad_slots --source=bundled --force --layout-strategy=overwrite
+php82 artisan hooks:clear
+php82 artisan cache:clear
+```
+
 ## [1.2.8] - 2026-09-10
 
 ### Fixed

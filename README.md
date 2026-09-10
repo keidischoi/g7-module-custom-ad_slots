@@ -7,7 +7,7 @@
 | identifier | `custom-ad_slots` |
 | Namespace | `Modules\Custom\AdSlots` |
 | Composer | `modules/custom-ad_slots` |
-| 버전 | `1.2.8` |
+| 버전 | `1.2.9` |
 
 ## 슬롯 키
 
@@ -34,23 +34,24 @@
 
 
 
-## 공식 테마 광고 주입 (v1.2.8 · `_user_base` path-routed mounts)
+## 공식 테마 광고 주입 (v1.2.9 · home/global path mounts + non-home native stacks)
 
-테마 파일을 수정하지 않습니다. **페이지 광고는 `_user_base`에 고정된 마운트**(`cas_page_top_mount` / `cas_page_bottom_mount`)를 `hero-carousel.js`가 **URL 경로로 슬롯 키를 선택**해 채웁니다(Event Hook content 주입 실패와 무관하게 모든 페이지에서 DOM에 존재).
+테마 파일을 수정하지 않습니다.
 
 | 슬롯 | 방식 | 앵커 |
 |------|------|------|
-| `global.top` / `global.bottom` | overlay `ad_global__user_base.json` (always-on) | `_user_base` → `main_content_area` / `footer` + script |
-| `home.top` / `home.bottom` / shop.* / board.* / mypage.* | `_user_base` path-routed mounts + JS | `#cas_page_top_mount` / `#cas_page_bottom_mount` (`data-cas-ad-role`) |
-| `home.mid` | Event Hook | 홈 1행·2행 사이 |
+| `global.top` / `global.bottom` | overlay `ad_global__user_base.json` (always-on JS mounts) | `_user_base` → `main_content_area` / `footer` + script |
+| `home.top` / `home.bottom` | `_user_base` path-routed mounts + JS | `#cas_page_top_mount` / `#cas_page_bottom_mount` |
+| shop.* / board.* / mypage.* | Event Hook **native** stacks (`if` + `iteration` + inlined `_banner_list`) | 각 페이지 `slots.content` 상·하단 |
+| `home.mid` | Event Hook API mount | 홈 1행·2행 사이 |
 
-**제외(페이지 마운트 숨김):** checkout / order_complete / guest_order URL·레이아웃 — 결제 화면 공백 방지.
+**제외:** checkout / order_complete / guest_order URL·레이아웃 — 결제 화면 공백 방지. **홈/글로벌 구조는 1.2.8과 동일** (`ad_global__user_base.json` 미변경).
 
-확장 파일: `resources/extensions/ad_global__user_base.json`  
-리스너: `src/Listeners/AdPlacementLayoutListener.php` (`home.mid` + optional backup mounts)  
-스크립트: `resources/assets/hero-carousel.js` (`resolvePageSlots()`)
+확장 파일: `resources/extensions/ad_global__user_base.json` (+ per-page DS: `ad_shop_*`, `ad_board_popular`, `ad_home`)  
+리스너: `src/Listeners/AdPlacementLayoutListener.php` (`nativeStackWrap` for non-home; home.mid)  
+스크립트: `resources/assets/hero-carousel.js` (home/global + optional shopBase; skips native wrap ids)
 
-**렌더**: JS가 placements API로 캐러셀(`home.top`/`global.top`) 또는 스택 배너를 마운트 안에 그림. 빈 슬롯은 마운트만 `display:none`.
+**렌더**: 홈/글로벌 히어로·스택은 JS; 비홈 페이지는 레이아웃 엔진이 네이티브 배너 스택을 그림.
 
 **제외 UI**: 메뉴/검색/아이콘/홈디자인 등 비광고 UI는 포함하지 않습니다.
 
