@@ -7,7 +7,7 @@
 | identifier | `custom-ad_slots` |
 | Namespace | `Modules\Custom\AdSlots` |
 | Composer | `modules/custom-ad_slots` |
-| 버전 | `1.2.0` |
+| 버전 | `1.2.1` |
 
 ## 슬롯 키
 
@@ -19,30 +19,36 @@
 | `home.mid` | 홈 중단 |
 | `home.bottom` | 홈 하단 |
 | `shop.list.top` | 쇼핑몰 목록 상단 |
+| `shop.list.bottom` | 쇼핑몰 목록 하단 |
 | `shop.detail.top` | 상품 상세 상단 |
+| `shop.detail.bottom` | 상품 상세 하단 |
 | `shop.cart.top` | 장바구니 상단 |
+| `shop.cart.bottom` | 장바구니 하단 |
 | `board.popular.top` | 인기글 상단 |
+| `board.popular.bottom` | 인기글 하단 |
 
 
 
-## 공식 테마 광고 주입 (v1.2.0 · Layout Extensions + Event Hook)
+## 공식 테마 광고 주입 (v1.2.1 · Layout Extensions + Event Hook)
 
 테마 파일을 수정하지 않습니다. 모듈이 **공식** `gnuboard/g7-template-sirsoft-basic` 앵커에만 광고 UI를 주입합니다.
 
 | 슬롯 | 방식 | 앵커 |
 |------|------|------|
-| `global.top` | overlay `ad_global__user_base.json` | `_user_base` → `main_content_area` `prepend_child` |
+| `global.top` | overlay `ad_global__user_base.json` | `_user_base` → `main_content_area` prepend(**hero carousel**) |
 | `global.bottom` | 동일 | `_user_base` → `footer` `prepend` |
-| `home.top` / `home.bottom` | overlay `ad_home.json` | `home` → `main_content` prepend/append_child |
+| `home.top` / `home.bottom` | overlay `ad_home.json` | `home` → `main_content` prepend(**hero carousel**)/append(stack) |
 | `home.mid` | Event Hook `AdPlacementLayoutListener` | 홈 1행·2행 사이 |
-| `shop.list.top` | overlay `ad_shop_list.json` | `shop/index` → `main_content` |
-| `shop.detail.top` | overlay + Event Hook 재배치 | `shop/show` → 뒤로가기 다음 |
-| `shop.cart.top` | overlay `ad_shop_cart.json` | `shop/cart` → `main_content` |
-| `board.popular.top` | overlay `ad_board_popular.json` | `board/popular` → `main_content` |
+| `shop.list.top` / `shop.list.bottom` | overlay `ad_shop_list.json` | `shop/index` → `main_content` prepend/append |
+| `shop.detail.top` / `shop.detail.bottom` | overlay + Event Hook 재배치 | `shop/show` → top after back / bottom append |
+| `shop.cart.top` / `shop.cart.bottom` | overlay `ad_shop_cart.json` | `shop/cart` → `main_content` prepend/append |
+| `board.popular.top` / `board.popular.bottom` | overlay `ad_board_popular.json` | `board/popular` → `main_content` prepend/append |
 
 확장 파일: `resources/extensions/*.json`  
 Partials: `resources/layouts/partials/ads/*`  
 리스너: `src/Listeners/AdPlacementLayoutListener.php`
+
+**home.top / global.top**: 모듈 JS 히어로 캐러셀 (`data-cas-hero` + `/api/modules/custom-ad_slots/assets/hero-carousel.js`). 공식 테마 AdHeroCarousel 미사용.
 
 **제외**: 메뉴/검색/아이콘/홈디자인 등 비광고 UI는 포함하지 않습니다.
 

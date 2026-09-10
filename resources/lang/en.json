@@ -59,13 +59,16 @@
         },
         "shop": {
             "list": {
-                "top": "Shop List Top"
+                "top": "Shop List Top",
+                "bottom": "Shop List Bottom"
             },
             "detail": {
-                "top": "Shop Detail Top"
+                "top": "Shop Detail Top",
+                "bottom": "Shop Detail Bottom"
             },
             "cart": {
-                "top": "Shop Cart Top"
+                "top": "Shop Cart Top",
+                "bottom": "Shop Cart Bottom"
             }
         },
         "home.top": "Home Top",
@@ -76,7 +79,8 @@
         "shop.cart.top": "Shop Cart Top",
         "board": {
             "popular": {
-                "top": "Popular Posts Top"
+                "top": "Popular Posts Top",
+                "bottom": "Popular Posts Bottom"
             }
         },
         "board.popular.top": "Popular Posts Top",
@@ -85,6 +89,10 @@
             "bottom": "Global · Bottom"
         },
         "global.top": "Global · Top",
-        "global.bottom": "Global · Bottom"
+        "global.bottom": "Global · Bottom",
+        "shop.list.bottom": "Shop List Bottom",
+        "shop.detail.bottom": "Shop Detail Bottom",
+        "shop.cart.bottom": "Shop Cart Bottom",
+        "board.popular.bottom": "Popular Posts Bottom"
     }
 }
