@@ -1,0 +1,239 @@
+{
+  "_comment": "공식 테마 shop/index: shop.list.top → main_content prepend_child",
+  "target_layout": "shop/index",
+  "priority": 85,
+  "data_sources": [
+    {
+      "id": "ad_shop_list_top",
+      "label_key": "Ad shop.list.top",
+      "type": "api",
+      "endpoint": "/api/modules/custom-ad_slots/placements",
+      "method": "GET",
+      "auto_fetch": true,
+      "auth_mode": "optional",
+      "loading_strategy": "progressive",
+      "params": {
+        "slot": "shop.list.top"
+      },
+      "fallback": {
+        "data": []
+      },
+      "errorHandling": {
+        "404": {
+          "handler": "suppress",
+          "comment": "모듈 미설치 시 조용히 무시"
+        },
+        "500": {
+          "handler": "suppress"
+        }
+      },
+      "comment": "custom-ad_slots shop.list.top"
+    }
+  ],
+  "injections": [
+    {
+      "target_id": "main_content",
+      "position": "prepend_child",
+      "components": [
+        {
+          "id": "ad_shop_list_top_wrap",
+          "comment": "Ad slot: shop.list.top (메인 콘텐츠 상단)",
+          "type": "basic",
+          "name": "Div",
+          "if": "{{((ad_shop_list_top.data ?? ad_shop_list_top ?? []).length > 0)}}",
+          "props": {
+            "className": "mb-6 flex flex-col gap-3"
+          },
+          "iteration": {
+            "source": "{{(ad_shop_list_top.data ?? ad_shop_list_top ?? [])}}",
+            "item_var": "ad"
+          },
+          "children": [
+            {
+              "type": "basic",
+              "name": "Div",
+              "props": {
+                "className": "w-full overflow-hidden rounded-lg"
+              },
+              "children": [
+                {
+                  "comment": "static: 이미지 배너 (link_url, 새 창) — desktop/mobile/legacy",
+                  "type": "basic",
+                  "name": "A",
+                  "if": "{{(ad.type ?? 'static') === 'static' && (ad.image_desktop ?? ad.image_url_desktop ?? ad.image_url ?? ad.image_mobile ?? ad.image_url_mobile) && ad.link_url && (ad.open_in_new_tab ?? true)}}",
+                  "props": {
+                    "href": "{{ad.link_url}}",
+                    "target": "_blank",
+                    "rel": "noopener noreferrer",
+                    "className": "block w-full",
+                    "title": "{{ad.title ?? ''}}"
+                  },
+                  "children": [
+                    {
+                      "type": "basic",
+                      "name": "Img",
+                      "props": {
+                        "src": "{{ad.image_desktop ?? ad.image_url_desktop ?? ad.image_url}}",
+                        "alt": "{{ad.title ?? 'ad'}}",
+                        "className": "hidden md:block w-full h-auto object-cover rounded-lg",
+                        "preventRightClick": "{{!!ad.prevent_right_click}}",
+                        "draggable": false
+                      }
+                    },
+                    {
+                      "type": "basic",
+                      "name": "Img",
+                      "props": {
+                        "src": "{{ad.image_mobile ?? ad.image_url_mobile ?? ad.image_desktop ?? ad.image_url_desktop ?? ad.image_url}}",
+                        "alt": "{{ad.title ?? 'ad'}}",
+                        "className": "block md:hidden w-full h-auto object-cover rounded-lg",
+                        "preventRightClick": "{{!!ad.prevent_right_click}}",
+                        "draggable": false
+                      }
+                    }
+                  ]
+                },
+                {
+                  "comment": "static: 이미지 배너 (link_url, 현재 창) — desktop/mobile/legacy",
+                  "type": "basic",
+                  "name": "A",
+                  "if": "{{(ad.type ?? 'static') === 'static' && (ad.image_desktop ?? ad.image_url_desktop ?? ad.image_url ?? ad.image_mobile ?? ad.image_url_mobile) && ad.link_url && !(ad.open_in_new_tab ?? true)}}",
+                  "props": {
+                    "href": "{{ad.link_url}}",
+                    "className": "block w-full",
+                    "title": "{{ad.title ?? ''}}"
+                  },
+                  "children": [
+                    {
+                      "type": "basic",
+                      "name": "Img",
+                      "props": {
+                        "src": "{{ad.image_desktop ?? ad.image_url_desktop ?? ad.image_url}}",
+                        "alt": "{{ad.title ?? 'ad'}}",
+                        "className": "hidden md:block w-full h-auto object-cover rounded-lg",
+                        "preventRightClick": "{{!!ad.prevent_right_click}}",
+                        "draggable": false
+                      }
+                    },
+                    {
+                      "type": "basic",
+                      "name": "Img",
+                      "props": {
+                        "src": "{{ad.image_mobile ?? ad.image_url_mobile ?? ad.image_desktop ?? ad.image_url_desktop ?? ad.image_url}}",
+                        "alt": "{{ad.title ?? 'ad'}}",
+                        "className": "block md:hidden w-full h-auto object-cover rounded-lg",
+                        "preventRightClick": "{{!!ad.prevent_right_click}}",
+                        "draggable": false
+                      }
+                    }
+                  ]
+                },
+                {
+                  "comment": "static: 이미지만 (링크 없음)",
+                  "type": "basic",
+                  "name": "Div",
+                  "if": "{{(ad.type ?? 'static') === 'static' && (ad.image_desktop ?? ad.image_url_desktop ?? ad.image_url ?? ad.image_mobile ?? ad.image_url_mobile) && !ad.link_url}}",
+                  "props": {
+                    "className": "w-full"
+                  },
+                  "children": [
+                    {
+                      "type": "basic",
+                      "name": "Img",
+                      "props": {
+                        "src": "{{ad.image_desktop ?? ad.image_url_desktop ?? ad.image_url}}",
+                        "alt": "{{ad.title ?? 'ad'}}",
+                        "className": "hidden md:block w-full h-auto object-cover rounded-lg",
+                        "preventRightClick": "{{!!ad.prevent_right_click}}",
+                        "draggable": false
+                      }
+                    },
+                    {
+                      "type": "basic",
+                      "name": "Img",
+                      "props": {
+                        "src": "{{ad.image_mobile ?? ad.image_url_mobile ?? ad.image_desktop ?? ad.image_url_desktop ?? ad.image_url}}",
+                        "alt": "{{ad.title ?? 'ad'}}",
+                        "className": "block md:hidden w-full h-auto object-cover rounded-lg",
+                        "preventRightClick": "{{!!ad.prevent_right_click}}",
+                        "draggable": false
+                      }
+                    }
+                  ]
+                },
+                {
+                  "comment": "static: 이미지 배너 (link_url, 새 창) — desktop/mobile/legacy",
+                  "type": "basic",
+                  "name": "A",
+                  "if": "{{(ad.type ?? 'static') === 'static' && !(ad.image_desktop ?? ad.image_url_desktop ?? ad.image_url ?? ad.image_mobile ?? ad.image_url_mobile) && ad.link_url && (ad.open_in_new_tab ?? true)}}",
+                  "props": {
+                    "href": "{{ad.link_url}}",
+                    "target": "_blank",
+                    "rel": "noopener noreferrer",
+                    "className": "block w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm font-medium text-gray-800 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700"
+                  },
+                  "children": [
+                    {
+                      "type": "basic",
+                      "name": "Span",
+                      "text": "{{ad.title ?? 'Ad'}}"
+                    }
+                  ]
+                },
+                {
+                  "comment": "static: 이미지 배너 (link_url, 현재 창) — desktop/mobile/legacy",
+                  "type": "basic",
+                  "name": "A",
+                  "if": "{{(ad.type ?? 'static') === 'static' && !(ad.image_desktop ?? ad.image_url_desktop ?? ad.image_url ?? ad.image_mobile ?? ad.image_url_mobile) && ad.link_url && !(ad.open_in_new_tab ?? true)}}",
+                  "props": {
+                    "href": "{{ad.link_url}}",
+                    "className": "block w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm font-medium text-gray-800 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700"
+                  },
+                  "children": [
+                    {
+                      "type": "basic",
+                      "name": "Span",
+                      "text": "{{ad.title ?? 'Ad'}}"
+                    }
+                  ]
+                },
+                {
+                  "comment": "static: 이미지·링크 없이 제목만",
+                  "type": "basic",
+                  "name": "Div",
+                  "if": "{{(ad.type ?? 'static') === 'static' && !(ad.image_desktop ?? ad.image_url_desktop ?? ad.image_url ?? ad.image_mobile ?? ad.image_url_mobile) && !ad.link_url && ad.title}}",
+                  "props": {
+                    "className": "w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-700 dark:text-gray-200"
+                  },
+                  "children": [
+                    {
+                      "type": "basic",
+                      "name": "Span",
+                      "text": "{{ad.title}}"
+                    }
+                  ]
+                },
+                {
+                  "comment": "dynamic: XSS 방지 — raw script/html 미주입. MVP는 제목만 표시",
+                  "type": "basic",
+                  "name": "Div",
+                  "if": "{{ad.type === 'dynamic'}}",
+                  "props": {
+                    "className": "w-full px-4 py-3 bg-gray-100/80 dark:bg-gray-800/80 border border-dashed border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-500 dark:text-gray-400"
+                  },
+                  "children": [
+                    {
+                      "type": "basic",
+                      "name": "Span",
+                      "text": "{{ad.title ?? 'Ad'}}"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
