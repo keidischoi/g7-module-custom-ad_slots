@@ -4,6 +4,25 @@
 형식은 [Keep a Changelog](https://keepachangelog.com/ko/1.1.0/)를 따르며,
 [Semantic Versioning](https://semver.org/lang/ko/)을 준수합니다.
 
+## [1.3.5] - 2026-09-11
+
+### Fixed
+
+- **하단 배너 높이 축소:** 스택 배너(홈 하단 등)는 상단 히어로 `3:1`을 쓰지 않고, 데스크톱 **160px** / 모바일 **100px** 띠로 고정합니다. 이미지는 영역 안에서 `object-fit: cover`로 잘라 표시됩니다.
+- 광고 JS 캐시 무효화: `hero-carousel.js?v=1.3.5`, `Cache-Control: no-store`.
+
+### Changed
+
+- Version **1.3.5**.
+
+### Install
+
+```
+php82 artisan module:update custom-ad_slots --source=bundled --force --layout-strategy=overwrite
+php82 artisan hooks:clear
+php82 artisan cache:clear
+```
+
 ## [1.3.4] - 2026-09-11
 
 ### Fixed

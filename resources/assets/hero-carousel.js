@@ -467,6 +467,22 @@
     }
   }
 
+  /** Compact strip for stacked (bottom/mid) banners — not the top hero ratio. */
+  function applyStackFrame(el) {
+    var md = false;
+    try {
+      md = !!(window.matchMedia && window.matchMedia(MD_MQ).matches);
+    } catch (e) {}
+    el.style.position = "relative";
+    el.style.width = "100%";
+    el.style.overflow = "hidden";
+    el.style.flexShrink = "0";
+    // Explicit height so absolutely positioned images cannot expand the row.
+    el.style.height = md ? "160px" : "100px";
+    el.style.maxHeight = md ? "160px" : "100px";
+    el.style.aspectRatio = "auto";
+  }
+
   function applyImgVisibility(desktopImg, mobileImg) {
     var md = false;
     try {
@@ -482,6 +498,7 @@
     img.style.width = "100%";
     img.style.height = "100%";
     img.style.objectFit = "cover";
+    img.style.objectPosition = "center";
     img.style.margin = "0";
     img.draggable = false;
   }
@@ -839,11 +856,8 @@
     slides.forEach(function (slide) {
       var row = document.createElement("div");
       row.className = "w-full overflow-hidden rounded-lg";
-      row.style.position = "relative";
-      row.style.width = "100%";
-      row.style.overflow = "hidden";
       row.style.borderRadius = "0.5rem";
-      applyAspect(row);
+      applyStackFrame(row);
       if (slide.bg_color) row.style.backgroundColor = slide.bg_color;
 
       var built = buildLinkedMedia(slide, true);
@@ -869,7 +883,7 @@
     try {
       var mql = window.matchMedia(MD_MQ);
       var onMq = function () {
-        Array.prototype.forEach.call(host.children, applyAspect);
+        Array.prototype.forEach.call(host.children, applyStackFrame);
         imgPairs.forEach(function (p) {
           applyImgVisibility(p.desktopImg, p.mobileImg);
         });
