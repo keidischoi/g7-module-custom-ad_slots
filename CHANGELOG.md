@@ -4,6 +4,18 @@
 형식은 [Keep a Changelog](https://keepachangelog.com/ko/1.1.0/)를 따르며,
 [Semantic Versioning](https://semver.org/lang/ko/)을 준수합니다.
 
+## [1.3.6] - 2026-09-11
+
+### Fixed
+
+- **하단 배너 원본 비율 유지:** 강제 비율과 `object-fit: cover`를 제거해 이미지가 잘리지 않고 전체가 표시됩니다.
+- **하단 배너 가로폭 축소:** 데스크톱에서는 최대 `720px`로 제한해 가운데 배치하고, 좁은 화면에서는 컨테이너 폭 `100%`로 반응형 표시합니다. 높이는 이미지 원본 비율에 따라 자동 계산됩니다.
+- 광고 JS 캐시 무효화: `hero-carousel.js?v=1.3.6`.
+
+### Changed
+
+- Version **1.3.6**.
+
 ## [1.3.5] - 2026-09-11
 
 ### Fixed
