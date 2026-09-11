@@ -467,7 +467,10 @@
     }
   }
 
-  /** Compact strip for stacked (bottom/mid) banners — not the top hero ratio. */
+  /**
+   * Stacked banners (home.bottom, global.bottom, mid): width 100%, height from ratio.
+   * Flatter than the top hero (3:1 / 2:1) so a full-width photo cannot dominate the page.
+   */
   function applyStackFrame(el) {
     var md = false;
     try {
@@ -475,12 +478,11 @@
     } catch (e) {}
     el.style.position = "relative";
     el.style.width = "100%";
+    el.style.height = "auto";
+    el.style.maxHeight = "";
     el.style.overflow = "hidden";
     el.style.flexShrink = "0";
-    // Explicit height so absolutely positioned images cannot expand the row.
-    el.style.height = md ? "160px" : "100px";
-    el.style.maxHeight = md ? "160px" : "100px";
-    el.style.aspectRatio = "auto";
+    el.style.aspectRatio = md ? "6 / 1" : "3 / 1";
   }
 
   function applyImgVisibility(desktopImg, mobileImg) {
