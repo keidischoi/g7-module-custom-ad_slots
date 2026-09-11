@@ -74,12 +74,22 @@
               "type": "layout",
               "name": "Container",
               "props": {
-                "className": "px-4 pt-4"
+                "className": "cas-ad-content-col chd-content-col mx-auto px-4 pt-4",
+                "style": {
+                  "width": "100%",
+                  "maxWidth": "var(--chd-content-max-width, 80rem)",
+                  "marginInline": "auto"
+                }
               },
               "responsive": {
                 "desktop": {
                   "props": {
-                    "className": "max-w-7xl mx-auto px-8 pt-6"
+                    "className": "cas-ad-content-col chd-content-col mx-auto px-8 pt-6",
+                    "style": {
+                      "width": "100%",
+                      "maxWidth": "var(--chd-content-max-width, 80rem)",
+                      "marginInline": "auto"
+                    }
                   }
                 }
               },
@@ -133,12 +143,22 @@
               "type": "layout",
               "name": "Container",
               "props": {
-                "className": "px-4 pb-4"
+                "className": "cas-ad-content-col chd-content-col mx-auto px-4 pb-4",
+                "style": {
+                  "width": "100%",
+                  "maxWidth": "var(--chd-content-max-width, 80rem)",
+                  "marginInline": "auto"
+                }
               },
               "responsive": {
                 "desktop": {
                   "props": {
-                    "className": "max-w-7xl mx-auto px-8 pb-6"
+                    "className": "cas-ad-content-col chd-content-col mx-auto px-8 pb-6",
+                    "style": {
+                      "width": "100%",
+                      "maxWidth": "var(--chd-content-max-width, 80rem)",
+                      "marginInline": "auto"
+                    }
                   }
                 }
               },

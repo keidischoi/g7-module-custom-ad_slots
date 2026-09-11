@@ -4,6 +4,18 @@
 형식은 [Keep a Changelog](https://keepachangelog.com/ko/1.1.0/)를 따르며,
 [Semantic Versioning](https://semver.org/lang/ko/)을 준수합니다.
 
+## [1.3.8] - 2026-09-11
+
+### Fixed
+
+- **가변 콘텐츠 폭 연동:** 상·하단 광고 컨테이너의 고정 `max-w-7xl`을 제거했습니다.
+- `custom-home_design`의 `--chd-content-max-width` 값을 직접 사용하므로 관리자가 콘텐츠 최대 폭을 변경하면 상단 캐러셀과 하단 배너도 같은 폭으로 즉시 맞춰집니다.
+- 광고 내부는 모두 부모 컨테이너 폭 `100%`를 사용하며 고정 픽셀 폭을 갖지 않습니다. `custom-home_design`이 없을 때만 공식 테마 폭 `80rem`을 폴백으로 사용합니다.
+
+### Changed
+
+- Version **1.3.8**.
+
 ## [1.3.7] - 2026-09-11
 
 ### Fixed
