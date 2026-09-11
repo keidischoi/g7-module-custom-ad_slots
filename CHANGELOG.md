@@ -4,6 +4,26 @@
 형식은 [Keep a Changelog](https://keepachangelog.com/ko/1.1.0/)를 따르며,
 [Semantic Versioning](https://semver.org/lang/ko/)을 준수합니다.
 
+## [1.3.5] - 2026-09-11
+
+### Fixed
+
+- **하단 배너 크기:** 스택 배너는 가로 `100%`만 맞추고, 높이는 비율로 자동 계산합니다. 상단 히어로(`3:1` / `2:1`)보다 납작한 데스크톱 **`6:1`**, 모바일 **`3:1`** 을 씁니다.
+- **비율이 무시되던 문제:** 테마 `img { height: auto }` / flex `min-height: auto`가 원본 이미지 높이로 박스를 밀어 올려, `aspect-ratio`만으로는 커 보일 수 있었습니다. 패딩 비율 잠금 + `!important` 이미지 fill로 강제합니다.
+- 광고 JS 캐시 무효화: `hero-carousel.js?v=1.3.5.1`, `Cache-Control: no-store`. 구버전 스크립트가 먼저 깔려 있어도 버전 가드로 새 렌더러가 다시 붙습니다.
+
+### Changed
+
+- Version **1.3.5**.
+
+### Install
+
+```
+php82 artisan module:update custom-ad_slots --source=bundled --force --layout-strategy=overwrite
+php82 artisan hooks:clear
+php82 artisan cache:clear
+```
+
 ## [1.3.4] - 2026-09-11
 
 ### Fixed

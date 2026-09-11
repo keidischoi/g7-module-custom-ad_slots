@@ -25,7 +25,7 @@ class AssetController extends Controller
 
         return response($js, 200, [
             'Content-Type' => 'application/javascript; charset=UTF-8',
-            'Cache-Control' => 'public, max-age=60',
+            'Cache-Control' => 'no-store, must-revalidate',
         ]);
     }
 }

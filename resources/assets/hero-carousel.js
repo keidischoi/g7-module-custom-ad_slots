@@ -1,6 +1,8 @@
 /*! custom-ad_slots — API-driven ad mounts (carousel + stacked banners) + path-routed page mounts */
 (function () {
-  if (window.__casAdRenderInstalled) return;
+  var CAS_AD_VERSION = "1.3.5";
+  if (window.__casAdRenderVersion === CAS_AD_VERSION) return;
+  window.__casAdRenderVersion = CAS_AD_VERSION;
   window.__casAdRenderInstalled = true;
 
   var INTERVAL_MS = 4000;
@@ -8,6 +10,8 @@
   var MD_MQ = "(min-width: 768px)";
   var PLACEMENTS_URL = "/api/modules/custom-ad_slots/placements";
   var CAROUSEL_SLOTS = { "home.top": true, "global.top": true };
+  var STACK_PAD_MD = "16.6667%";
+  var STACK_PAD_SM = "33.3333%";
 
   /** @type {Object.<string, {status:string, items:Array, promise:Promise|null, error:*} >} */
   var slotCache = {};
@@ -458,6 +462,27 @@
       .join("||");
   }
 
+  /**
+   * Theme CSS often sets `img { height: auto }` which blows past aspect-ratio.
+   * Lock stack rows with the padding-bottom ratio trick + !important img fill.
+   */
+  function ensureStackStyles() {
+    if (document.getElementById("cas-ad-stack-css")) return;
+    var style = document.createElement("style");
+    style.id = "cas-ad-stack-css";
+    style.textContent =
+      ".cas-ad-stack{display:flex;flex-direction:column;gap:0.75rem;width:100%;}" +
+      ".cas-ad-stack > *,.cas-ad-stack > [data-cas-stack-row]{position:relative !important;width:100% !important;height:0 !important;padding-bottom:" +
+      STACK_PAD_MD +
+      " !important;min-height:0 !important;overflow:hidden !important;aspect-ratio:unset !important;flex-shrink:0 !important;}" +
+      "@media (max-width:767.98px){.cas-ad-stack > *,.cas-ad-stack > [data-cas-stack-row]{padding-bottom:" +
+      STACK_PAD_SM +
+      " !important;}}" +
+      ".cas-ad-stack > * > *{position:absolute !important;inset:0 !important;display:block !important;width:100% !important;height:100% !important;max-height:none !important;}" +
+      ".cas-ad-stack img{position:absolute !important;inset:0 !important;width:100% !important;height:100% !important;max-width:none !important;max-height:none !important;object-fit:cover !important;object-position:center !important;margin:0 !important;}";
+    (document.head || document.documentElement).appendChild(style);
+  }
+
   function applyAspect(el) {
     try {
       var md = window.matchMedia && window.matchMedia(MD_MQ).matches;
@@ -465,6 +490,28 @@
     } catch (e) {
       el.style.aspectRatio = "2 / 1";
     }
+  }
+
+  /**
+   * Stacked banners: width 100%, height from ratio (6:1 desktop / 3:1 mobile).
+   * Use height:0 + padding-bottom % so in-flow images cannot expand the box.
+   */
+  function applyStackFrame(el) {
+    var md = false;
+    try {
+      md = !!(window.matchMedia && window.matchMedia(MD_MQ).matches);
+    } catch (e) {}
+    el.setAttribute("data-cas-stack-row", "1");
+    el.style.position = "relative";
+    el.style.width = "100%";
+    el.style.height = "0";
+    el.style.maxHeight = "none";
+    el.style.minHeight = "0";
+    el.style.overflow = "hidden";
+    el.style.flexShrink = "0";
+    el.style.flexGrow = "0";
+    el.style.aspectRatio = "unset";
+    el.style.paddingBottom = md ? STACK_PAD_MD : STACK_PAD_SM;
   }
 
   function applyImgVisibility(desktopImg, mobileImg) {
@@ -482,6 +529,7 @@
     img.style.width = "100%";
     img.style.height = "100%";
     img.style.objectFit = "cover";
+    img.style.objectPosition = "center";
     img.style.margin = "0";
     img.draggable = false;
   }
@@ -826,6 +874,7 @@
   }
 
   function buildStackInto(mount, slides) {
+    ensureStackStyles();
     var host = document.createElement("div");
     host.setAttribute("data-cas-ad-host", "1");
     host.className = "cas-ad-stack flex flex-col gap-3 w-full";
@@ -839,11 +888,8 @@
     slides.forEach(function (slide) {
       var row = document.createElement("div");
       row.className = "w-full overflow-hidden rounded-lg";
-      row.style.position = "relative";
-      row.style.width = "100%";
-      row.style.overflow = "hidden";
       row.style.borderRadius = "0.5rem";
-      applyAspect(row);
+      applyStackFrame(row);
       if (slide.bg_color) row.style.backgroundColor = slide.bg_color;
 
       var built = buildLinkedMedia(slide, true);
@@ -869,7 +915,7 @@
     try {
       var mql = window.matchMedia(MD_MQ);
       var onMq = function () {
-        Array.prototype.forEach.call(host.children, applyAspect);
+        Array.prototype.forEach.call(host.children, applyStackFrame);
         imgPairs.forEach(function (p) {
           applyImgVisibility(p.desktopImg, p.mobileImg);
         });
@@ -955,7 +1001,9 @@
       slotKey +
       "::" +
       slideSignature(slides) +
-      (useCarousel ? "::c" : "::s");
+      (useCarousel ? "::c" : "::s") +
+      "::" +
+      CAS_AD_VERSION;
     if (
       mount.getAttribute("data-cas-ad-sig") === sig &&
       mount.querySelector("[data-cas-ad-host='1']")
@@ -1262,6 +1310,7 @@
 
   function run() {
     try {
+      ensureStackStyles();
       removeLegacySiblingHosts();
       runPageMounts();
       var mounts = findMounts();
