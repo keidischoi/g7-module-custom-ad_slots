@@ -463,9 +463,12 @@
 
   /** Keep stacked banners at their intrinsic ratio despite theme image styles. */
   function ensureStackStyles() {
-    if (document.getElementById("cas-ad-stack-css")) return;
-    var style = document.createElement("style");
-    style.id = "cas-ad-stack-css";
+    var style = document.getElementById("cas-ad-stack-css");
+    if (!style) {
+      style = document.createElement("style");
+      style.id = "cas-ad-stack-css";
+      (document.head || document.documentElement).appendChild(style);
+    }
     style.textContent =
       ".cas-ad-stack{display:flex;flex-direction:column;align-items:center;gap:0.75rem;width:100%;}" +
       ".cas-ad-stack > [data-cas-stack-row]{position:relative !important;width:100% !important;max-width:" +
@@ -473,7 +476,6 @@
       " !important;height:auto !important;padding:0 !important;overflow:hidden !important;aspect-ratio:auto !important;flex-shrink:0 !important;}" +
       ".cas-ad-stack > [data-cas-stack-row] > *{position:relative !important;inset:auto !important;display:block !important;width:100% !important;height:auto !important;}" +
       ".cas-ad-stack img{position:static !important;inset:auto !important;display:block;width:100% !important;height:auto !important;max-width:100% !important;max-height:none !important;object-fit:contain !important;margin:0 !important;}";
-    (document.head || document.documentElement).appendChild(style);
   }
 
   function applyAspect(el) {
