@@ -4,6 +4,16 @@
 형식은 [Keep a Changelog](https://keepachangelog.com/ko/1.1.0/)를 따르며,
 [Semantic Versioning](https://semver.org/lang/ko/)을 준수합니다.
 
+## [1.3.4] - 2026-09-11
+
+### Fixed
+
+- **하단 배너 크기 제한:** 세로 스택의 각 배너를 데스크톱 `3:1`, 모바일 `2:1` 반응형 비율로 표시하고 이미지는 영역에 맞게 채워, 원본 이미지가 세로로 길어도 홈 하단을 과도하게 차지하지 않도록 수정했습니다.
+
+### Changed
+
+- Version **1.3.4**.
+
 ## [1.3.3] - 2026-09-10
 
 ### Fixed

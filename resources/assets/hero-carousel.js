@@ -839,12 +839,14 @@
     slides.forEach(function (slide) {
       var row = document.createElement("div");
       row.className = "w-full overflow-hidden rounded-lg";
+      row.style.position = "relative";
       row.style.width = "100%";
       row.style.overflow = "hidden";
       row.style.borderRadius = "0.5rem";
+      applyAspect(row);
       if (slide.bg_color) row.style.backgroundColor = slide.bg_color;
 
-      var built = buildLinkedMedia(slide, false);
+      var built = buildLinkedMedia(slide, true);
       row.appendChild(built.body);
       row.__casPrevent = slide.preventRightClick;
       imgPairs.push(built);
@@ -867,6 +869,7 @@
     try {
       var mql = window.matchMedia(MD_MQ);
       var onMq = function () {
+        Array.prototype.forEach.call(host.children, applyAspect);
         imgPairs.forEach(function (p) {
           applyImgVisibility(p.desktopImg, p.mobileImg);
         });
