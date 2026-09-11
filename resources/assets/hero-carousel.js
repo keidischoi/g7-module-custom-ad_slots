@@ -1,6 +1,6 @@
 /*! custom-ad_slots — API-driven ad mounts (carousel + stacked banners) + path-routed page mounts */
 (function () {
-  var CAS_AD_VERSION = "1.3.6";
+  var CAS_AD_VERSION = "1.3.7";
   if (window.__casAdRenderVersion === CAS_AD_VERSION) return;
   window.__casAdRenderVersion = CAS_AD_VERSION;
   window.__casAdRenderInstalled = true;
@@ -10,7 +10,6 @@
   var MD_MQ = "(min-width: 768px)";
   var PLACEMENTS_URL = "/api/modules/custom-ad_slots/placements";
   var CAROUSEL_SLOTS = { "home.top": true, "global.top": true };
-  var STACK_MAX_WIDTH = "720px";
 
   /** @type {Object.<string, {status:string, items:Array, promise:Promise|null, error:*} >} */
   var slotCache = {};
@@ -470,10 +469,8 @@
       (document.head || document.documentElement).appendChild(style);
     }
     style.textContent =
-      ".cas-ad-stack{display:flex;flex-direction:column;align-items:center;gap:0.75rem;width:100%;}" +
-      ".cas-ad-stack > [data-cas-stack-row]{position:relative !important;width:100% !important;max-width:" +
-      STACK_MAX_WIDTH +
-      " !important;height:auto !important;padding:0 !important;overflow:hidden !important;aspect-ratio:auto !important;flex-shrink:0 !important;}" +
+      ".cas-ad-stack{display:flex;flex-direction:column;align-items:stretch;gap:0.75rem;width:100%;}" +
+      ".cas-ad-stack > [data-cas-stack-row]{position:relative !important;width:100% !important;max-width:none !important;height:auto !important;padding:0 !important;overflow:hidden !important;aspect-ratio:auto !important;flex-shrink:0 !important;}" +
       ".cas-ad-stack > [data-cas-stack-row] > *{position:relative !important;inset:auto !important;display:block !important;width:100% !important;height:auto !important;}" +
       ".cas-ad-stack img{position:static !important;inset:auto !important;display:block;width:100% !important;height:auto !important;max-width:100% !important;max-height:none !important;object-fit:contain !important;margin:0 !important;}";
   }
@@ -487,12 +484,12 @@
     }
   }
 
-  /** Center stacked banners at a smaller width; image height keeps its ratio. */
+  /** Fill the main content width; image height keeps its intrinsic ratio. */
   function applyStackFrame(el) {
     el.setAttribute("data-cas-stack-row", "1");
     el.style.position = "relative";
     el.style.width = "100%";
-    el.style.maxWidth = STACK_MAX_WIDTH;
+    el.style.maxWidth = "none";
     el.style.height = "auto";
     el.style.overflow = "hidden";
     el.style.flexShrink = "0";
@@ -866,7 +863,7 @@
     host.className = "cas-ad-stack flex flex-col gap-3 w-full";
     host.style.display = "flex";
     host.style.flexDirection = "column";
-    host.style.alignItems = "center";
+    host.style.alignItems = "stretch";
     host.style.gap = "0.75rem";
     host.style.width = "100%";
 
