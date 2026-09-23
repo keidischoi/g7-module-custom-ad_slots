@@ -486,7 +486,7 @@
                                                     "maxFiles": 1,
                                                     "maxSize": 5,
                                                     "uploadTriggerEvent": "upload:ad_image_url",
-                                                    "key": "fu_image_url-{{_local.form?.id || (route?.id ? 'loading' : 'new')}}-{{_local.form?.image_url ? 'has' : 'empty'}}",
+                                                    "key": "fu_image_url-{{_local.form?.id || (route?.id ? 'loading' : 'new')}}",
                                                     "uploadParams": {
                                                         "field": "image_url"
                                                     }
@@ -512,7 +512,6 @@
                                                                 "if": "{{!!($args[0] && $args[0].length)}}",
                                                                 "params": {
                                                                     "target": "local",
-                                                                    "form.image_url": "",
                                                                     "uploading_image_url": true
                                                                 }
                                                             },
@@ -674,7 +673,7 @@
                                                     "maxFiles": 1,
                                                     "maxSize": 5,
                                                     "uploadTriggerEvent": "upload:ad_image_url_desktop",
-                                                    "key": "fu_image_url_desktop-{{_local.form?.id || (route?.id ? 'loading' : 'new')}}-{{_local.form?.image_url_desktop ? 'has' : 'empty'}}",
+                                                    "key": "fu_image_url_desktop-{{_local.form?.id || (route?.id ? 'loading' : 'new')}}",
                                                     "uploadParams": {
                                                         "field": "image_url_desktop"
                                                     }
@@ -700,7 +699,6 @@
                                                                 "if": "{{!!($args[0] && $args[0].length)}}",
                                                                 "params": {
                                                                     "target": "local",
-                                                                    "form.image_url_desktop": "",
                                                                     "uploading_image_url_desktop": true
                                                                 }
                                                             },
@@ -862,7 +860,7 @@
                                                     "maxFiles": 1,
                                                     "maxSize": 5,
                                                     "uploadTriggerEvent": "upload:ad_image_url_mobile",
-                                                    "key": "fu_image_url_mobile-{{_local.form?.id || (route?.id ? 'loading' : 'new')}}-{{_local.form?.image_url_mobile ? 'has' : 'empty'}}",
+                                                    "key": "fu_image_url_mobile-{{_local.form?.id || (route?.id ? 'loading' : 'new')}}",
                                                     "uploadParams": {
                                                         "field": "image_url_mobile"
                                                     }
@@ -888,7 +886,6 @@
                                                                 "if": "{{!!($args[0] && $args[0].length)}}",
                                                                 "params": {
                                                                     "target": "local",
-                                                                    "form.image_url_mobile": "",
                                                                     "uploading_image_url_mobile": true
                                                                 }
                                                             },

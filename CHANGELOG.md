@@ -1,5 +1,31 @@
 # Changelog
 
+## [1.4.14] - 2026-09-23
+
+### Fixed
+- **업로드 성공 토스트만 뜨고 칩/URL 사라짐:** FileUploader `key`가 `image_url ? has : empty`에 묶여 있어, 선택 시 `form.image_url=""` → `has→empty` remount로 pending 파일 소실, `onUploadComplete` 후 `empty→has` remount로 칩이 다시 날아감. URL 필드도 같이 비는 체감.
+  - `key`를 안정 identity만 사용: `fu_image_url-{{form.id || (route.id ? loading : new)}}` (desktop/mobile 동일). URL 유무로 remount 안 함.
+  - `onFilesChange`(파일 선택 시)에서 `form.image_url*`를 비우지 않음 — `uploading_*`만 true + `uploadTriggerEvent` emit. URL/uploader 배열 클리어는 빈 배열(제거) 및 onDelete/onRemove/onFileRemove에서만.
+  - `onUploadComplete`는 기존처럼 `form.image_url*` + `form.uploader_image_url*` 기록 + 성공 토스트. remount가 없으므로 칩 유지 + URL 필드 채움.
+- create·edit 공통 레이아웃(`admin_ad_slot_form`) — 기존 DB 이미지는 `initialFiles`(uploader_* `.length` 체크)로 그대로 hydrate.
+
+### Unchanged
+- `autoUpload: false` + `uploadTriggerEvent` (cold-load autoUpload 없음).
+- 크롬 `admin-page-content-responsive` only.
+- `files`/`value` two-way 바인딩 및 1.4.1–1.4.7 shell hacks 없음.
+- store/update rememberUrl merge 안전망 유지.
+
+### Meta
+- Version **1.4.14**. 광고 JS `hero-carousel.js?v=1.4.14`.
+
+### Deploy
+```
+php82 artisan module:update custom-ad_slots
+php82 artisan cache:clear
+php82 artisan view:clear
+```
+
+
 ## [1.4.13] - 2026-09-23
 
 ### Fixed
