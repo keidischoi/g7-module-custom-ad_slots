@@ -23,6 +23,12 @@ use Illuminate\Database\Eloquent\Model;
  * @property bool $is_active
  * @property bool $prevent_right_click
  * @property bool $open_in_new_tab
+ * @property string|null $size_mode
+ * @property string|null $aspect_desktop
+ * @property string|null $aspect_mobile
+ * @property int|null $width_px
+ * @property int|null $height_px
+ * @property int|null $max_width_px
  * @property \Illuminate\Support\Carbon|null $starts_at
  * @property \Illuminate\Support\Carbon|null $ends_at
  */
@@ -55,6 +61,12 @@ class AdSlotItem extends Model
         'board.boards.bottom',
         'mypage.top',
         'mypage.bottom',
+        'maker_bids.top',
+        'maker_bids.bottom',
+        'share.top',
+        'share.bottom',
+        'page.top',
+        'page.bottom',
         'global.top',
         'global.bottom',
     ];
@@ -90,6 +102,12 @@ class AdSlotItem extends Model
         'is_active',
         'prevent_right_click',
         'open_in_new_tab',
+        'size_mode',
+        'aspect_desktop',
+        'aspect_mobile',
+        'width_px',
+        'height_px',
+        'max_width_px',
         'starts_at',
         'ends_at',
     ];
@@ -104,6 +122,9 @@ class AdSlotItem extends Model
             'is_active' => 'boolean',
             'prevent_right_click' => 'boolean',
             'open_in_new_tab' => 'boolean',
+            'width_px' => 'integer',
+            'height_px' => 'integer',
+            'max_width_px' => 'integer',
             'starts_at' => 'datetime',
             'ends_at' => 'datetime',
         ];

@@ -7,7 +7,7 @@
 | identifier | `custom-ad_slots` |
 | Namespace | `Modules\Custom\AdSlots` |
 | Composer | `modules/custom-ad_slots` |
-| 버전 | `1.3.8` |
+| 버전 | `1.4.0` |
 
 ## 슬롯 키
 
@@ -31,10 +31,13 @@
 | `board.form.top` / `board.form.bottom` | 게시글 작성 |
 | `board.boards.top` / `board.boards.bottom` | 게시판 전체 목록 |
 | `mypage.top` / `mypage.bottom` | 마이페이지 전 화면 |
+| `maker_bids.top` / `maker_bids.bottom` | 제작·입찰 (`/maker-bids`) |
+| `share.top` / `share.bottom` | 공유 랜딩 (`/share`, `/board/share`와 별개) |
+| `page.top` / `page.bottom` | 정적 페이지 (`/page/*`) |
 
 
 
-## 공식 테마 광고 주입 (v1.3.8 · `_user_base` path-routed mounts; restored from 1.2.8)
+## 공식 테마 광고 주입 (v1.4.0 · `_user_base` path-routed mounts; restored from 1.2.8)
 
 테마 파일을 수정하지 않습니다. **페이지 광고는 `_user_base`에 고정된 마운트**(`cas_page_top_mount` / `cas_page_bottom_mount`)를 `hero-carousel.js`가 **URL 경로로 슬롯 키를 선택**해 채웁니다(Event Hook content 주입 실패와 무관하게 모든 페이지에서 DOM에 존재).
 
@@ -251,3 +254,21 @@ src/lang/{ko,en}/messages.php
 - `optional.sanctum`, `permission:admin,...` 미들웨어 alias는 코어 G7 기준(hello_module에서 확인). 커스텀 코어면 alias 이름 조정.
 - Admin 폼 레이아웃은 최소 UI — 필드 입력 폼은 사이트 admin 컴포넌트 세트에 맞게 보강 권장.
 - 테이블명 `ad_slots_items`는 요청 스펙 그대로(모듈 prefix 없음). 다중 커스텀 모듈과 충돌 시 rename 검토.
+
+
+## 표시 크기 (v1.4.0)
+
+슬롯 기본값 테이블 `ad_slots_placements` + 광고 아이템 오버라이드.
+
+| 필드 | 설명 |
+|------|------|
+| `size_mode` | `ratio` \| `fixed` (아이템 null = 슬롯 기본) |
+| `aspect_desktop` / `aspect_mobile` | 비율 문자열 (`3/1`) |
+| `width_px` / `height_px` / `max_width_px` | fixed 모드 (width null = 100%) |
+
+공개 placements 각 아이템에 해석된 `size` 객체 포함.
+
+### 이미지 업로드
+
+`POST /api/modules/custom-ad_slots/admin/uploads` (auth, multipart `file`) → `download_url` 반환.
+관리자 폼 FileUploader가 URL 필드에 자동 입력.

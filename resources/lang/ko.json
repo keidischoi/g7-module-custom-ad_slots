@@ -13,7 +13,10 @@
                 "active": "활성",
                 "inactive": "비활성",
                 "duplicate": "복제",
-                "duplicate_success": "광고가 복제되었습니다. (비활성)"
+                "duplicate_success": "광고가 복제되었습니다. (비활성)",
+                "activate": "활성화하기",
+                "deactivate": "비활성하기",
+                "slot_defaults": "슬롯 기본 크기"
             },
             "form": {
                 "title_create": "광고 추가",
@@ -46,7 +49,55 @@
                     "prevent_right_click": "우클릭 방지",
                     "prevent_right_click_hint": "브라우저 우클릭 메뉴만 막습니다",
                     "open_in_new_tab": "새 창에서 열기",
-                    "open_in_new_tab_hint": "끄면 같은 창에서 광고 링크로 이동합니다"
+                    "open_in_new_tab_hint": "끄면 같은 창에서 광고 링크로 이동합니다",
+                    "size_mode": "크기 모드",
+                    "size_mode_inherit": "슬롯 기본값 사용",
+                    "size_mode_ratio": "비율 (ratio)",
+                    "size_mode_fixed": "너비·높이 강제 (fixed)",
+                    "size_mode_hint": "비우면 슬롯 기본값을 사용합니다.",
+                    "aspect_desktop": "데스크톱 비율",
+                    "aspect_mobile": "모바일 비율",
+                    "aspect_placeholder": "예: 3/1",
+                    "aspect_hint": "비우면 슬롯 기본값. 예: 3/1 또는 2/1",
+                    "width_px": "너비 (px)",
+                    "height_px": "높이 (px)",
+                    "max_width_px": "최대 너비 (px)",
+                    "width_px_hint": "비우면 컨테이너 100%",
+                    "height_px_hint": "fixed 모드에서 필수 (비우면 슬롯 기본값)",
+                    "max_width_px_hint": "선택. 비우면 제한 없음",
+                    "size_section": "표시 크기",
+                    "upload": "이미지 업로드",
+                    "upload_hint": "파일을 선택하면 업로드 후 URL이 자동으로 채워집니다. URL을 직접 입력해도 됩니다.",
+                    "upload_success": "이미지를 업로드했습니다."
+                }
+            }
+        },
+        "placements": {
+            "index": {
+                "title": "슬롯 기본 크기",
+                "description": "슬롯(placement)별 기본 크기 모드와 비율·고정 크기를 설정합니다. 광고 항목에서 비워 두면 이 값을 따릅니다.",
+                "edit": "수정",
+                "empty": "슬롯 설정이 없습니다."
+            },
+            "form": {
+                "title_edit": "슬롯 기본 크기 수정",
+                "description": "선택한 슬롯의 기본 표시 크기를 설정합니다.",
+                "update_success": "슬롯 기본 크기를 저장했습니다.",
+                "validation_error": "입력값을 확인해 주세요.",
+                "fields": {
+                    "slot_key": "슬롯",
+                    "size_mode": "크기 모드",
+                    "size_mode_ratio": "비율 (ratio)",
+                    "size_mode_fixed": "너비·높이 강제 (fixed)",
+                    "aspect_desktop": "데스크톱 비율",
+                    "aspect_mobile": "모바일 비율",
+                    "aspect_placeholder": "예: 3/1",
+                    "width_px": "너비 (px)",
+                    "height_px": "높이 (px)",
+                    "max_width_px": "최대 너비 (px)",
+                    "width_px_hint": "비우면 컨테이너 100%",
+                    "height_px_hint": "fixed 모드에서 필수",
+                    "max_width_px_hint": "선택"
                 }
             }
         }
@@ -123,6 +174,24 @@
         "mypage": {
             "top": "마이페이지 상단",
             "bottom": "마이페이지 하단"
-        }
+        },
+        "maker_bids": {
+            "top": "제작·입찰 상단",
+            "bottom": "제작·입찰 하단"
+        },
+        "share": {
+            "top": "공유 상단",
+            "bottom": "공유 하단"
+        },
+        "page": {
+            "top": "정적 페이지 상단",
+            "bottom": "정적 페이지 하단"
+        },
+        "maker_bids.top": "제작·입찰 상단",
+        "maker_bids.bottom": "제작·입찰 하단",
+        "share.top": "공유 상단",
+        "share.bottom": "공유 하단",
+        "page.top": "정적 페이지 상단",
+        "page.bottom": "정적 페이지 하단"
     }
 }

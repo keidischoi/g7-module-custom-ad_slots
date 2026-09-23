@@ -1,10 +1,18 @@
 <?php
 
 return [
+    'upload' => [
+        'file_required' => 'An image file is required.',
+        'success' => 'Image uploaded.',
+        'failed' => 'Image upload failed.',
+    ],
     'placement' => [
         'fetch_success' => 'Placements fetched successfully.',
         'fetch_failed' => 'Failed to fetch placements.',
         'invalid_slot' => 'Invalid slot key.',
+        'not_found' => 'Slot settings not found.',
+        'update_success' => 'Slot size defaults saved.',
+        'update_failed' => 'Failed to save slot size defaults.',
     ],
     'ad' => [
         'fetch_success' => 'Ad fetched successfully.',

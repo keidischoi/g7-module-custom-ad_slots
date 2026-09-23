@@ -1,10 +1,18 @@
 <?php
 
 return [
+    'upload' => [
+        'file_required' => '이미지 파일이 필요합니다.',
+        'success' => '이미지를 업로드했습니다.',
+        'failed' => '이미지 업로드에 실패했습니다.',
+    ],
     'placement' => [
         'fetch_success' => '광고 배치를 조회했습니다.',
         'fetch_failed' => '광고 배치 조회에 실패했습니다.',
         'invalid_slot' => '허용되지 않은 슬롯 키입니다.',
+        'not_found' => '슬롯 설정을 찾을 수 없습니다.',
+        'update_success' => '슬롯 기본 크기를 저장했습니다.',
+        'update_failed' => '슬롯 기본 크기 저장에 실패했습니다.',
     ],
     'ad' => [
         'fetch_success' => '광고를 조회했습니다.',

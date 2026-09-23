@@ -24,6 +24,22 @@
             "meta": {
                 "title": "$t:custom-ad_slots.admin.ads.form.title_edit"
             }
+        },
+        {
+            "path": "*/admin/ad-slots/placements",
+            "layout": "admin_ad_slot_placement_list",
+            "auth_required": true,
+            "meta": {
+                "title": "$t:custom-ad_slots.admin.placements.index.title"
+            }
+        },
+        {
+            "path": "*/admin/ad-slots/placements/:slotKey/edit",
+            "layout": "admin_ad_slot_placement_form",
+            "auth_required": true,
+            "meta": {
+                "title": "$t:custom-ad_slots.admin.placements.form.title_edit"
+            }
         }
     ]
 }
