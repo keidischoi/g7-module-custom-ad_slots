@@ -65,18 +65,22 @@ class AdSlotItemResource extends JsonResource
             $placement = $this->additional['placement_map'][$this->slot_key];
         }
 
-        $size = AdSizeSettings::resolve(
-            [
-                'size_mode' => $this->size_mode,
-                'aspect_desktop' => $this->aspect_desktop,
-                'aspect_mobile' => $this->aspect_mobile,
-                'width_px' => $this->width_px,
-                'height_px' => $this->height_px,
-                'max_width_px' => $this->max_width_px,
-            ],
-            $placement instanceof AdSlotPlacement ? $placement->toSizeArray() : (is_array($placement) ? $placement : null),
-            (string) $this->slot_key
-        );
+        try {
+            $size = AdSizeSettings::resolve(
+                [
+                    'size_mode' => $this->sizeAttr('size_mode'),
+                    'aspect_desktop' => $this->sizeAttr('aspect_desktop'),
+                    'aspect_mobile' => $this->sizeAttr('aspect_mobile'),
+                    'width_px' => $this->sizeAttr('width_px'),
+                    'height_px' => $this->sizeAttr('height_px'),
+                    'max_width_px' => $this->sizeAttr('max_width_px'),
+                ],
+                $placement instanceof AdSlotPlacement ? $placement->toSizeArray() : (is_array($placement) ? $placement : null),
+                (string) $this->slot_key
+            );
+        } catch (\Throwable) {
+            $size = AdSizeSettings::resolve(null, null, (string) $this->slot_key);
+        }
 
         return [
             'id' => $this->id,
@@ -103,12 +107,12 @@ class AdSlotItemResource extends JsonResource
             'is_active' => (bool) $this->is_active,
             'prevent_right_click' => (bool) $this->prevent_right_click,
             'open_in_new_tab' => (bool) ($this->open_in_new_tab ?? true),
-            'size_mode' => $this->size_mode,
-            'aspect_desktop' => $this->aspect_desktop,
-            'aspect_mobile' => $this->aspect_mobile,
-            'width_px' => $this->width_px,
-            'height_px' => $this->height_px,
-            'max_width_px' => $this->max_width_px,
+            'size_mode' => $this->sizeAttr('size_mode'),
+            'aspect_desktop' => $this->sizeAttr('aspect_desktop'),
+            'aspect_mobile' => $this->sizeAttr('aspect_mobile'),
+            'width_px' => $this->sizeAttr('width_px'),
+            'height_px' => $this->sizeAttr('height_px'),
+            'max_width_px' => $this->sizeAttr('max_width_px'),
             'size' => $size,
             'starts_at' => optional($this->starts_at)?->toIso8601String(),
             'ends_at' => optional($this->ends_at)?->toIso8601String(),
@@ -125,6 +129,24 @@ class AdSlotItemResource extends JsonResource
      *
      * @return list<array<string, mixed>>
      */
+
+    private function sizeAttr(string $key): mixed
+    {
+        static $hasSize = null;
+        if ($hasSize === null) {
+            try {
+                $hasSize = \Illuminate\Support\Facades\Schema::hasColumn('ad_slots_items', 'size_mode');
+            } catch (\Throwable) {
+                $hasSize = false;
+            }
+        }
+        if (! $hasSize) {
+            return null;
+        }
+
+        return $this->{$key};
+    }
+
     private function filesFromUrl(mixed $url, string $key): array
     {
         if (! is_string($url)) {

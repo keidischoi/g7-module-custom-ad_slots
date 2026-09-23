@@ -56,9 +56,44 @@ class AdSlotItemController extends AdminBaseController
         try {
             $item = $this->adSlotService->findOrFail($id);
 
+            try {
+                $payload = (new AdSlotItemResource($item))->resolve();
+            } catch (\Throwable $e) {
+                // Soft-fail resource mapping (e.g. missing size/placements columns)
+                // so the edit form can still hydrate core fields.
+                $payload = [
+                    'id' => $item->id,
+                    'slot_key' => $item->slot_key,
+                    'type' => $item->type,
+                    'title' => $item->title,
+                    'image_url' => $item->image_url,
+                    'image_url_desktop' => $item->image_url_desktop,
+                    'image_url_mobile' => $item->image_url_mobile,
+                    'bg_color' => $item->bg_color,
+                    'link_url' => $item->link_url,
+                    'html_content' => $item->html_content,
+                    'script_src' => $item->script_src,
+                    'sort_order' => $item->sort_order,
+                    'is_active' => (bool) $item->is_active,
+                    'prevent_right_click' => (bool) $item->prevent_right_click,
+                    'open_in_new_tab' => (bool) ($item->open_in_new_tab ?? true),
+                    'size_mode' => null,
+                    'aspect_desktop' => null,
+                    'aspect_mobile' => null,
+                    'width_px' => null,
+                    'height_px' => null,
+                    'max_width_px' => null,
+                    'starts_at' => optional($item->starts_at)?->toIso8601String(),
+                    'ends_at' => optional($item->ends_at)?->toIso8601String(),
+                    'starts_at_local' => null,
+                    'ends_at_local' => null,
+                    '_resource_warning' => $e->getMessage(),
+                ];
+            }
+
             return $this->success(
                 'custom-ad_slots::messages.ad.fetch_success',
-                (new AdSlotItemResource($item))->resolve()
+                $payload
             );
         } catch (ModelNotFoundException) {
             return $this->notFound('custom-ad_slots::messages.ad.not_found');
