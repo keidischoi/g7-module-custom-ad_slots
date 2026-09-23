@@ -23,7 +23,7 @@ Route::post('admin/uploads', [AdSlotUploadController::class, 'store'])
     ->middleware(['auth:sanctum', 'throttle:60,1'])
     ->name('admin.uploads.store');
 
-Route::delete('admin/uploads/{id}', [AdSlotUploadController::class, 'destroy'])
+Route::delete('admin/uploads/{uploadId}', [AdSlotUploadController::class, 'destroy'])
     ->middleware(['auth:sanctum', 'throttle:60,1'])
     ->name('admin.uploads.destroy');
 

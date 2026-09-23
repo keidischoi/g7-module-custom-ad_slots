@@ -13,7 +13,8 @@ use Modules\Custom\AdSlots\Services\AdSlotUploadService;
  * POST /api/modules/custom-ad_slots/admin/uploads
  * multipart field: file (also accepts image)
  *
- * DELETE /api/modules/custom-ad_slots/admin/uploads/{id}
+ * DELETE /api/modules/custom-ad_slots/admin/uploads/{uploadId}
+ * Layout delete URL uses literal /uploads/noop (no :id) so route.id is never stolen.
  * Soft-success no-op: ad slot images are URL-field sourced; clearing the
  * form URL on the client is enough. FileUploader still expects delete to 2xx.
  */
@@ -91,7 +92,7 @@ class AdSlotUploadController extends AdminBaseController
      * ad item; the form clears image_url* locally on remove. Always succeed so the
      * uploader UI unblocks without reintroducing files/value binding hangs.
      */
-    public function destroy(Request $request, int|string $id): JsonResponse
+    public function destroy(Request $request, int|string $uploadId): JsonResponse
     {
         try {
             $user = $request->user();
@@ -127,7 +128,7 @@ class AdSlotUploadController extends AdminBaseController
             }
 
             return $this->success('custom-ad_slots::messages.upload.delete_success', [
-                'id' => $id,
+                'id' => $uploadId,
                 'deleted' => true,
             ]);
         } catch (\Exception $e) {

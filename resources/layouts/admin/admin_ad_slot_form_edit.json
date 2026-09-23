@@ -1,55 +1,46 @@
 {
     "version": "1.2.0",
     "meta": {
-        "title": "$t:custom-ad_slots.admin.ads.form.title_create",
+        "title": "$t:custom-ad_slots.admin.ads.form.title_edit",
         "description": "$t:custom-ad_slots.admin.ads.form.description"
     },
-    "layout_name": "admin_ad_slot_form",
+    "layout_name": "admin_ad_slot_form_edit",
     "permissions": [
         "custom-ad_slots.ads.read",
-        "custom-ad_slots.ads.create",
         "custom-ad_slots.ads.update"
     ],
     "extends": "_admin_base",
-    "data_sources": [],
+    "data_sources": [
+        {
+            "id": "ad",
+            "type": "api",
+            "endpoint": "/api/modules/custom-ad_slots/admin/ads/{{route?.id}}",
+            "method": "GET",
+            "auto_fetch": true,
+            "auth_required": true,
+            "if": "{{route?.id}}",
+            "initLocal": "form",
+            "refetchOnMount": true,
+            "loading_strategy": "progressive",
+            "errorHandling": {
+                "403": {
+                    "handler": "showErrorPage",
+                    "params": {
+                        "target": "content"
+                    }
+                }
+            },
+            "fallback": {
+                "data": null
+            }
+        }
+    ],
     "init_actions": [
         {
-            "comment": "Clear any stale form before defaults.",
+            "comment": "Edit only: never null out form; show API initLocal hydrates _local.form.",
             "handler": "setState",
             "params": {
                 "target": "local",
-                "form": null
-            }
-        },
-        {
-            "comment": "Default ad slot fields for create.",
-            "handler": "setState",
-            "params": {
-                "target": "local",
-                "form": {
-                    "slot_key": "home.top",
-                    "type": "static",
-                    "title": "",
-                    "image_url": "",
-                    "image_url_desktop": "",
-                    "image_url_mobile": "",
-                    "bg_color": "",
-                    "link_url": "",
-                    "html_content": "",
-                    "script_src": "",
-                    "sort_order": 0,
-                    "is_active": true,
-                    "starts_at": "",
-                    "ends_at": "",
-                    "prevent_right_click": false,
-                    "open_in_new_tab": true,
-                    "size_mode": "",
-                    "aspect_desktop": "",
-                    "aspect_mobile": "",
-                    "width_px": "",
-                    "height_px": "",
-                    "max_width_px": ""
-                },
                 "errors": null,
                 "saving": false
             }
@@ -58,7 +49,7 @@
     "slots": {
         "content": [
             {
-                "id": "ad_slot_form_wrapper",
+                "id": "ad_slot_form_edit_wrapper",
                 "type": "basic",
                 "name": "Div",
                 "trackChanges": false,
@@ -80,7 +71,7 @@
                                 "props": {
                                     "className": "text-page-heading"
                                 },
-                                "text": "$t:custom-ad_slots.admin.ads.form.title_create"
+                                "text": "$t:custom-ad_slots.admin.ads.form.title_edit"
                             }
                         ]
                     },
@@ -1740,9 +1731,9 @@
                                             {
                                                 "handler": "apiCall",
                                                 "auth_required": true,
-                                                "target": "/api/modules/custom-ad_slots/admin/ads",
+                                                "target": "/api/modules/custom-ad_slots/admin/ads/{{route?.id}}",
                                                 "params": {
-                                                    "method": "POST",
+                                                    "method": "PUT",
                                                     "body": {
                                                         "slot_key": "{{_local.form?.slot_key}}",
                                                         "type": "{{_local.form?.type}}",
@@ -1781,7 +1772,7 @@
                                                         "handler": "toast",
                                                         "params": {
                                                             "type": "success",
-                                                            "message": "$t:custom-ad_slots.admin.ads.form.create_success"
+                                                            "message": "$t:custom-ad_slots.admin.ads.form.update_success"
                                                         }
                                                     },
                                                     {

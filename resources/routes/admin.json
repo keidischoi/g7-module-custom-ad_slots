@@ -35,7 +35,7 @@
         },
         {
             "path": "*/admin/ad-slots/:id/edit",
-            "layout": "admin_ad_slot_form",
+            "layout": "admin_ad_slot_form_edit",
             "auth_required": true,
             "meta": {
                 "title": "$t:custom-ad_slots.admin.ads.form.title_edit"
