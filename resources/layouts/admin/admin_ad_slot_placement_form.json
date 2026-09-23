@@ -44,7 +44,7 @@
                 "dataKey": "form",
                 "trackChanges": true,
                 "props": {
-                    "className": "admin-page-content-responsive-fluid"
+                    "className": "admin-page-content-responsive"
                 },
                 "children": [
                     {
@@ -59,7 +59,7 @@
                         "type": "basic",
                         "name": "Div",
                         "props": {
-                            "className": "admin-card row-stack w-full max-w-5xl mx-auto"
+                            "className": "admin-card row-stack w-full max-w-5xl md:w-[70%] mx-auto"
                         },
                         "children": [
                             {

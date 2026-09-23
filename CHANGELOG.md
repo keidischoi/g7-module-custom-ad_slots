@@ -1,5 +1,23 @@
 # Changelog
 
+## [1.4.10] - 2026-09-23
+
+### Added / Restored
+- **광고 폼 크기 모드 UI** (v1.4.0): `size_mode`(inherit/ratio/fixed) + ratio 시 `aspect_desktop`/`aspect_mobile`, fixed 시 `width_px`/`height_px`/`max_width_px`. 생성 init 기본값·저장 body에 size 필드 포함.
+- **광고 폼 슬롯 Select 전체 복원** (29개): board/shop/mypage 계열 + `maker_bids.top/bottom`, `share.top/bottom`, `page.top/bottom`.
+
+### Changed
+- **생성/수정 가로폭**: 크롬은 `admin-page-content-responsive` 유지(사이드바 회귀 방지). 내부 폼 카드·푸터에만 `max-w-5xl md:w-[70%] mx-auto`.
+- **목록 활성/비활성 버튼 최소화**: `활성화하기`/`비활성하기` 라벨 유지, `px-2 py-1 text-xs`로 축소. 「광고 추가」버튼은 기존 크기 유지.
+- **배치(placement) 폼**: 크롬 `admin-page-content-responsive-fluid` → `admin-page-content-responsive`, 카드에 `md:w-[70%]` 정렬.
+
+### Unchanged (must not regress)
+- FileUploader: `autoUpload: false`, `initialFiles`, `uploadTriggerEvent`, `*_files`/`value`/`files` 바인딩 없음 (digital_product 스타일).
+- 1.4.1–1.4.7 edit-shell 실험(레이아웃 분리·progressive·빈 DS 등) 재도입 없음.
+
+### Meta
+- Version **1.4.10**. 광고 JS `hero-carousel.js?v=1.4.10`.
+
 ## [1.4.8] - 2026-09-23
 
 ### Changed
