@@ -551,7 +551,7 @@
                                                             },
                                                             {
                                                                 "handler": "setState",
-                                                                "if": "{{!!($args[0] && $args[0].length)}}",
+                                                                "if": "{{!!($args[0] && $args[0].length && !_local.uploading_image_url && !($args[0][0] && ($args[0][0].download_url || $args[0][0].path)))}}",
                                                                 "params": {
                                                                     "target": "local",
                                                                     "uploading_image_url": true
@@ -559,7 +559,7 @@
                                                             },
                                                             {
                                                                 "handler": "emitEvent",
-                                                                "if": "{{!!($args[0] && $args[0].length)}}",
+                                                                "if": "{{!!($args[0] && $args[0].length && !_local.uploading_image_url && !($args[0][0] && ($args[0][0].download_url || $args[0][0].path)))}}",
                                                                 "params": {
                                                                     "event": "upload:ad_image_url"
                                                                 }
@@ -579,26 +579,6 @@
                                                                     "form.uploader_image_url": "{{($args[0] && $args[0][0]) ? [$args[0][0]] : (($args[0] && ($args[0].download_url || $args[0].url)) ? [$args[0]] : (($args[0] && $args[0].data && $args[0].data.data && ($args[0].data.data.download_url || $args[0].data.data.url)) ? [$args[0].data.data] : (($args[0] && $args[0].data && ($args[0].data.download_url || $args[0].data.url)) ? [$args[0].data] : [])))}}",
                                                                     "uploading_image_url": false
                                                                 }
-                                                            },
-                                                            {
-                                                                "handler": "apiCall",
-                                                                "auth_required": true,
-                                                                "target": "/api/modules/custom-ad_slots/admin/uploads/remembered?field=image_url",
-                                                                "params": {
-                                                                    "method": "GET"
-                                                                },
-                                                                "onSuccess": [
-                                                                    {
-                                                                        "handler": "setState",
-                                                                        "if": "{{!!(($args[0] && $args[0].url) || ($args[0] && $args[0].data && $args[0].data.url) || $args.url || ($args.data && $args.data.url))}}",
-                                                                        "params": {
-                                                                            "target": "local",
-                                                                            "form.image_url": "{{($args[0] && $args[0].url) || ($args[0] && $args[0].data && $args[0].data.url) || $args.url || ($args.data && $args.data.url) || ''}}",
-                                                                            "form.uploader_image_url": "{{(($args[0] && $args[0].files) || ($args[0] && $args[0].data && $args[0].data.files) || $args.files || ($args.data && $args.data.files) || [])}}"
-                                                                        }
-                                                                    }
-                                                                ],
-                                                                "onError": []
                                                             },
                                                             {
                                                                 "handler": "toast",
@@ -845,7 +825,7 @@
                                                             },
                                                             {
                                                                 "handler": "setState",
-                                                                "if": "{{!!($args[0] && $args[0].length)}}",
+                                                                "if": "{{!!($args[0] && $args[0].length && !_local.uploading_image_url_desktop && !($args[0][0] && ($args[0][0].download_url || $args[0][0].path)))}}",
                                                                 "params": {
                                                                     "target": "local",
                                                                     "uploading_image_url_desktop": true
@@ -853,7 +833,7 @@
                                                             },
                                                             {
                                                                 "handler": "emitEvent",
-                                                                "if": "{{!!($args[0] && $args[0].length)}}",
+                                                                "if": "{{!!($args[0] && $args[0].length && !_local.uploading_image_url_desktop && !($args[0][0] && ($args[0][0].download_url || $args[0][0].path)))}}",
                                                                 "params": {
                                                                     "event": "upload:ad_image_url_desktop"
                                                                 }
@@ -873,26 +853,6 @@
                                                                     "form.uploader_image_url_desktop": "{{($args[0] && $args[0][0]) ? [$args[0][0]] : (($args[0] && ($args[0].download_url || $args[0].url)) ? [$args[0]] : (($args[0] && $args[0].data && $args[0].data.data && ($args[0].data.data.download_url || $args[0].data.data.url)) ? [$args[0].data.data] : (($args[0] && $args[0].data && ($args[0].data.download_url || $args[0].data.url)) ? [$args[0].data] : [])))}}",
                                                                     "uploading_image_url_desktop": false
                                                                 }
-                                                            },
-                                                            {
-                                                                "handler": "apiCall",
-                                                                "auth_required": true,
-                                                                "target": "/api/modules/custom-ad_slots/admin/uploads/remembered?field=image_url_desktop",
-                                                                "params": {
-                                                                    "method": "GET"
-                                                                },
-                                                                "onSuccess": [
-                                                                    {
-                                                                        "handler": "setState",
-                                                                        "if": "{{!!(($args[0] && $args[0].url) || ($args[0] && $args[0].data && $args[0].data.url) || $args.url || ($args.data && $args.data.url))}}",
-                                                                        "params": {
-                                                                            "target": "local",
-                                                                            "form.image_url_desktop": "{{($args[0] && $args[0].url) || ($args[0] && $args[0].data && $args[0].data.url) || $args.url || ($args.data && $args.data.url) || ''}}",
-                                                                            "form.uploader_image_url_desktop": "{{(($args[0] && $args[0].files) || ($args[0] && $args[0].data && $args[0].data.files) || $args.files || ($args.data && $args.data.files) || [])}}"
-                                                                        }
-                                                                    }
-                                                                ],
-                                                                "onError": []
                                                             },
                                                             {
                                                                 "handler": "toast",
@@ -1139,7 +1099,7 @@
                                                             },
                                                             {
                                                                 "handler": "setState",
-                                                                "if": "{{!!($args[0] && $args[0].length)}}",
+                                                                "if": "{{!!($args[0] && $args[0].length && !_local.uploading_image_url_mobile && !($args[0][0] && ($args[0][0].download_url || $args[0][0].path)))}}",
                                                                 "params": {
                                                                     "target": "local",
                                                                     "uploading_image_url_mobile": true
@@ -1147,7 +1107,7 @@
                                                             },
                                                             {
                                                                 "handler": "emitEvent",
-                                                                "if": "{{!!($args[0] && $args[0].length)}}",
+                                                                "if": "{{!!($args[0] && $args[0].length && !_local.uploading_image_url_mobile && !($args[0][0] && ($args[0][0].download_url || $args[0][0].path)))}}",
                                                                 "params": {
                                                                     "event": "upload:ad_image_url_mobile"
                                                                 }
@@ -1167,26 +1127,6 @@
                                                                     "form.uploader_image_url_mobile": "{{($args[0] && $args[0][0]) ? [$args[0][0]] : (($args[0] && ($args[0].download_url || $args[0].url)) ? [$args[0]] : (($args[0] && $args[0].data && $args[0].data.data && ($args[0].data.data.download_url || $args[0].data.data.url)) ? [$args[0].data.data] : (($args[0] && $args[0].data && ($args[0].data.download_url || $args[0].data.url)) ? [$args[0].data] : [])))}}",
                                                                     "uploading_image_url_mobile": false
                                                                 }
-                                                            },
-                                                            {
-                                                                "handler": "apiCall",
-                                                                "auth_required": true,
-                                                                "target": "/api/modules/custom-ad_slots/admin/uploads/remembered?field=image_url_mobile",
-                                                                "params": {
-                                                                    "method": "GET"
-                                                                },
-                                                                "onSuccess": [
-                                                                    {
-                                                                        "handler": "setState",
-                                                                        "if": "{{!!(($args[0] && $args[0].url) || ($args[0] && $args[0].data && $args[0].data.url) || $args.url || ($args.data && $args.data.url))}}",
-                                                                        "params": {
-                                                                            "target": "local",
-                                                                            "form.image_url_mobile": "{{($args[0] && $args[0].url) || ($args[0] && $args[0].data && $args[0].data.url) || $args.url || ($args.data && $args.data.url) || ''}}",
-                                                                            "form.uploader_image_url_mobile": "{{(($args[0] && $args[0].files) || ($args[0] && $args[0].data && $args[0].data.files) || $args.files || ($args.data && $args.data.files) || [])}}"
-                                                                        }
-                                                                    }
-                                                                ],
-                                                                "onError": []
                                                             },
                                                             {
                                                                 "handler": "toast",

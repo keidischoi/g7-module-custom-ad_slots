@@ -1,5 +1,34 @@
 # Changelog
 
+## [1.4.16] - 2026-09-23
+
+### Fixed
+- **"Too Many Attempts" 업로드 루프:** `onUploadComplete` → `GET .../uploads/remembered` → `setState(uploader_*)`가 `onFilesChange`를 다시 일으켜 `emitEvent upload`가 반복되고, `throttle:60,1`에 걸려 Laravel 429가 뜨며 업로더·폼 입력이 먹통이 되던 문제.
+  - `onUploadComplete`에서 remembered 재동기화 API 호출 제거. 업로드 응답 `$args`에서 URL/`uploader_*`를 한 번만 추출해 `setState` (+ 성공 토스트).
+  - `onFilesChange`의 `emitEvent`/`uploading_*=true`를 게이트: 이미 업로드 중이거나, 파일이 이미 서버 첨부(`download_url`/`path`)면 재emit 안 함. 선택당 최대 1회 업로드.
+  - URL Input `value` 바인딩·`onChange` setState 유지. Input은 업로드/remembered 폴링을 트리거하지 않음(비울 때만 forget용 `DELETE noop?field=` 1회).
+  - 제거/빈 배열 경로는 기존처럼 URL 클리어 + forget 1회 유지(재시도 스톰 없음).
+- 안전망: 업로드 관련 라우트 throttle `60,1` → `180,1` (루프 제거가 본수정).
+- `mergeRememberedUrls` / POST 업로드 시 `rememberUrl` 1회 기록은 유지 → 저장 시 DB URL 반영.
+
+### Unchanged
+- `autoUpload: false` + `uploadTriggerEvent` (cold-load autoUpload 없음).
+- 크롬 `admin-page-content-responsive` only.
+- `files`/`value` two-way 바인딩 및 1.4.1–1.4.7 shell hacks 없음.
+- FileUploader `key`는 form id 안정 identity만 사용 (1.4.14).
+- create·edit 공통 레이아웃; 레거시/데스크톱/모바일 동일.
+
+### Meta
+- Version **1.4.16**. 광고 JS `hero-carousel.js?v=1.4.16`.
+
+### Deploy
+```
+php82 artisan module:update custom-ad_slots
+php82 artisan cache:clear
+php82 artisan view:clear
+```
+
+
 ## [1.4.15] - 2026-09-23
 
 ### Fixed
