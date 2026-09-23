@@ -1,3 +1,27 @@
+## [1.4.22] - 2026-09-23
+
+### Fixed
+- **수정 화면 image_url* Input 미표시:** G7 레이아웃 표현식에서 `??` / `?.`(optional chaining)이 URL Input `value`·`onSuccess` hydrate·Save body에서 실패해 빈 값으로 고정되거나 저장 payload가 비는 문제.
+  - URL Input: `value`를 `{{(_local.form && _local.form.image_url*) || ''}}`로 단순화, `key`는 `form.id`(로딩 후 1회 remount)만 사용 — has/empty remount 금지.
+  - `ad` onSuccess / FileUploader `initialFiles` / `onUploadComplete` / Save body에서 `??`·`?.` 제거 (`||` + 단락 평가).
+  - `ad-slot-image-upload.js`: GET `/admin/ads/:id` 성공 시 image_url* Input·`_local.form` silent hydrate (change 미발화 → 빈값 DELETE/forget 방지).
+- **모바일 업로드 후 DB 미반영:** 동일 표현식 실패로 `form.image_url_mobile`/Save body가 비고, 빈 Input change가 `DELETE .../noop?field=image_url_mobile` → `forgetUrl`까지 호출하며 remember 백업도 지워짐.
+  - 필드별 collection·emit·uploadParams·remember 경로는 유지; assist가 query/FormData/`uploadParams.field`에서 `image_url_mobile`을 확실히 추출해 해당 필드만 setState.
+
+### Unchanged
+- FileUploader 박스 UI, `autoUpload:false`, `upload_token` 스테이징, maxFiles:1, collections `ad_slot_image_url` / `_desktop` / `_mobile`.
+- Save `disabled`는 `_local.saving`만. bare path emit 게이트 유지. remembered GET 루프 없음. `admin-page-content-responsive` only.
+
+### Meta
+- Version **1.4.22**. 관리자 업로드 JS `ad-slot-image-upload.js?v=1.4.22`. 광고 JS `hero-carousel.js` CAS_AD_VERSION 1.4.22.
+
+### Deploy
+```
+php82 artisan module:update custom-ad_slots
+php82 artisan cache:clear
+php82 artisan view:clear
+```
+
 ## [1.4.21] - 2026-09-23
 
 ### Fixed
