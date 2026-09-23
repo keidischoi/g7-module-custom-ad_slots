@@ -5,7 +5,7 @@ return [
         'file_required' => '이미지 파일이 필요합니다.',
         'success' => '이미지를 업로드했습니다.',
         'failed' => '이미지 업로드에 실패했습니다.',
-        'delete_success' => '이미지 참조를 제거했습니다.',
+        'delete_success' => '이미지를 삭제했습니다.',
     ],
     'placement' => [
         'fetch_success' => '광고 배치를 조회했습니다.',

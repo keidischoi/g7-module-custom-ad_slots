@@ -1,5 +1,27 @@
 # Changelog
 
+## [1.4.12] - 2026-09-23
+
+### Fixed
+- **이미지 업로드 저장 안 됨:** FileUploader가 Attachment를 `response.data.data`에서 읽는데, 업로드 API가 flat `data`만 반환해 `onUploadComplete`가 URL을 못 채우던 문제. `data.data`(digital_product 계약) + `thumbnail_url`로 맞춤. 선택 시 `uploadTriggerEvent` emit → URL 기록, 저장 시에도 동일 trigger 후 apiCall.
+- **수정 시 업로드 박스에 기존 이미지 미표시:** `initialFiles: []` 하드코딩 제거. show 리소스에 one-way `uploader_image_url*` 배열 추가 → `initialFiles`로만 hydrate (`files`/`value` 바인딩 없음). `form.id` 도착 시 key remount.
+- **업로더 삭제가 soft no-op:** `AdSlotUploadService::deleteByUploadId`로 managed path(`custom-ad_slots/Y/m/d/...`) 실제 삭제. 파일 id는 base64url(path). 외부 URL/noop은 soft-success. 클라이언트 `onDelete`/`onRemove`/`onFileRemove`/빈 `onFilesChange`에서 `image_url*` + `uploader_image_url*` 클리어.
+
+### Unchanged (must not regress)
+- FileUploader `autoUpload: false` + `uploadTriggerEvent` (cold-load autoUpload 없음).
+- 크롬 `admin-page-content-responsive` only (폭 유틸 없음).
+- 1.4.1–1.4.7 shell hacks / `files`·`value`·`image_url_*_files` two-way 바인딩 재도입 없음.
+
+### Meta
+- Version **1.4.12**. 광고 JS `hero-carousel.js?v=1.4.12`.
+
+### Deploy
+```
+php82 artisan module:update custom-ad_slots
+php82 artisan cache:clear
+php82 artisan view:clear
+```
+
 ## [1.4.11] - 2026-09-23
 
 ### Changed

@@ -67,7 +67,7 @@
                     "max_width_px_hint": "Optional. Blank = no max",
                     "size_section": "Display size",
                     "upload": "Upload image",
-                    "upload_hint": "Selecting a file uploads it and fills the URL. You can still paste a URL manually.",
+                    "upload_hint": "Selecting a file uploads it and fills the URL. On edit, existing images appear in the upload box. Removing deletes the stored file when possible.",
                     "upload_success": "Image uploaded."
                 }
             }
