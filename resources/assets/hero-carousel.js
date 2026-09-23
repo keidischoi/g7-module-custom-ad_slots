@@ -1,6 +1,6 @@
 /*! custom-ad_slots — API-driven ad mounts (carousel + stacked banners) + path-routed page mounts */
 (function () {
-  var CAS_AD_VERSION = "1.4.7";
+  var CAS_AD_VERSION = "1.4.8";
   if (window.__casAdRenderVersion === CAS_AD_VERSION) return;
   window.__casAdRenderVersion = CAS_AD_VERSION;
   window.__casAdRenderInstalled = true;

@@ -1,7 +1,7 @@
 {
-    "version": "1.2.0",
+    "version": "1.0.7",
     "meta": {
-        "title": "$t:custom-ad_slots.admin.ads.form.title_create",
+        "title": "{{route?.id ? '$t:custom-ad_slots.admin.ads.form.title_edit' : '$t:custom-ad_slots.admin.ads.form.title_create'}}",
         "description": "$t:custom-ad_slots.admin.ads.form.description"
     },
     "layout_name": "admin_ad_slot_form",
@@ -11,10 +11,25 @@
         "custom-ad_slots.ads.update"
     ],
     "extends": "_admin_base",
-    "data_sources": [],
+    "data_sources": [
+        {
+            "id": "ad",
+            "type": "api",
+            "endpoint": "/api/modules/custom-ad_slots/admin/ads/{{route.id}}",
+            "method": "GET",
+            "auto_fetch": true,
+            "auth_required": true,
+            "if": "{{route?.id}}",
+            "initLocal": "form",
+            "refetchOnMount": true,
+            "fallback": {
+                "data": null
+            }
+        }
+    ],
     "init_actions": [
         {
-            "comment": "Clear any stale form before defaults.",
+            "if": "{{!route?.id}}",
             "handler": "setState",
             "params": {
                 "target": "local",
@@ -22,7 +37,7 @@
             }
         },
         {
-            "comment": "Default ad slot fields for create.",
+            "if": "{{!route?.id}}",
             "handler": "setState",
             "params": {
                 "target": "local",
@@ -42,14 +57,17 @@
                     "starts_at": "",
                     "ends_at": "",
                     "prevent_right_click": false,
-                    "open_in_new_tab": true,
-                    "size_mode": "",
-                    "aspect_desktop": "",
-                    "aspect_mobile": "",
-                    "width_px": "",
-                    "height_px": "",
-                    "max_width_px": ""
+                    "open_in_new_tab": true
                 },
+                "errors": null,
+                "saving": false
+            }
+        },
+        {
+            "if": "{{!!route?.id}}",
+            "handler": "setState",
+            "params": {
+                "target": "local",
                 "errors": null,
                 "saving": false
             }
@@ -61,9 +79,10 @@
                 "id": "ad_slot_form_wrapper",
                 "type": "basic",
                 "name": "Div",
-                "trackChanges": false,
+                "dataKey": "form",
+                "trackChanges": true,
                 "props": {
-                    "className": "admin-page-content-responsive-fluid"
+                    "className": "admin-page-content w-full max-w-none"
                 },
                 "children": [
                     {
@@ -80,7 +99,7 @@
                                 "props": {
                                     "className": "text-page-heading"
                                 },
-                                "text": "$t:custom-ad_slots.admin.ads.form.title_create"
+                                "text": "{{route?.id ? '$t:custom-ad_slots.admin.ads.form.title_edit' : '$t:custom-ad_slots.admin.ads.form.title_create'}}"
                             }
                         ]
                     },
@@ -88,7 +107,7 @@
                         "id": "error_message_box",
                         "type": "basic",
                         "name": "Div",
-                        "if": "{{!!_local.errors}}",
+                        "if": "{{_local.errors && Object.keys(_local.errors).length > 0}}",
                         "props": {
                             "className": "alert-danger mb-6"
                         },
@@ -116,7 +135,7 @@
                         "type": "basic",
                         "name": "Div",
                         "props": {
-                            "className": "admin-card row-stack w-full max-w-5xl mx-auto"
+                            "className": "admin-card row-stack"
                         },
                         "children": [
                             {
@@ -182,96 +201,16 @@
                                                     "value": "shop.list.top"
                                                 },
                                                 {
-                                                    "label": "$t:custom-ad_slots.slots.shop.list.bottom",
-                                                    "value": "shop.list.bottom"
-                                                },
-                                                {
                                                     "label": "$t:custom-ad_slots.slots.shop.detail.top",
                                                     "value": "shop.detail.top"
-                                                },
-                                                {
-                                                    "label": "$t:custom-ad_slots.slots.shop.detail.bottom",
-                                                    "value": "shop.detail.bottom"
                                                 },
                                                 {
                                                     "label": "$t:custom-ad_slots.slots.shop.cart.top",
                                                     "value": "shop.cart.top"
                                                 },
                                                 {
-                                                    "label": "$t:custom-ad_slots.slots.shop.cart.bottom",
-                                                    "value": "shop.cart.bottom"
-                                                },
-                                                {
                                                     "label": "$t:custom-ad_slots.slots.board.popular.top",
                                                     "value": "board.popular.top"
-                                                },
-                                                {
-                                                    "label": "$t:custom-ad_slots.slots.board.popular.bottom",
-                                                    "value": "board.popular.bottom"
-                                                },
-                                                {
-                                                    "label": "$t:custom-ad_slots.slots.board.index.top",
-                                                    "value": "board.index.top"
-                                                },
-                                                {
-                                                    "label": "$t:custom-ad_slots.slots.board.index.bottom",
-                                                    "value": "board.index.bottom"
-                                                },
-                                                {
-                                                    "label": "$t:custom-ad_slots.slots.board.show.top",
-                                                    "value": "board.show.top"
-                                                },
-                                                {
-                                                    "label": "$t:custom-ad_slots.slots.board.show.bottom",
-                                                    "value": "board.show.bottom"
-                                                },
-                                                {
-                                                    "label": "$t:custom-ad_slots.slots.board.form.top",
-                                                    "value": "board.form.top"
-                                                },
-                                                {
-                                                    "label": "$t:custom-ad_slots.slots.board.form.bottom",
-                                                    "value": "board.form.bottom"
-                                                },
-                                                {
-                                                    "label": "$t:custom-ad_slots.slots.board.boards.top",
-                                                    "value": "board.boards.top"
-                                                },
-                                                {
-                                                    "label": "$t:custom-ad_slots.slots.board.boards.bottom",
-                                                    "value": "board.boards.bottom"
-                                                },
-                                                {
-                                                    "label": "$t:custom-ad_slots.slots.mypage.top",
-                                                    "value": "mypage.top"
-                                                },
-                                                {
-                                                    "label": "$t:custom-ad_slots.slots.mypage.bottom",
-                                                    "value": "mypage.bottom"
-                                                },
-                                                {
-                                                    "label": "$t:custom-ad_slots.slots.maker_bids.top",
-                                                    "value": "maker_bids.top"
-                                                },
-                                                {
-                                                    "label": "$t:custom-ad_slots.slots.maker_bids.bottom",
-                                                    "value": "maker_bids.bottom"
-                                                },
-                                                {
-                                                    "label": "$t:custom-ad_slots.slots.share.top",
-                                                    "value": "share.top"
-                                                },
-                                                {
-                                                    "label": "$t:custom-ad_slots.slots.share.bottom",
-                                                    "value": "share.bottom"
-                                                },
-                                                {
-                                                    "label": "$t:custom-ad_slots.slots.page.top",
-                                                    "value": "page.top"
-                                                },
-                                                {
-                                                    "label": "$t:custom-ad_slots.slots.page.bottom",
-                                                    "value": "page.bottom"
                                                 }
                                             ]
                                         },
@@ -378,19 +317,8 @@
                                             "type": "text",
                                             "name": "title",
                                             "className": "input w-full",
-                                            "placeholder": "$t:custom-ad_slots.admin.ads.form.fields.title_placeholder",
-                                            "value": "{{_local.form?.title ?? ''}}"
-                                        },
-                                        "actions": [
-                                            {
-                                                "type": "change",
-                                                "handler": "setState",
-                                                "params": {
-                                                    "target": "local",
-                                                    "form.title": "{{$event.target.value}}"
-                                                }
-                                            }
-                                        ]
+                                            "placeholder": "$t:custom-ad_slots.admin.ads.form.fields.title_placeholder"
+                                        }
                                     }
                                 ]
                             },
@@ -423,19 +351,8 @@
                                             "type": "text",
                                             "name": "image_url",
                                             "className": "input w-full",
-                                            "placeholder": "https://",
-                                            "value": "{{_local.form?.image_url ?? ''}}"
-                                        },
-                                        "actions": [
-                                            {
-                                                "type": "change",
-                                                "handler": "setState",
-                                                "params": {
-                                                    "target": "local",
-                                                    "form.image_url": "{{$event.target.value}}"
-                                                }
-                                            }
-                                        ]
+                                            "placeholder": "https://"
+                                        }
                                     },
                                     {
                                         "id": "upload_image_url",
@@ -462,10 +379,9 @@
                                                     "maxSize": 5,
                                                     "accept": ".jpg,.jpeg,.png,.gif,.webp,image/*",
                                                     "collection": "ad_slot_images",
-                                                    "className": "w-full min-h-[96px]",
+                                                    "className": "w-full",
                                                     "apiEndpoints": {
-                                                        "upload": "/api/modules/custom-ad_slots/admin/uploads",
-                                                        "delete": "/api/modules/custom-ad_slots/admin/uploads/noop"
+                                                        "upload": "/api/modules/custom-ad_slots/admin/uploads"
                                                     }
                                                 },
                                                 "actions": [
@@ -497,43 +413,6 @@
                                                         "params": {
                                                             "type": "error",
                                                             "message": "{{$args[0] || '$t:custom-ad_slots.admin.ads.form.validation_error'}}"
-                                                        }
-                                                    },
-                                                    {
-                                                        "event": "onDelete",
-                                                        "type": "change",
-                                                        "handler": "setState",
-                                                        "params": {
-                                                            "target": "local",
-                                                            "form.image_url": ""
-                                                        }
-                                                    },
-                                                    {
-                                                        "event": "onRemove",
-                                                        "type": "change",
-                                                        "handler": "setState",
-                                                        "params": {
-                                                            "target": "local",
-                                                            "form.image_url": ""
-                                                        }
-                                                    },
-                                                    {
-                                                        "event": "onFileRemove",
-                                                        "type": "change",
-                                                        "handler": "setState",
-                                                        "params": {
-                                                            "target": "local",
-                                                            "form.image_url": ""
-                                                        }
-                                                    },
-                                                    {
-                                                        "event": "onFilesChange",
-                                                        "type": "change",
-                                                        "handler": "setState",
-                                                        "if": "{{!($args[0] && $args[0].length)}}",
-                                                        "params": {
-                                                            "target": "local",
-                                                            "form.image_url": ""
                                                         }
                                                     }
                                                 ]
@@ -571,19 +450,8 @@
                                             "type": "text",
                                             "name": "image_url_desktop",
                                             "className": "input w-full",
-                                            "placeholder": "https://",
-                                            "value": "{{_local.form?.image_url_desktop ?? ''}}"
-                                        },
-                                        "actions": [
-                                            {
-                                                "type": "change",
-                                                "handler": "setState",
-                                                "params": {
-                                                    "target": "local",
-                                                    "form.image_url_desktop": "{{$event.target.value}}"
-                                                }
-                                            }
-                                        ]
+                                            "placeholder": "https://"
+                                        }
                                     },
                                     {
                                         "id": "upload_image_url_desktop",
@@ -610,10 +478,9 @@
                                                     "maxSize": 5,
                                                     "accept": ".jpg,.jpeg,.png,.gif,.webp,image/*",
                                                     "collection": "ad_slot_images",
-                                                    "className": "w-full min-h-[96px]",
+                                                    "className": "w-full",
                                                     "apiEndpoints": {
-                                                        "upload": "/api/modules/custom-ad_slots/admin/uploads",
-                                                        "delete": "/api/modules/custom-ad_slots/admin/uploads/noop"
+                                                        "upload": "/api/modules/custom-ad_slots/admin/uploads"
                                                     }
                                                 },
                                                 "actions": [
@@ -645,43 +512,6 @@
                                                         "params": {
                                                             "type": "error",
                                                             "message": "{{$args[0] || '$t:custom-ad_slots.admin.ads.form.validation_error'}}"
-                                                        }
-                                                    },
-                                                    {
-                                                        "event": "onDelete",
-                                                        "type": "change",
-                                                        "handler": "setState",
-                                                        "params": {
-                                                            "target": "local",
-                                                            "form.image_url_desktop": ""
-                                                        }
-                                                    },
-                                                    {
-                                                        "event": "onRemove",
-                                                        "type": "change",
-                                                        "handler": "setState",
-                                                        "params": {
-                                                            "target": "local",
-                                                            "form.image_url_desktop": ""
-                                                        }
-                                                    },
-                                                    {
-                                                        "event": "onFileRemove",
-                                                        "type": "change",
-                                                        "handler": "setState",
-                                                        "params": {
-                                                            "target": "local",
-                                                            "form.image_url_desktop": ""
-                                                        }
-                                                    },
-                                                    {
-                                                        "event": "onFilesChange",
-                                                        "type": "change",
-                                                        "handler": "setState",
-                                                        "if": "{{!($args[0] && $args[0].length)}}",
-                                                        "params": {
-                                                            "target": "local",
-                                                            "form.image_url_desktop": ""
                                                         }
                                                     }
                                                 ]
@@ -719,19 +549,8 @@
                                             "type": "text",
                                             "name": "image_url_mobile",
                                             "className": "input w-full",
-                                            "placeholder": "https://",
-                                            "value": "{{_local.form?.image_url_mobile ?? ''}}"
-                                        },
-                                        "actions": [
-                                            {
-                                                "type": "change",
-                                                "handler": "setState",
-                                                "params": {
-                                                    "target": "local",
-                                                    "form.image_url_mobile": "{{$event.target.value}}"
-                                                }
-                                            }
-                                        ]
+                                            "placeholder": "https://"
+                                        }
                                     },
                                     {
                                         "id": "upload_image_url_mobile",
@@ -758,10 +577,9 @@
                                                     "maxSize": 5,
                                                     "accept": ".jpg,.jpeg,.png,.gif,.webp,image/*",
                                                     "collection": "ad_slot_images",
-                                                    "className": "w-full min-h-[96px]",
+                                                    "className": "w-full",
                                                     "apiEndpoints": {
-                                                        "upload": "/api/modules/custom-ad_slots/admin/uploads",
-                                                        "delete": "/api/modules/custom-ad_slots/admin/uploads/noop"
+                                                        "upload": "/api/modules/custom-ad_slots/admin/uploads"
                                                     }
                                                 },
                                                 "actions": [
@@ -793,43 +611,6 @@
                                                         "params": {
                                                             "type": "error",
                                                             "message": "{{$args[0] || '$t:custom-ad_slots.admin.ads.form.validation_error'}}"
-                                                        }
-                                                    },
-                                                    {
-                                                        "event": "onDelete",
-                                                        "type": "change",
-                                                        "handler": "setState",
-                                                        "params": {
-                                                            "target": "local",
-                                                            "form.image_url_mobile": ""
-                                                        }
-                                                    },
-                                                    {
-                                                        "event": "onRemove",
-                                                        "type": "change",
-                                                        "handler": "setState",
-                                                        "params": {
-                                                            "target": "local",
-                                                            "form.image_url_mobile": ""
-                                                        }
-                                                    },
-                                                    {
-                                                        "event": "onFileRemove",
-                                                        "type": "change",
-                                                        "handler": "setState",
-                                                        "params": {
-                                                            "target": "local",
-                                                            "form.image_url_mobile": ""
-                                                        }
-                                                    },
-                                                    {
-                                                        "event": "onFilesChange",
-                                                        "type": "change",
-                                                        "handler": "setState",
-                                                        "if": "{{!($args[0] && $args[0].length)}}",
-                                                        "params": {
-                                                            "target": "local",
-                                                            "form.image_url_mobile": ""
                                                         }
                                                     }
                                                 ]
@@ -867,19 +648,8 @@
                                             "type": "text",
                                             "name": "bg_color",
                                             "className": "input w-full",
-                                            "placeholder": "#f5f5f5",
-                                            "value": "{{_local.form?.bg_color ?? ''}}"
-                                        },
-                                        "actions": [
-                                            {
-                                                "type": "change",
-                                                "handler": "setState",
-                                                "params": {
-                                                    "target": "local",
-                                                    "form.bg_color": "{{$event.target.value}}"
-                                                }
-                                            }
-                                        ]
+                                            "placeholder": "#f5f5f5"
+                                        }
                                     }
                                 ]
                             },
@@ -912,19 +682,8 @@
                                             "type": "text",
                                             "name": "link_url",
                                             "className": "input w-full",
-                                            "placeholder": "https://",
-                                            "value": "{{_local.form?.link_url ?? ''}}"
-                                        },
-                                        "actions": [
-                                            {
-                                                "type": "change",
-                                                "handler": "setState",
-                                                "params": {
-                                                    "target": "local",
-                                                    "form.link_url": "{{$event.target.value}}"
-                                                }
-                                            }
-                                        ]
+                                            "placeholder": "https://"
+                                        }
                                     }
                                 ]
                             },
@@ -957,19 +716,8 @@
                                             "name": "html_content",
                                             "className": "input w-full",
                                             "rows": 6,
-                                            "placeholder": "$t:custom-ad_slots.admin.ads.form.fields.html_content_placeholder",
-                                            "value": "{{_local.form?.html_content ?? ''}}"
-                                        },
-                                        "actions": [
-                                            {
-                                                "type": "change",
-                                                "handler": "setState",
-                                                "params": {
-                                                    "target": "local",
-                                                    "form.html_content": "{{$event.target.value}}"
-                                                }
-                                            }
-                                        ]
+                                            "placeholder": "$t:custom-ad_slots.admin.ads.form.fields.html_content_placeholder"
+                                        }
                                     }
                                 ]
                             },
@@ -1003,19 +751,8 @@
                                             "type": "text",
                                             "name": "script_src",
                                             "className": "input w-full",
-                                            "placeholder": "https://",
-                                            "value": "{{_local.form?.script_src ?? ''}}"
-                                        },
-                                        "actions": [
-                                            {
-                                                "type": "change",
-                                                "handler": "setState",
-                                                "params": {
-                                                    "target": "local",
-                                                    "form.script_src": "{{$event.target.value}}"
-                                                }
-                                            }
-                                        ]
+                                            "placeholder": "https://"
+                                        }
                                     }
                                 ]
                             },
@@ -1048,380 +785,8 @@
                                             "type": "number",
                                             "name": "sort_order",
                                             "className": "input w-full",
-                                            "min": 0,
-                                            "value": "{{_local.form?.sort_order ?? 0}}"
-                                        },
-                                        "actions": [
-                                            {
-                                                "type": "change",
-                                                "handler": "setState",
-                                                "params": {
-                                                    "target": "local",
-                                                    "form.sort_order": "{{$event.target.value}}"
-                                                }
-                                            }
-                                        ]
-                                    }
-                                ]
-                            },
-                            {
-                                "id": "field_size_section",
-                                "type": "basic",
-                                "name": "Div",
-                                "props": {
-                                    "className": "form-group w-full pt-2 border-t border-gray-200 dark:border-gray-700"
-                                },
-                                "children": [
-                                    {
-                                        "type": "basic",
-                                        "name": "H3",
-                                        "props": {
-                                            "className": "text-sm font-semibold text-gray-900 dark:text-white"
-                                        },
-                                        "text": "$t:custom-ad_slots.admin.ads.form.fields.size_section"
-                                    },
-                                    {
-                                        "type": "basic",
-                                        "name": "P",
-                                        "props": {
-                                            "className": "mt-1 text-xs text-gray-500 dark:text-gray-400"
-                                        },
-                                        "text": "$t:custom-ad_slots.admin.ads.form.fields.size_mode_hint"
-                                    }
-                                ]
-                            },
-                            {
-                                "id": "field_size_mode",
-                                "type": "basic",
-                                "name": "Div",
-                                "props": {
-                                    "className": "form-group w-full"
-                                },
-                                "children": [
-                                    {
-                                        "type": "basic",
-                                        "name": "Label",
-                                        "props": {
-                                            "className": "form-label"
-                                        },
-                                        "children": [
-                                            {
-                                                "type": "basic",
-                                                "name": "Span",
-                                                "text": "$t:custom-ad_slots.admin.ads.form.fields.size_mode"
-                                            }
-                                        ]
-                                    },
-                                    {
-                                        "type": "composite",
-                                        "name": "Select",
-                                        "props": {
-                                            "name": "size_mode",
-                                            "value": "{{_local.form?.size_mode ?? ''}}",
-                                            "className": "input w-full",
-                                            "options": [
-                                                {
-                                                    "label": "$t:custom-ad_slots.admin.ads.form.fields.size_mode_inherit",
-                                                    "value": ""
-                                                },
-                                                {
-                                                    "label": "$t:custom-ad_slots.admin.ads.form.fields.size_mode_ratio",
-                                                    "value": "ratio"
-                                                },
-                                                {
-                                                    "label": "$t:custom-ad_slots.admin.ads.form.fields.size_mode_fixed",
-                                                    "value": "fixed"
-                                                }
-                                            ]
-                                        },
-                                        "actions": [
-                                            {
-                                                "type": "change",
-                                                "handler": "setState",
-                                                "params": {
-                                                    "target": "local",
-                                                    "form.size_mode": "{{$event.target.value}}"
-                                                }
-                                            }
-                                        ]
-                                    }
-                                ]
-                            },
-                            {
-                                "id": "field_aspect_desktop",
-                                "type": "basic",
-                                "name": "Div",
-                                "if": "{{_local.form?.size_mode === 'ratio'}}",
-                                "props": {
-                                    "className": "form-group w-full"
-                                },
-                                "children": [
-                                    {
-                                        "type": "basic",
-                                        "name": "Label",
-                                        "props": {
-                                            "className": "form-label"
-                                        },
-                                        "children": [
-                                            {
-                                                "type": "basic",
-                                                "name": "Span",
-                                                "text": "$t:custom-ad_slots.admin.ads.form.fields.aspect_desktop"
-                                            }
-                                        ]
-                                    },
-                                    {
-                                        "type": "basic",
-                                        "name": "Input",
-                                        "props": {
-                                            "type": "text",
-                                            "name": "aspect_desktop",
-                                            "className": "input w-full",
-                                            "placeholder": "$t:custom-ad_slots.admin.ads.form.fields.aspect_placeholder",
-                                            "value": "{{_local.form?.aspect_desktop ?? ''}}"
-                                        },
-                                        "actions": [
-                                            {
-                                                "type": "change",
-                                                "handler": "setState",
-                                                "params": {
-                                                    "target": "local",
-                                                    "form.aspect_desktop": "{{$event.target.value}}"
-                                                }
-                                            }
-                                        ]
-                                    },
-                                    {
-                                        "type": "basic",
-                                        "name": "P",
-                                        "props": {
-                                            "className": "mt-1 text-xs text-gray-500 dark:text-gray-400"
-                                        },
-                                        "text": "$t:custom-ad_slots.admin.ads.form.fields.aspect_hint"
-                                    }
-                                ]
-                            },
-                            {
-                                "id": "field_aspect_mobile",
-                                "type": "basic",
-                                "name": "Div",
-                                "if": "{{_local.form?.size_mode === 'ratio'}}",
-                                "props": {
-                                    "className": "form-group w-full"
-                                },
-                                "children": [
-                                    {
-                                        "type": "basic",
-                                        "name": "Label",
-                                        "props": {
-                                            "className": "form-label"
-                                        },
-                                        "children": [
-                                            {
-                                                "type": "basic",
-                                                "name": "Span",
-                                                "text": "$t:custom-ad_slots.admin.ads.form.fields.aspect_mobile"
-                                            }
-                                        ]
-                                    },
-                                    {
-                                        "type": "basic",
-                                        "name": "Input",
-                                        "props": {
-                                            "type": "text",
-                                            "name": "aspect_mobile",
-                                            "className": "input w-full",
-                                            "placeholder": "$t:custom-ad_slots.admin.ads.form.fields.aspect_placeholder",
-                                            "value": "{{_local.form?.aspect_mobile ?? ''}}"
-                                        },
-                                        "actions": [
-                                            {
-                                                "type": "change",
-                                                "handler": "setState",
-                                                "params": {
-                                                    "target": "local",
-                                                    "form.aspect_mobile": "{{$event.target.value}}"
-                                                }
-                                            }
-                                        ]
-                                    },
-                                    {
-                                        "type": "basic",
-                                        "name": "P",
-                                        "props": {
-                                            "className": "mt-1 text-xs text-gray-500 dark:text-gray-400"
-                                        },
-                                        "text": "$t:custom-ad_slots.admin.ads.form.fields.aspect_hint"
-                                    }
-                                ]
-                            },
-                            {
-                                "id": "field_width_px",
-                                "type": "basic",
-                                "name": "Div",
-                                "if": "{{_local.form?.size_mode === 'fixed'}}",
-                                "props": {
-                                    "className": "form-group w-full"
-                                },
-                                "children": [
-                                    {
-                                        "type": "basic",
-                                        "name": "Label",
-                                        "props": {
-                                            "className": "form-label"
-                                        },
-                                        "children": [
-                                            {
-                                                "type": "basic",
-                                                "name": "Span",
-                                                "text": "$t:custom-ad_slots.admin.ads.form.fields.width_px"
-                                            }
-                                        ]
-                                    },
-                                    {
-                                        "type": "basic",
-                                        "name": "Input",
-                                        "props": {
-                                            "type": "number",
-                                            "name": "width_px",
-                                            "className": "input w-full",
-                                            "min": 1,
-                                            "value": "{{_local.form?.width_px ?? ''}}"
-                                        },
-                                        "actions": [
-                                            {
-                                                "type": "change",
-                                                "handler": "setState",
-                                                "params": {
-                                                    "target": "local",
-                                                    "form.width_px": "{{$event.target.value}}"
-                                                }
-                                            }
-                                        ]
-                                    },
-                                    {
-                                        "type": "basic",
-                                        "name": "P",
-                                        "props": {
-                                            "className": "mt-1 text-xs text-gray-500 dark:text-gray-400"
-                                        },
-                                        "text": "$t:custom-ad_slots.admin.ads.form.fields.width_px_hint"
-                                    }
-                                ]
-                            },
-                            {
-                                "id": "field_height_px",
-                                "type": "basic",
-                                "name": "Div",
-                                "if": "{{_local.form?.size_mode === 'fixed'}}",
-                                "props": {
-                                    "className": "form-group w-full"
-                                },
-                                "children": [
-                                    {
-                                        "type": "basic",
-                                        "name": "Label",
-                                        "props": {
-                                            "className": "form-label"
-                                        },
-                                        "children": [
-                                            {
-                                                "type": "basic",
-                                                "name": "Span",
-                                                "text": "$t:custom-ad_slots.admin.ads.form.fields.height_px"
-                                            },
-                                            {
-                                                "type": "basic",
-                                                "name": "Span",
-                                                "props": {
-                                                    "className": "text-required"
-                                                },
-                                                "text": "*"
-                                            }
-                                        ]
-                                    },
-                                    {
-                                        "type": "basic",
-                                        "name": "Input",
-                                        "props": {
-                                            "type": "number",
-                                            "name": "height_px",
-                                            "className": "input w-full",
-                                            "min": 1,
-                                            "value": "{{_local.form?.height_px ?? ''}}"
-                                        },
-                                        "actions": [
-                                            {
-                                                "type": "change",
-                                                "handler": "setState",
-                                                "params": {
-                                                    "target": "local",
-                                                    "form.height_px": "{{$event.target.value}}"
-                                                }
-                                            }
-                                        ]
-                                    },
-                                    {
-                                        "type": "basic",
-                                        "name": "P",
-                                        "props": {
-                                            "className": "mt-1 text-xs text-gray-500 dark:text-gray-400"
-                                        },
-                                        "text": "$t:custom-ad_slots.admin.ads.form.fields.height_px_hint"
-                                    }
-                                ]
-                            },
-                            {
-                                "id": "field_max_width_px",
-                                "type": "basic",
-                                "name": "Div",
-                                "if": "{{_local.form?.size_mode === 'fixed'}}",
-                                "props": {
-                                    "className": "form-group w-full"
-                                },
-                                "children": [
-                                    {
-                                        "type": "basic",
-                                        "name": "Label",
-                                        "props": {
-                                            "className": "form-label"
-                                        },
-                                        "children": [
-                                            {
-                                                "type": "basic",
-                                                "name": "Span",
-                                                "text": "$t:custom-ad_slots.admin.ads.form.fields.max_width_px"
-                                            }
-                                        ]
-                                    },
-                                    {
-                                        "type": "basic",
-                                        "name": "Input",
-                                        "props": {
-                                            "type": "number",
-                                            "name": "max_width_px",
-                                            "className": "input w-full",
-                                            "min": 1,
-                                            "value": "{{_local.form?.max_width_px ?? ''}}"
-                                        },
-                                        "actions": [
-                                            {
-                                                "type": "change",
-                                                "handler": "setState",
-                                                "params": {
-                                                    "target": "local",
-                                                    "form.max_width_px": "{{$event.target.value}}"
-                                                }
-                                            }
-                                        ]
-                                    },
-                                    {
-                                        "type": "basic",
-                                        "name": "P",
-                                        "props": {
-                                            "className": "mt-1 text-xs text-gray-500 dark:text-gray-400"
-                                        },
-                                        "text": "$t:custom-ad_slots.admin.ads.form.fields.max_width_px_hint"
+                                            "min": 0
+                                        }
                                     }
                                 ]
                             },
@@ -1685,7 +1050,7 @@
                         "type": "basic",
                         "name": "Div",
                         "props": {
-                            "className": "flex gap-3 mt-6 w-full max-w-5xl mx-auto"
+                            "className": "flex gap-3 mt-6"
                         },
                         "children": [
                             {
@@ -1740,9 +1105,9 @@
                                             {
                                                 "handler": "apiCall",
                                                 "auth_required": true,
-                                                "target": "/api/modules/custom-ad_slots/admin/ads",
+                                                "target": "{{route?.id ? '/api/modules/custom-ad_slots/admin/ads/' + route?.id : '/api/modules/custom-ad_slots/admin/ads'}}",
                                                 "params": {
-                                                    "method": "POST",
+                                                    "method": "{{route?.id ? 'PUT' : 'POST'}}",
                                                     "body": {
                                                         "slot_key": "{{_local.form?.slot_key}}",
                                                         "type": "{{_local.form?.type}}",
@@ -1759,13 +1124,7 @@
                                                         "prevent_right_click": "{{!!_local.form?.prevent_right_click}}",
                                                         "open_in_new_tab": "{{!!_local.form?.open_in_new_tab}}",
                                                         "starts_at": "{{_local.form?.starts_at || null}}",
-                                                        "ends_at": "{{_local.form?.ends_at || null}}",
-                                                        "size_mode": "{{_local.form?.size_mode || null}}",
-                                                        "aspect_desktop": "{{_local.form?.aspect_desktop ?? \"\"}}",
-                                                        "aspect_mobile": "{{_local.form?.aspect_mobile ?? \"\"}}",
-                                                        "width_px": "{{_local.form?.width_px || null}}",
-                                                        "height_px": "{{_local.form?.height_px || null}}",
-                                                        "max_width_px": "{{_local.form?.max_width_px || null}}"
+                                                        "ends_at": "{{_local.form?.ends_at || null}}"
                                                     }
                                                 },
                                                 "onSuccess": [
@@ -1781,7 +1140,7 @@
                                                         "handler": "toast",
                                                         "params": {
                                                             "type": "success",
-                                                            "message": "$t:custom-ad_slots.admin.ads.form.create_success"
+                                                            "message": "{{route?.id ? '$t:custom-ad_slots.admin.ads.form.update_success' : '$t:custom-ad_slots.admin.ads.form.create_success'}}"
                                                         }
                                                     },
                                                     {

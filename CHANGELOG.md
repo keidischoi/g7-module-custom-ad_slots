@@ -1,5 +1,34 @@
 # Changelog
 
+## [1.4.8] - 2026-09-23
+
+### Changed
+
+- **Restore pre-1.4.0 admin ad create/edit form** from **v1.1.22** baseline: single shared layout `admin_ad_slot_form` (`extends _admin_base`, show DS `endpoint .../{{route.id}}` + `if: {{route?.id}}` + `initLocal: form`, chrome `admin-page-content w-full max-w-none`).
+- Edit route again points to `admin_ad_slot_form` (removed `admin_ad_slot_form_edit` layout/route split from 1.4.6).
+- **Drop broken 1.4.1–1.4.7 edit-shell experiments**: no progressive loading, no route?.id gymnastics, no chrome class churn / `md:w-[70%]` on `admin-page-content`, no edit-only layout split.
+- **Size-mode admin UI and new slot keys** (`maker_bids` / share / page) **deferred** on the ad form Select (baseline slot options only).
+
+### Added
+
+- **Safe image upload only** beside existing URL text inputs (`image_url`, `image_url_desktop`, `image_url_mobile`): FileUploader `autoUpload`, maxFiles 1, image accept, `POST /api/modules/custom-ad_slots/admin/uploads`, `onUploadComplete` → set `_local.form.image_url*`. **No** `files` / `value` / `image_url_*_files` props (those caused infinite load in 1.4.1–1.4.2). Delete/reorder endpoints omitted from uploader props.
+
+### Unchanged
+
+- Placement admin routes/layouts kept (`admin_ad_slot_placement_*`).
+- Upload API (`AdSlotUploadController`), size/placement backend, migrations, and public size/slot mounts remain.
+
+### Deploy
+
+```
+php82 artisan module:update custom-ad_slots
+php82 artisan cache:clear
+php82 artisan view:clear
+```
+
+(migrate only if uploads table still required — do not force unrelated migrations)
+
+
 ## [1.4.7] - 2026-09-23
 
 ### Fixed
