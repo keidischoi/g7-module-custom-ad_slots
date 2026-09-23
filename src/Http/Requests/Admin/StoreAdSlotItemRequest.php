@@ -67,6 +67,7 @@ class StoreAdSlotItemRequest extends FormRequest
             'max_width_px' => ['nullable', 'integer', 'min:1', 'max:10000'],
             'starts_at' => ['nullable', 'date'],
             'ends_at' => ['nullable', 'date', 'after_or_equal:starts_at'],
+            'upload_token' => ['nullable', 'string', 'max:128'],
         ];
     }
 }

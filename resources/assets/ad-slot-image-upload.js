@@ -1,64 +1,21 @@
-/*! custom-ad_slots — admin native image upload (URL input + preview + clear) */
+/*! custom-ad_slots — admin FileUploader assist (upload_token + URL sync), v1.4.20
+ * Visible control is layout FileUploader (maker_bids pattern). This script only:
+ *  - ensures form.upload_token exists (fallback if form-defaults slow)
+ *  - observes upload XHR/fetch success and soft-fills image_url* + setState
+ *  - does NOT mount native <input type=file>
+ */
 (function () {
-  var CAS_UPLOAD_VERSION = "1.4.19";
+  var CAS_UPLOAD_VERSION = "1.4.20";
   if (window.__casAdUploadVersion === CAS_UPLOAD_VERSION) return;
   window.__casAdUploadVersion = CAS_UPLOAD_VERSION;
 
   var FIELDS = ["image_url", "image_url_desktop", "image_url_mobile"];
-  var UPLOAD_URL = "/api/modules/custom-ad_slots/admin/uploads";
-  var MAX_BYTES = 5 * 1024 * 1024;
-  var ACCEPT = "image/jpeg,image/png,image/gif,image/webp,.jpg,.jpeg,.png,.gif,.webp";
-
-  function csrfToken() {
-    var meta = document.querySelector('meta[name="csrf-token"]');
-    if (meta && meta.getAttribute("content")) return String(meta.getAttribute("content"));
-    var inp = document.querySelector('input[name="_token"]');
-    if (inp && inp.value) return String(inp.value);
-    try {
-      if (window.G7Core && window.G7Core.csrf) return String(window.G7Core.csrf);
-    } catch (e) {}
-    return "";
-  }
-
-  function authToken() {
-    try {
-      var t = localStorage.getItem("auth_token") || localStorage.getItem("access_token") || "";
-      if (t) return String(t);
-    } catch (e) {}
-    try {
-      if (window.G7Core && window.G7Core.api) {
-        if (typeof window.G7Core.api.getToken === "function") {
-          var g = window.G7Core.api.getToken();
-          if (g) return String(g);
-        }
-        if (window.G7Core.api.token) return String(window.G7Core.api.token);
-      }
-    } catch (e2) {}
-    return "";
-  }
-
-  function authHeaders() {
-    var h = { Accept: "application/json", "X-Requested-With": "XMLHttpRequest" };
-    var csrf = csrfToken();
-    if (csrf) h["X-CSRF-TOKEN"] = csrf;
-    try {
-      var m = document.cookie.match(/(?:^|; )XSRF-TOKEN=([^;]*)/);
-      if (m) h["X-XSRF-TOKEN"] = decodeURIComponent(m[1]);
-    } catch (e) {}
-    var at = authToken();
-    if (at) h["Authorization"] = "Bearer " + at;
-    return h;
-  }
+  var UPLOAD_PATH = "/api/modules/custom-ad_slots/admin/uploads";
 
   function isAdSlotFormPage() {
     var p = String(location.pathname || "");
-    return /\/admin\/ad-slots\/(create|\d+\/edit)\/?$/.test(p);
-  }
-
-  function setStatus(el, text, isError) {
-    if (!el) return;
-    el.textContent = text || "";
-    el.style.color = isError ? "#b91c1c" : "#6b7280";
+    return /\/admin\/ad-slots\/(create|\d+\/edit)\/?$/.test(p) ||
+      /\/admin\/.*ad[_-]?slots.*(create|edit)/i.test(p);
   }
 
   function dispatchSetState(partial) {
@@ -80,7 +37,7 @@
     return nodes[nodes.length - 1];
   }
 
-  function setUrlField(field, url, uploadId) {
+  function setUrlField(field, url) {
     url = url == null ? "" : String(url);
     var input = findUrlInput(field);
     if (input) {
@@ -96,36 +53,9 @@
         input.dispatchEvent(new Event("change", { bubbles: true }));
       } catch (e2) {}
     }
-
     var patch = {};
     patch["form." + field] = url;
     dispatchSetState(patch);
-
-    var mount = document.querySelector('[data-cas-ad-upload-field="' + field + '"]');
-    if (mount) {
-      if (uploadId) mount.setAttribute("data-cas-upload-id", String(uploadId));
-      else mount.removeAttribute("data-cas-upload-id");
-    }
-
-    syncPreview(field, url);
-  }
-
-  function syncPreview(field, url) {
-    var img = document.querySelector('[data-cas-ad-preview="' + field + '"]');
-    var wrap = document.querySelector('[data-cas-ad-preview-wrap="' + field + '"]');
-    var clearBtn = document.querySelector('[data-cas-ad-clear="' + field + '"]');
-    url = (url || "").trim();
-    if (img) {
-      if (url) {
-        img.setAttribute("src", url);
-        img.style.display = "";
-      } else {
-        img.removeAttribute("src");
-        img.style.display = "none";
-      }
-    }
-    if (wrap) wrap.style.display = url ? "" : "none";
-    if (clearBtn) clearBtn.style.display = url ? "" : "none";
   }
 
   function extractUrl(json) {
@@ -141,194 +71,95 @@
     return String(json.download_url || json.url || "");
   }
 
-  function extractId(json) {
-    if (!json || typeof json !== "object") return "";
-    var d = json.data;
-    if (d && typeof d === "object") {
-      if (d.data && d.data.id) return String(d.data.id);
-      if (d.id) return String(d.id);
-    }
-    return json.id ? String(json.id) : "";
-  }
-
-  function encodePathId(path) {
+  function extractFieldFromUrl(url) {
     try {
-      var b64 = btoa(path).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "");
-      return b64;
-    } catch (e) {
-      return "";
-    }
+      var u = new URL(url, location.origin);
+      var f = u.searchParams.get("field");
+      if (f && FIELDS.indexOf(f) >= 0) return f;
+    } catch (e) {}
+    return "";
   }
 
-  function idFromUrl(url) {
-    var m = String(url || "").match(/(custom-ad_slots\/\d{4}\/\d{2}\/\d{2}\/[A-Za-z0-9._-]+)/);
-    if (!m) return "";
-    return encodePathId(m[1]);
+  function ensureUploadToken() {
+    if (!isAdSlotFormPage()) return;
+    try {
+      var existing = "";
+      var tokenInput = document.querySelector('input[name="upload_token"]');
+      if (tokenInput && tokenInput.value) existing = String(tokenInput.value).trim();
+      if (existing) return;
+      var token =
+        (window.crypto && crypto.randomUUID && crypto.randomUUID().replace(/-/g, "")) ||
+        Array.from({ length: 32 }, function () {
+          return Math.floor(Math.random() * 16).toString(16);
+        }).join("");
+      dispatchSetState({ "form.upload_token": token });
+    } catch (e) {}
   }
 
-  function uploadFile(field, file, statusEl, fileInput) {
-    if (!file) return;
-    if (file.size > MAX_BYTES) {
-      setStatus(statusEl, "Max 5MB", true);
-      return;
-    }
-    setStatus(statusEl, "Uploading…", false);
-    var fd = new FormData();
-    fd.append("file", file);
-    fd.append("field", field);
-
-    fetch(UPLOAD_URL + "?field=" + encodeURIComponent(field), {
-      method: "POST",
-      credentials: "include",
-      headers: authHeaders(),
-      body: fd,
-    })
-      .then(function (res) {
-        return res.json().then(function (js) {
-          return { ok: res.ok, status: res.status, js: js };
-        });
-      })
-      .then(function (r) {
-        if (!r.ok) {
-          var msg =
-            (r.js && (r.js.message || r.js.error || (r.js.errors && JSON.stringify(r.js.errors)))) ||
-            "Upload failed (" + r.status + ")";
-          setStatus(statusEl, String(msg), true);
-          return;
-        }
-        var url = extractUrl(r.js);
-        var id = extractId(r.js) || idFromUrl(url);
-        if (!url) {
-          setStatus(statusEl, "Upload ok but no URL in response", true);
-          return;
-        }
-        setUrlField(field, url, id);
-        setStatus(statusEl, "Uploaded", false);
-        if (fileInput) fileInput.value = "";
-      })
-      .catch(function (err) {
-        setStatus(statusEl, (err && err.message) || "Upload failed", true);
-      });
+  function handleUploadResponse(requestUrl, json) {
+    if (!json) return;
+    var field = extractFieldFromUrl(requestUrl);
+    var url = extractUrl(json);
+    if (!field || !url) return;
+    setUrlField(field, url);
   }
 
-  function clearField(field, statusEl) {
-    var mount = document.querySelector('[data-cas-ad-upload-field="' + field + '"]');
-    var uploadId =
-      (mount && mount.getAttribute("data-cas-upload-id")) ||
-      idFromUrl((findUrlInput(field) && findUrlInput(field).value) || "");
-    setUrlField(field, "", "");
-    setStatus(statusEl, "", false);
-
-    var delId = uploadId || "noop";
-    fetch(UPLOAD_URL + "/" + encodeURIComponent(delId) + "?field=" + encodeURIComponent(field), {
-      method: "DELETE",
-      credentials: "include",
-      headers: authHeaders(),
-    }).catch(function () {});
-  }
-
-  function ensureMount(field) {
-    var mount = document.querySelector('[data-cas-ad-upload-field="' + field + '"]');
-    if (!mount) return null;
-    var existingFile = mount.querySelector('input[data-cas-ad-file="' + field + '"]');
-    if (mount.getAttribute("data-cas-upload-ready") === "1" && existingFile) return mount;
-
-    mount.setAttribute("data-cas-upload-ready", "1");
-    mount.innerHTML = "";
-    mount.style.display = "flex";
-    mount.style.flexWrap = "wrap";
-    mount.style.alignItems = "center";
-    mount.style.gap = "0.5rem";
-    mount.style.marginTop = "0.35rem";
-
-    var file = document.createElement("input");
-    file.type = "file";
-    file.accept = ACCEPT;
-    file.className = "input w-full max-w-md text-sm";
-    file.setAttribute("data-cas-ad-file", field);
-
-    var status = document.createElement("span");
-    status.className = "text-xs";
-    status.setAttribute("data-cas-ad-status", field);
-
-    var clear = document.createElement("button");
-    clear.type = "button";
-    clear.textContent = "Clear";
-    clear.className = "btn btn-secondary btn-sm text-xs";
-    clear.setAttribute("data-cas-ad-clear", field);
-    clear.style.display = "none";
-
-    file.addEventListener("change", function () {
-      var f = file.files && file.files[0];
-      if (f) uploadFile(field, f, status, file);
-    });
-    clear.addEventListener("click", function (ev) {
-      ev.preventDefault();
-      clearField(field, status);
-    });
-
-    mount.appendChild(file);
-    mount.appendChild(clear);
-    mount.appendChild(status);
-
-    // Layout may also render Img + clear; keep JS clear as fallback.
-    var existingUrl = "";
-    var input = findUrlInput(field);
-    if (input && input.value) existingUrl = String(input.value).trim();
-    if (existingUrl) {
-      mount.setAttribute("data-cas-upload-id", idFromUrl(existingUrl) || "");
-      syncPreview(field, existingUrl);
-      clear.style.display = "";
-    }
-
-    return mount;
-  }
-
-  function syncFromInputs() {
-    FIELDS.forEach(function (field) {
-      var input = findUrlInput(field);
-      if (!input) return;
-      syncPreview(field, input.value || "");
-      if (!input.__casUrlBound) {
-        input.__casUrlBound = true;
-        input.addEventListener("input", function () {
-          syncPreview(field, input.value || "");
-        });
-        input.addEventListener("change", function () {
-          syncPreview(field, input.value || "");
-          // Empty typed URL → forget remember on server
-          if (!(input.value || "").trim()) {
-            fetch(UPLOAD_URL + "/noop?field=" + encodeURIComponent(field), {
-              method: "DELETE",
-              credentials: "include",
-              headers: authHeaders(),
+  function patchFetch() {
+    if (window.__casFetchPatched) return;
+    window.__casFetchPatched = true;
+    if (typeof window.fetch !== "function") return;
+    var orig = window.fetch;
+    window.fetch = function () {
+      var args = arguments;
+      var reqUrl = "";
+      try {
+        if (typeof args[0] === "string") reqUrl = args[0];
+        else if (args[0] && args[0].url) reqUrl = args[0].url;
+      } catch (e) {}
+      return orig.apply(this, args).then(function (res) {
+        try {
+          if (reqUrl && reqUrl.indexOf(UPLOAD_PATH) >= 0 && (args[1] && String(args[1].method || "GET").toUpperCase() === "POST" || (args[0] && args[0].method && String(args[0].method).toUpperCase() === "POST"))) {
+            res.clone().json().then(function (js) {
+              if (res.ok) handleUploadResponse(reqUrl, js);
             }).catch(function () {});
           }
-        });
-      }
-    });
+        } catch (e2) {}
+        return res;
+      });
+    };
   }
 
-  function bindLayoutClearButtons() {
-    FIELDS.forEach(function (field) {
-      document.querySelectorAll('[data-cas-ad-clear-btn="' + field + '"]').forEach(function (btn) {
-        if (btn.__casClearBound) return;
-        btn.__casClearBound = true;
-        btn.addEventListener("click", function (ev) {
-          ev.preventDefault();
-          var status = document.querySelector('[data-cas-ad-status="' + field + '"]');
-          clearField(field, status);
+  function patchXHR() {
+    if (window.__casXhrPatched) return;
+    window.__casXhrPatched = true;
+    var open = XMLHttpRequest.prototype.open;
+    var send = XMLHttpRequest.prototype.send;
+    XMLHttpRequest.prototype.open = function (method, url) {
+      this.__casMethod = String(method || "");
+      this.__casUrl = String(url || "");
+      return open.apply(this, arguments);
+    };
+    XMLHttpRequest.prototype.send = function () {
+      var xhr = this;
+      if (xhr.__casUrl && xhr.__casUrl.indexOf(UPLOAD_PATH) >= 0 && String(xhr.__casMethod).toUpperCase() === "POST") {
+        xhr.addEventListener("load", function () {
+          if (xhr.status < 200 || xhr.status >= 300) return;
+          try {
+            handleUploadResponse(xhr.__casUrl, JSON.parse(xhr.responseText || "{}"));
+          } catch (e) {}
         });
-      });
-    });
+      }
+      return send.apply(this, arguments);
+    };
   }
 
   function boot() {
     if (!isAdSlotFormPage()) return;
-    FIELDS.forEach(ensureMount);
-    syncFromInputs();
-    bindLayoutClearButtons();
+    ensureUploadToken();
   }
+
+  patchFetch();
+  patchXHR();
 
   var timer = null;
   function schedule() {
@@ -360,7 +191,4 @@
     var mo = new MutationObserver(schedule);
     mo.observe(document.documentElement, { childList: true, subtree: true });
   } catch (eM) {}
-  setInterval(function () {
-    if (isAdSlotFormPage()) boot();
-  }, 1500);
 })();

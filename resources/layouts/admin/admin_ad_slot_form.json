@@ -24,7 +24,39 @@
             "refetchOnMount": true,
             "fallback": {
                 "data": null
-            }
+            },
+            "onSuccess": [
+                {
+                    "handler": "setState",
+                    "params": {
+                        "target": "local",
+                        "form.upload_token": "{{_local.form.upload_token || defaults.data.upload_token || ''}}"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "defaults",
+            "type": "api",
+            "endpoint": "/api/modules/custom-ad_slots/admin/form-defaults",
+            "method": "GET",
+            "auto_fetch": true,
+            "auth_required": true,
+            "refetchOnMount": true,
+            "fallback": {
+                "data": {
+                    "upload_token": ""
+                }
+            },
+            "onSuccess": [
+                {
+                    "handler": "setState",
+                    "params": {
+                        "target": "local",
+                        "form.upload_token": "{{response.data.upload_token || _local.form.upload_token || defaults.data.upload_token || ''}}"
+                    }
+                }
+            ]
         }
     ],
     "init_actions": [
@@ -63,7 +95,14 @@
                     "aspect_mobile": "",
                     "width_px": "",
                     "height_px": "",
-                    "max_width_px": ""
+                    "max_width_px": "",
+                    "uploader_image_url": [],
+                    "uploader_image_url_desktop": [],
+                    "uploader_image_url_mobile": [],
+                    "upload_token": "",
+                    "image_url_count": 0,
+                    "image_url_desktop_count": 0,
+                    "image_url_mobile_count": 0
                 },
                 "errors": null,
                 "saving": false
@@ -76,6 +115,13 @@
                 "target": "local",
                 "errors": null,
                 "saving": false
+            }
+        },
+        {
+            "handler": "setState",
+            "params": {
+                "target": "local",
+                "form.upload_token": "{{_local.form.upload_token || defaults.data.upload_token || ''}}"
             }
         }
     ],
@@ -443,11 +489,27 @@
                                         "actions": [
                                             {
                                                 "type": "change",
-                                                "handler": "setState",
-                                                "params": {
-                                                    "target": "local",
-                                                    "form.image_url": "{{$event.target.value}}"
-                                                }
+                                                "handler": "sequence",
+                                                "actions": [
+                                                    {
+                                                        "handler": "setState",
+                                                        "params": {
+                                                            "target": "local",
+                                                            "form.image_url": "{{$event.target.value}}"
+                                                        }
+                                                    },
+                                                    {
+                                                        "handler": "apiCall",
+                                                        "if": "{{!($event.target.value && ('' + $event.target.value).trim())}}",
+                                                        "auth_required": true,
+                                                        "target": "/api/modules/custom-ad_slots/admin/uploads/noop?field=image_url",
+                                                        "params": {
+                                                            "method": "DELETE"
+                                                        },
+                                                        "onSuccess": [],
+                                                        "onError": []
+                                                    }
+                                                ]
                                             }
                                         ]
                                     },
@@ -456,7 +518,7 @@
                                         "name": "Div",
                                         "type": "basic",
                                         "props": {
-                                            "className": "mt-2 space-y-2"
+                                            "className": "mt-2"
                                         },
                                         "children": [
                                             {
@@ -468,57 +530,53 @@
                                                 "text": "$t:custom-ad_slots.admin.ads.form.fields.upload_hint"
                                             },
                                             {
-                                                "id": "cas_upload_mount_image_url",
-                                                "name": "Div",
-                                                "type": "basic",
+                                                "id": "fu_image_url",
+                                                "type": "composite",
+                                                "name": "FileUploader",
                                                 "props": {
-                                                    "className": "cas-ad-upload-mount",
-                                                    "data-cas-ad-upload-field": "image_url"
-                                                },
-                                                "children": []
-                                            },
-                                            {
-                                                "id": "cas_preview_wrap_image_url",
-                                                "name": "Div",
-                                                "type": "basic",
-                                                "if": "{{!!(_local.form?.image_url || ad?.data?.image_url || ad?.data?.data?.image_url)}}",
-                                                "props": {
-                                                    "className": "mt-2 flex flex-wrap items-start gap-3",
-                                                    "data-cas-ad-preview-wrap": "image_url"
-                                                },
-                                                "children": [
-                                                    {
-                                                        "name": "Img",
-                                                        "type": "basic",
-                                                        "props": {
-                                                            "src": "{{_local.form?.image_url || ad?.data?.image_url || ad?.data?.data?.image_url || ''}}",
-                                                            "alt": "image_url",
-                                                            "className": "max-h-40 rounded border border-gray-200 dark:border-gray-700 object-contain bg-gray-50 dark:bg-gray-900",
-                                                            "style": {
-                                                                "maxHeight": "10rem",
-                                                                "objectFit": "contain"
-                                                            },
-                                                            "data-cas-ad-preview": "image_url"
-                                                        }
+                                                    "accept": ".jpg,.jpeg,.png,.gif,.webp,image/*",
+                                                    "apiEndpoints": {
+                                                        "upload": "/api/modules/custom-ad_slots/admin/uploads?field=image_url",
+                                                        "delete": "/api/modules/custom-ad_slots/admin/uploads/:id?field=image_url"
                                                     },
+                                                    "autoUpload": false,
+                                                    "className": "cas-ad-uploader w-full",
+                                                    "collection": "ad_slot_images",
+                                                    "confirmBeforeRemove": true,
+                                                    "initialFiles": "{{(_local.form?.uploader_image_url?.length ? _local.form.uploader_image_url : null) || (ad?.data?.uploader_image_url?.length ? ad.data.uploader_image_url : null) || (ad?.data?.data?.uploader_image_url?.length ? ad.data.data.uploader_image_url : null) || []}}",
+                                                    "maxFiles": 1,
+                                                    "maxSize": 5,
+                                                    "uploadTriggerEvent": "upload:ad_image_url",
+                                                    "key": "fu_image_url-{{_local.form?.id || (route?.id ? 'loading' : 'new')}}",
+                                                    "uploadParams": {
+                                                        "field": "image_url",
+                                                        "token": "{{_local.form.upload_token || defaults.data.upload_token}}",
+                                                        "upload_token": "{{_local.form.upload_token || defaults.data.upload_token}}"
+                                                    }
+                                                },
+                                                "actions": [
                                                     {
-                                                        "name": "Button",
-                                                        "type": "basic",
-                                                        "props": {
-                                                            "type": "button",
-                                                            "className": "btn btn-secondary btn-sm text-xs",
-                                                            "data-cas-ad-clear-btn": "image_url"
-                                                        },
+                                                        "event": "onFilesChange",
+                                                        "type": "change",
+                                                        "handler": "sequence",
                                                         "actions": [
                                                             {
-                                                                "type": "click",
+                                                                "handler": "setState",
+                                                                "params": {
+                                                                    "target": "local",
+                                                                    "form.image_url_count": "{{($args[0] && $args[0].length) || 0}}"
+                                                                }
+                                                            },
+                                                            {
                                                                 "handler": "sequence",
+                                                                "if": "{{!($args[0] && $args[0].length)}}",
                                                                 "actions": [
                                                                     {
                                                                         "handler": "setState",
                                                                         "params": {
                                                                             "target": "local",
-                                                                            "form.image_url": ""
+                                                                            "form.image_url": "",
+                                                                            "form.uploader_image_url": []
                                                                         }
                                                                     },
                                                                     {
@@ -526,19 +584,85 @@
                                                                         "auth_required": true,
                                                                         "target": "/api/modules/custom-ad_slots/admin/uploads/noop?field=image_url",
                                                                         "params": {
-                                                                            "method": "DELETE"
+                                                                            "method": "DELETE",
+                                                                            "body": {
+                                                                                "upload_token": "{{_local.form.upload_token || defaults.data.upload_token || ''}}"
+                                                                            }
                                                                         },
                                                                         "onSuccess": [],
                                                                         "onError": []
                                                                     }
                                                                 ]
                                                             }
-                                                        ],
-                                                        "children": [
+                                                        ]
+                                                    },
+                                                    {
+                                                        "event": "onUploadError",
+                                                        "type": "change",
+                                                        "handler": "toast",
+                                                        "params": {
+                                                            "type": "error",
+                                                            "message": "{{$args[0] || $args.message || $t:custom-ad_slots.admin.ads.form.fields.upload_error}}"
+                                                        }
+                                                    },
+                                                    {
+                                                        "event": "onDelete",
+                                                        "type": "change",
+                                                        "handler": "sequence",
+                                                        "actions": [
                                                             {
-                                                                "type": "basic",
-                                                                "name": "Span",
-                                                                "text": "$t:custom-ad_slots.admin.ads.form.fields.clear_image"
+                                                                "handler": "setState",
+                                                                "params": {
+                                                                    "target": "local",
+                                                                    "form.image_url": "",
+                                                                    "form.uploader_image_url": [],
+                                                                    "form.image_url_count": 0
+                                                                }
+                                                            },
+                                                            {
+                                                                "handler": "apiCall",
+                                                                "auth_required": true,
+                                                                "target": "/api/modules/custom-ad_slots/admin/uploads/noop?field=image_url",
+                                                                "params": {
+                                                                    "method": "DELETE",
+                                                                    "body": {
+                                                                        "upload_token": "{{_local.form.upload_token || defaults.data.upload_token || ''}}"
+                                                                    }
+                                                                },
+                                                                "onSuccess": [],
+                                                                "onError": []
+                                                            }
+                                                        ]
+                                                    },
+                                                    {
+                                                        "event": "onRemove",
+                                                        "type": "change",
+                                                        "handler": "sequence",
+                                                        "actions": [
+                                                            {
+                                                                "handler": "setState",
+                                                                "params": {
+                                                                    "target": "local",
+                                                                    "form.image_url": "",
+                                                                    "form.uploader_image_url": [],
+                                                                    "form.image_url_count": 0
+                                                                }
+                                                            }
+                                                        ]
+                                                    },
+                                                    {
+                                                        "event": "onFileRemove",
+                                                        "type": "change",
+                                                        "handler": "sequence",
+                                                        "actions": [
+                                                            {
+                                                                "handler": "setState",
+                                                                "params": {
+                                                                    "target": "local",
+                                                                    "form.image_url": "",
+                                                                    "form.uploader_image_url": [],
+                                                                    "form.image_url_count": 0
+                                                                }
                                                             }
                                                         ]
                                                     }
@@ -583,11 +707,27 @@
                                         "actions": [
                                             {
                                                 "type": "change",
-                                                "handler": "setState",
-                                                "params": {
-                                                    "target": "local",
-                                                    "form.image_url_desktop": "{{$event.target.value}}"
-                                                }
+                                                "handler": "sequence",
+                                                "actions": [
+                                                    {
+                                                        "handler": "setState",
+                                                        "params": {
+                                                            "target": "local",
+                                                            "form.image_url_desktop": "{{$event.target.value}}"
+                                                        }
+                                                    },
+                                                    {
+                                                        "handler": "apiCall",
+                                                        "if": "{{!($event.target.value && ('' + $event.target.value).trim())}}",
+                                                        "auth_required": true,
+                                                        "target": "/api/modules/custom-ad_slots/admin/uploads/noop?field=image_url_desktop",
+                                                        "params": {
+                                                            "method": "DELETE"
+                                                        },
+                                                        "onSuccess": [],
+                                                        "onError": []
+                                                    }
+                                                ]
                                             }
                                         ]
                                     },
@@ -596,7 +736,7 @@
                                         "name": "Div",
                                         "type": "basic",
                                         "props": {
-                                            "className": "mt-2 space-y-2"
+                                            "className": "mt-2"
                                         },
                                         "children": [
                                             {
@@ -608,57 +748,53 @@
                                                 "text": "$t:custom-ad_slots.admin.ads.form.fields.upload_hint"
                                             },
                                             {
-                                                "id": "cas_upload_mount_image_url_desktop",
-                                                "name": "Div",
-                                                "type": "basic",
+                                                "id": "fu_image_url_desktop",
+                                                "type": "composite",
+                                                "name": "FileUploader",
                                                 "props": {
-                                                    "className": "cas-ad-upload-mount",
-                                                    "data-cas-ad-upload-field": "image_url_desktop"
-                                                },
-                                                "children": []
-                                            },
-                                            {
-                                                "id": "cas_preview_wrap_image_url_desktop",
-                                                "name": "Div",
-                                                "type": "basic",
-                                                "if": "{{!!(_local.form?.image_url_desktop || ad?.data?.image_url_desktop || ad?.data?.data?.image_url_desktop)}}",
-                                                "props": {
-                                                    "className": "mt-2 flex flex-wrap items-start gap-3",
-                                                    "data-cas-ad-preview-wrap": "image_url_desktop"
-                                                },
-                                                "children": [
-                                                    {
-                                                        "name": "Img",
-                                                        "type": "basic",
-                                                        "props": {
-                                                            "src": "{{_local.form?.image_url_desktop || ad?.data?.image_url_desktop || ad?.data?.data?.image_url_desktop || ''}}",
-                                                            "alt": "image_url_desktop",
-                                                            "className": "max-h-40 rounded border border-gray-200 dark:border-gray-700 object-contain bg-gray-50 dark:bg-gray-900",
-                                                            "style": {
-                                                                "maxHeight": "10rem",
-                                                                "objectFit": "contain"
-                                                            },
-                                                            "data-cas-ad-preview": "image_url_desktop"
-                                                        }
+                                                    "accept": ".jpg,.jpeg,.png,.gif,.webp,image/*",
+                                                    "apiEndpoints": {
+                                                        "upload": "/api/modules/custom-ad_slots/admin/uploads?field=image_url_desktop",
+                                                        "delete": "/api/modules/custom-ad_slots/admin/uploads/:id?field=image_url_desktop"
                                                     },
+                                                    "autoUpload": false,
+                                                    "className": "cas-ad-uploader w-full",
+                                                    "collection": "ad_slot_images",
+                                                    "confirmBeforeRemove": true,
+                                                    "initialFiles": "{{(_local.form?.uploader_image_url_desktop?.length ? _local.form.uploader_image_url_desktop : null) || (ad?.data?.uploader_image_url_desktop?.length ? ad.data.uploader_image_url_desktop : null) || (ad?.data?.data?.uploader_image_url_desktop?.length ? ad.data.data.uploader_image_url_desktop : null) || []}}",
+                                                    "maxFiles": 1,
+                                                    "maxSize": 5,
+                                                    "uploadTriggerEvent": "upload:ad_image_url_desktop",
+                                                    "key": "fu_image_url_desktop-{{_local.form?.id || (route?.id ? 'loading' : 'new')}}",
+                                                    "uploadParams": {
+                                                        "field": "image_url_desktop",
+                                                        "token": "{{_local.form.upload_token || defaults.data.upload_token}}",
+                                                        "upload_token": "{{_local.form.upload_token || defaults.data.upload_token}}"
+                                                    }
+                                                },
+                                                "actions": [
                                                     {
-                                                        "name": "Button",
-                                                        "type": "basic",
-                                                        "props": {
-                                                            "type": "button",
-                                                            "className": "btn btn-secondary btn-sm text-xs",
-                                                            "data-cas-ad-clear-btn": "image_url_desktop"
-                                                        },
+                                                        "event": "onFilesChange",
+                                                        "type": "change",
+                                                        "handler": "sequence",
                                                         "actions": [
                                                             {
-                                                                "type": "click",
+                                                                "handler": "setState",
+                                                                "params": {
+                                                                    "target": "local",
+                                                                    "form.image_url_desktop_count": "{{($args[0] && $args[0].length) || 0}}"
+                                                                }
+                                                            },
+                                                            {
                                                                 "handler": "sequence",
+                                                                "if": "{{!($args[0] && $args[0].length)}}",
                                                                 "actions": [
                                                                     {
                                                                         "handler": "setState",
                                                                         "params": {
                                                                             "target": "local",
-                                                                            "form.image_url_desktop": ""
+                                                                            "form.image_url_desktop": "",
+                                                                            "form.uploader_image_url_desktop": []
                                                                         }
                                                                     },
                                                                     {
@@ -666,19 +802,85 @@
                                                                         "auth_required": true,
                                                                         "target": "/api/modules/custom-ad_slots/admin/uploads/noop?field=image_url_desktop",
                                                                         "params": {
-                                                                            "method": "DELETE"
+                                                                            "method": "DELETE",
+                                                                            "body": {
+                                                                                "upload_token": "{{_local.form.upload_token || defaults.data.upload_token || ''}}"
+                                                                            }
                                                                         },
                                                                         "onSuccess": [],
                                                                         "onError": []
                                                                     }
                                                                 ]
                                                             }
-                                                        ],
-                                                        "children": [
+                                                        ]
+                                                    },
+                                                    {
+                                                        "event": "onUploadError",
+                                                        "type": "change",
+                                                        "handler": "toast",
+                                                        "params": {
+                                                            "type": "error",
+                                                            "message": "{{$args[0] || $args.message || $t:custom-ad_slots.admin.ads.form.fields.upload_error}}"
+                                                        }
+                                                    },
+                                                    {
+                                                        "event": "onDelete",
+                                                        "type": "change",
+                                                        "handler": "sequence",
+                                                        "actions": [
                                                             {
-                                                                "type": "basic",
-                                                                "name": "Span",
-                                                                "text": "$t:custom-ad_slots.admin.ads.form.fields.clear_image"
+                                                                "handler": "setState",
+                                                                "params": {
+                                                                    "target": "local",
+                                                                    "form.image_url_desktop": "",
+                                                                    "form.uploader_image_url_desktop": [],
+                                                                    "form.image_url_desktop_count": 0
+                                                                }
+                                                            },
+                                                            {
+                                                                "handler": "apiCall",
+                                                                "auth_required": true,
+                                                                "target": "/api/modules/custom-ad_slots/admin/uploads/noop?field=image_url_desktop",
+                                                                "params": {
+                                                                    "method": "DELETE",
+                                                                    "body": {
+                                                                        "upload_token": "{{_local.form.upload_token || defaults.data.upload_token || ''}}"
+                                                                    }
+                                                                },
+                                                                "onSuccess": [],
+                                                                "onError": []
+                                                            }
+                                                        ]
+                                                    },
+                                                    {
+                                                        "event": "onRemove",
+                                                        "type": "change",
+                                                        "handler": "sequence",
+                                                        "actions": [
+                                                            {
+                                                                "handler": "setState",
+                                                                "params": {
+                                                                    "target": "local",
+                                                                    "form.image_url_desktop": "",
+                                                                    "form.uploader_image_url_desktop": [],
+                                                                    "form.image_url_desktop_count": 0
+                                                                }
+                                                            }
+                                                        ]
+                                                    },
+                                                    {
+                                                        "event": "onFileRemove",
+                                                        "type": "change",
+                                                        "handler": "sequence",
+                                                        "actions": [
+                                                            {
+                                                                "handler": "setState",
+                                                                "params": {
+                                                                    "target": "local",
+                                                                    "form.image_url_desktop": "",
+                                                                    "form.uploader_image_url_desktop": [],
+                                                                    "form.image_url_desktop_count": 0
+                                                                }
                                                             }
                                                         ]
                                                     }
@@ -723,11 +925,27 @@
                                         "actions": [
                                             {
                                                 "type": "change",
-                                                "handler": "setState",
-                                                "params": {
-                                                    "target": "local",
-                                                    "form.image_url_mobile": "{{$event.target.value}}"
-                                                }
+                                                "handler": "sequence",
+                                                "actions": [
+                                                    {
+                                                        "handler": "setState",
+                                                        "params": {
+                                                            "target": "local",
+                                                            "form.image_url_mobile": "{{$event.target.value}}"
+                                                        }
+                                                    },
+                                                    {
+                                                        "handler": "apiCall",
+                                                        "if": "{{!($event.target.value && ('' + $event.target.value).trim())}}",
+                                                        "auth_required": true,
+                                                        "target": "/api/modules/custom-ad_slots/admin/uploads/noop?field=image_url_mobile",
+                                                        "params": {
+                                                            "method": "DELETE"
+                                                        },
+                                                        "onSuccess": [],
+                                                        "onError": []
+                                                    }
+                                                ]
                                             }
                                         ]
                                     },
@@ -736,7 +954,7 @@
                                         "name": "Div",
                                         "type": "basic",
                                         "props": {
-                                            "className": "mt-2 space-y-2"
+                                            "className": "mt-2"
                                         },
                                         "children": [
                                             {
@@ -748,57 +966,53 @@
                                                 "text": "$t:custom-ad_slots.admin.ads.form.fields.upload_hint"
                                             },
                                             {
-                                                "id": "cas_upload_mount_image_url_mobile",
-                                                "name": "Div",
-                                                "type": "basic",
+                                                "id": "fu_image_url_mobile",
+                                                "type": "composite",
+                                                "name": "FileUploader",
                                                 "props": {
-                                                    "className": "cas-ad-upload-mount",
-                                                    "data-cas-ad-upload-field": "image_url_mobile"
-                                                },
-                                                "children": []
-                                            },
-                                            {
-                                                "id": "cas_preview_wrap_image_url_mobile",
-                                                "name": "Div",
-                                                "type": "basic",
-                                                "if": "{{!!(_local.form?.image_url_mobile || ad?.data?.image_url_mobile || ad?.data?.data?.image_url_mobile)}}",
-                                                "props": {
-                                                    "className": "mt-2 flex flex-wrap items-start gap-3",
-                                                    "data-cas-ad-preview-wrap": "image_url_mobile"
-                                                },
-                                                "children": [
-                                                    {
-                                                        "name": "Img",
-                                                        "type": "basic",
-                                                        "props": {
-                                                            "src": "{{_local.form?.image_url_mobile || ad?.data?.image_url_mobile || ad?.data?.data?.image_url_mobile || ''}}",
-                                                            "alt": "image_url_mobile",
-                                                            "className": "max-h-40 rounded border border-gray-200 dark:border-gray-700 object-contain bg-gray-50 dark:bg-gray-900",
-                                                            "style": {
-                                                                "maxHeight": "10rem",
-                                                                "objectFit": "contain"
-                                                            },
-                                                            "data-cas-ad-preview": "image_url_mobile"
-                                                        }
+                                                    "accept": ".jpg,.jpeg,.png,.gif,.webp,image/*",
+                                                    "apiEndpoints": {
+                                                        "upload": "/api/modules/custom-ad_slots/admin/uploads?field=image_url_mobile",
+                                                        "delete": "/api/modules/custom-ad_slots/admin/uploads/:id?field=image_url_mobile"
                                                     },
+                                                    "autoUpload": false,
+                                                    "className": "cas-ad-uploader w-full",
+                                                    "collection": "ad_slot_images",
+                                                    "confirmBeforeRemove": true,
+                                                    "initialFiles": "{{(_local.form?.uploader_image_url_mobile?.length ? _local.form.uploader_image_url_mobile : null) || (ad?.data?.uploader_image_url_mobile?.length ? ad.data.uploader_image_url_mobile : null) || (ad?.data?.data?.uploader_image_url_mobile?.length ? ad.data.data.uploader_image_url_mobile : null) || []}}",
+                                                    "maxFiles": 1,
+                                                    "maxSize": 5,
+                                                    "uploadTriggerEvent": "upload:ad_image_url_mobile",
+                                                    "key": "fu_image_url_mobile-{{_local.form?.id || (route?.id ? 'loading' : 'new')}}",
+                                                    "uploadParams": {
+                                                        "field": "image_url_mobile",
+                                                        "token": "{{_local.form.upload_token || defaults.data.upload_token}}",
+                                                        "upload_token": "{{_local.form.upload_token || defaults.data.upload_token}}"
+                                                    }
+                                                },
+                                                "actions": [
                                                     {
-                                                        "name": "Button",
-                                                        "type": "basic",
-                                                        "props": {
-                                                            "type": "button",
-                                                            "className": "btn btn-secondary btn-sm text-xs",
-                                                            "data-cas-ad-clear-btn": "image_url_mobile"
-                                                        },
+                                                        "event": "onFilesChange",
+                                                        "type": "change",
+                                                        "handler": "sequence",
                                                         "actions": [
                                                             {
-                                                                "type": "click",
+                                                                "handler": "setState",
+                                                                "params": {
+                                                                    "target": "local",
+                                                                    "form.image_url_mobile_count": "{{($args[0] && $args[0].length) || 0}}"
+                                                                }
+                                                            },
+                                                            {
                                                                 "handler": "sequence",
+                                                                "if": "{{!($args[0] && $args[0].length)}}",
                                                                 "actions": [
                                                                     {
                                                                         "handler": "setState",
                                                                         "params": {
                                                                             "target": "local",
-                                                                            "form.image_url_mobile": ""
+                                                                            "form.image_url_mobile": "",
+                                                                            "form.uploader_image_url_mobile": []
                                                                         }
                                                                     },
                                                                     {
@@ -806,19 +1020,85 @@
                                                                         "auth_required": true,
                                                                         "target": "/api/modules/custom-ad_slots/admin/uploads/noop?field=image_url_mobile",
                                                                         "params": {
-                                                                            "method": "DELETE"
+                                                                            "method": "DELETE",
+                                                                            "body": {
+                                                                                "upload_token": "{{_local.form.upload_token || defaults.data.upload_token || ''}}"
+                                                                            }
                                                                         },
                                                                         "onSuccess": [],
                                                                         "onError": []
                                                                     }
                                                                 ]
                                                             }
-                                                        ],
-                                                        "children": [
+                                                        ]
+                                                    },
+                                                    {
+                                                        "event": "onUploadError",
+                                                        "type": "change",
+                                                        "handler": "toast",
+                                                        "params": {
+                                                            "type": "error",
+                                                            "message": "{{$args[0] || $args.message || $t:custom-ad_slots.admin.ads.form.fields.upload_error}}"
+                                                        }
+                                                    },
+                                                    {
+                                                        "event": "onDelete",
+                                                        "type": "change",
+                                                        "handler": "sequence",
+                                                        "actions": [
                                                             {
-                                                                "type": "basic",
-                                                                "name": "Span",
-                                                                "text": "$t:custom-ad_slots.admin.ads.form.fields.clear_image"
+                                                                "handler": "setState",
+                                                                "params": {
+                                                                    "target": "local",
+                                                                    "form.image_url_mobile": "",
+                                                                    "form.uploader_image_url_mobile": [],
+                                                                    "form.image_url_mobile_count": 0
+                                                                }
+                                                            },
+                                                            {
+                                                                "handler": "apiCall",
+                                                                "auth_required": true,
+                                                                "target": "/api/modules/custom-ad_slots/admin/uploads/noop?field=image_url_mobile",
+                                                                "params": {
+                                                                    "method": "DELETE",
+                                                                    "body": {
+                                                                        "upload_token": "{{_local.form.upload_token || defaults.data.upload_token || ''}}"
+                                                                    }
+                                                                },
+                                                                "onSuccess": [],
+                                                                "onError": []
+                                                            }
+                                                        ]
+                                                    },
+                                                    {
+                                                        "event": "onRemove",
+                                                        "type": "change",
+                                                        "handler": "sequence",
+                                                        "actions": [
+                                                            {
+                                                                "handler": "setState",
+                                                                "params": {
+                                                                    "target": "local",
+                                                                    "form.image_url_mobile": "",
+                                                                    "form.uploader_image_url_mobile": [],
+                                                                    "form.image_url_mobile_count": 0
+                                                                }
+                                                            }
+                                                        ]
+                                                    },
+                                                    {
+                                                        "event": "onFileRemove",
+                                                        "type": "change",
+                                                        "handler": "sequence",
+                                                        "actions": [
+                                                            {
+                                                                "handler": "setState",
+                                                                "params": {
+                                                                    "target": "local",
+                                                                    "form.image_url_mobile": "",
+                                                                    "form.uploader_image_url_mobile": [],
+                                                                    "form.image_url_mobile_count": 0
+                                                                }
                                                             }
                                                         ]
                                                     }
@@ -1618,6 +1898,24 @@
                                                 }
                                             },
                                             {
+                                                "handler": "emitEvent",
+                                                "params": {
+                                                    "event": "upload:ad_image_url"
+                                                }
+                                            },
+                                            {
+                                                "handler": "emitEvent",
+                                                "params": {
+                                                    "event": "upload:ad_image_url_desktop"
+                                                }
+                                            },
+                                            {
+                                                "handler": "emitEvent",
+                                                "params": {
+                                                    "event": "upload:ad_image_url_mobile"
+                                                }
+                                            },
+                                            {
                                                 "handler": "apiCall",
                                                 "auth_required": true,
                                                 "target": "{{route?.id ? '/api/modules/custom-ad_slots/admin/ads/' + route?.id : '/api/modules/custom-ad_slots/admin/ads'}}",
@@ -1627,9 +1925,9 @@
                                                         "slot_key": "{{_local.form?.slot_key}}",
                                                         "type": "{{_local.form?.type}}",
                                                         "title": "{{_local.form?.title ?? ''}}",
-                                                        "image_url": "{{_local.form?.image_url ?? ''}}",
-                                                        "image_url_desktop": "{{_local.form?.image_url_desktop ?? ''}}",
-                                                        "image_url_mobile": "{{_local.form?.image_url_mobile ?? ''}}",
+                                                        "image_url": "{{_local.form?.image_url || _local.form?.uploader_image_url?.[0]?.download_url || _local.form?.uploader_image_url?.[0]?.url || ''}}",
+                                                        "image_url_desktop": "{{_local.form?.image_url_desktop || _local.form?.uploader_image_url_desktop?.[0]?.download_url || _local.form?.uploader_image_url_desktop?.[0]?.url || ''}}",
+                                                        "image_url_mobile": "{{_local.form?.image_url_mobile || _local.form?.uploader_image_url_mobile?.[0]?.download_url || _local.form?.uploader_image_url_mobile?.[0]?.url || ''}}",
                                                         "bg_color": "{{_local.form?.bg_color ?? ''}}",
                                                         "link_url": "{{_local.form?.link_url ?? ''}}",
                                                         "html_content": "{{_local.form?.html_content ?? ''}}",
@@ -1645,7 +1943,8 @@
                                                         "prevent_right_click": "{{!!_local.form?.prevent_right_click}}",
                                                         "open_in_new_tab": "{{!!_local.form?.open_in_new_tab}}",
                                                         "starts_at": "{{_local.form?.starts_at || null}}",
-                                                        "ends_at": "{{_local.form?.ends_at || null}}"
+                                                        "ends_at": "{{_local.form?.ends_at || null}}",
+                                                        "upload_token": "{{_local.form.upload_token || defaults.data.upload_token || ''}}"
                                                     }
                                                 },
                                                 "onSuccess": [
@@ -1718,7 +2017,7 @@
     "scripts": [
         {
             "id": "cas_ad_slot_image_upload",
-            "src": "/api/modules/custom-ad_slots/assets/ad-slot-image-upload.js?v=1.4.19",
+            "src": "/api/modules/custom-ad_slots/assets/ad-slot-image-upload.js?v=1.4.20",
             "async": true,
             "failOnError": false
         }

@@ -1,3 +1,31 @@
+## [1.4.20] - 2026-09-23
+
+### Fixed
+- **업로더 박스 UI 복원 (FileUploader):** 1.4.19 네이티브 `<input type=file>` 마운트를 제거하고, maker_bids `jobs_form` 패턴의 FileUploader 점선 박스(칩/1/1)를 레거시·데스크톱·모바일 세 필드에 복구.
+- **upload_token 저장 병합 (maker_bids claim 경로):**
+  - `GET /admin/form-defaults` → `upload_token` 발급 → 폼/`uploadParams`로 전달.
+  - 업로드 시 서버가 `(user, token, field)`로 URL 스테이징.
+  - 저장 시 FileUploader `uploadTriggerEvent` emit 후 apiCall; body의 `upload_token`으로 `mergeRememberedUrls`가 빈 `image_url*`를 채움.
+  - **onUploadComplete → form.image_url setState에 의존하지 않음** (취약 경로 제거).
+- **onFilesChange 단순화:** 카운트만(+빈 배열일 때만 URL/forget 클리어). remount/재emit/path 게이트/remembered GET 루프 없음.
+- Save `disabled`는 `_local.saving`만. `uploading_*` 플래그 제거.
+- Assist JS는 FileUploader 성공 XHR/fetch 관찰 + token 보정만 (네이티브 file input 주입 없음).
+
+### Unchanged
+- 크롬 `admin-page-content-responsive` only. `files`/`value` two-way 바인딩 없음.
+- FileUploader `key`는 form id 안정 identity만 (has/empty remount 금지).
+- clear/remove → URL 비움 + forget(+가능 시 파일 삭제) → 저장 시 DB null.
+
+### Meta
+- Version **1.4.20**. 관리자 업로드 JS `ad-slot-image-upload.js?v=1.4.20`. 광고 JS `hero-carousel.js?v=1.4.20`.
+
+### Deploy
+```
+php82 artisan module:update custom-ad_slots
+php82 artisan cache:clear
+php82 artisan view:clear
+```
+
 ## [1.4.19] - 2026-09-23
 
 ### Fixed
