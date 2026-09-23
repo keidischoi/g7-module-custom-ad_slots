@@ -1,4 +1,4 @@
-/*! custom-ad_slots — admin FileUploader assist (upload_token + hydrate + URL sync), v1.4.23
+/*! custom-ad_slots — admin FileUploader assist (upload_token + hydrate + URL sync), v1.4.24
  * Visible control is layout FileUploader (maker_bids pattern). This script:
  *  - ensures form.upload_token exists (fallback if form-defaults slow)
  *  - hydrates image_url* Inputs + _local.form from GET /admin/ads/:id (edit load)
@@ -7,7 +7,7 @@
  * Collections are per-field (ad_slot_image_url*); do not write one URL into sibling fields.
  */
 (function () {
-  var CAS_UPLOAD_VERSION = "1.4.23";
+  var CAS_UPLOAD_VERSION = "1.4.24";
   if (window.__casAdUploadVersion === CAS_UPLOAD_VERSION) return;
   window.__casAdUploadVersion = CAS_UPLOAD_VERSION;
 

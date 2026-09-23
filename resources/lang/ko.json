@@ -1,205 +1,206 @@
 {
-    "admin": {
-        "ads": {
-            "index": {
-                "title": "광고 슬롯",
-                "description": "홈/쇼핑몰/인기글 영역별 광고를 관리합니다.",
-                "empty": "등록된 광고가 없습니다. 광고를 추가해 주세요.",
-                "edit": "수정",
-                "delete": "삭제",
-                "toggle": "활성 전환",
-                "delete_success": "광고가 삭제되었습니다.",
-                "toggle_success": "활성 상태가 변경되었습니다.",
-                "active": "활성",
-                "inactive": "비활성",
-                "duplicate": "복제",
-                "duplicate_success": "광고가 복제되었습니다. (비활성)",
-                "activate": "활성화하기",
-                "deactivate": "비활성하기",
-                "slot_defaults": "슬롯 기본 크기 일괄적용"
-            },
-            "form": {
-                "title_create": "광고 추가",
-                "title_edit": "광고 수정",
-                "description": "광고 슬롯 항목을 생성하거나 수정합니다.",
-                "validation_error": "입력값을 확인해 주세요.",
-                "create_success": "광고가 등록되었습니다.",
-                "update_success": "광고가 수정되었습니다.",
-                "type_static": "정적 (이미지)",
-                "type_dynamic": "동적 (HTML/스크립트)",
-                "fields": {
-                    "slot_key": "슬롯 위치",
-                    "type": "유형",
-                    "title": "제목",
-                    "title_placeholder": "관리용 제목",
-                    "image_url": "이미지 URL (레거시 폴백)",
-                    "image_url_desktop": "데스크톱/히어로 이미지 URL",
-                    "image_url_mobile": "모바일 이미지 URL",
-                    "bg_color": "배경색 (레터박스)",
-                    "link_url": "링크 URL",
-                    "html_content": "HTML 콘텐츠",
-                    "html_content_placeholder": "동적 광고 HTML (신뢰된 콘텐츠만)",
-                    "script_src": "스크립트 SRC",
-                    "sort_order": "정렬 순서",
-                    "is_active": "활성화",
-                    "starts_at": "시작 일시",
-                    "ends_at": "종료 일시",
-                    "datetime_placeholder": "날짜·시간 선택",
-                    "datetime_hint": "달력에서 날짜를 고르고, 시간을 선택하세요. 비우면 제한 없음.",
-                    "prevent_right_click": "우클릭 방지",
-                    "prevent_right_click_hint": "브라우저 우클릭 메뉴만 막습니다",
-                    "open_in_new_tab": "새 창에서 열기",
-                    "open_in_new_tab_hint": "끄면 같은 창에서 광고 링크로 이동합니다",
-                    "size_mode": "크기 모드",
-                    "size_mode_inherit": "슬롯 기본값 사용",
-                    "size_mode_ratio": "비율 (ratio)",
-                    "size_mode_fixed": "너비·높이 강제 (fixed)",
-                    "size_mode_hint": "비우면 슬롯 기본값을 사용합니다.",
-                    "aspect_desktop": "데스크톱 비율",
-                    "aspect_mobile": "모바일 비율",
-                    "aspect_placeholder": "예: 3/1",
-                    "aspect_hint": "비우면 슬롯 기본값. 예: 3/1 또는 2/1",
-                    "width_px": "너비 (px)",
-                    "height_px": "높이 (px)",
-                    "max_width_px": "최대 너비 (px)",
-                    "width_px_hint": "비우면 컨테이너 100%",
-                    "height_px_hint": "fixed 모드에서 필수 (비우면 슬롯 기본값)",
-                    "max_width_px_hint": "선택. 비우면 제한 없음",
-                    "size_section": "표시 크기",
-                    "upload": "이미지 업로드",
-                    "upload_hint": "파일을 선택하면 바로 업로드되고 위 URL 칸과 미리보기가 채워집니다. 저장 시 DB에 URL이 기록됩니다. 지우기 후 저장하면 DB에서 제거됩니다.",
-                    "upload_success": "이미지를 업로드했습니다.",
-                    "upload_in_progress": "이미지 업로드 중…",
-                    "clear_image": "이미지 지우기"
-                }
-            }
-        },
-        "placements": {
-            "index": {
-                "title": "슬롯 기본 크기 일괄적용",
-                "description": "슬롯(placement)별 기본 크기 모드와 비율·고정 크기를 일괄 적용합니다. 광고 항목에서 비워 두면 이 값을 따릅니다.",
-                "edit": "수정",
-                "empty": "슬롯 설정이 없습니다.",
-                "row_label_ratio": "슬롯 기본 크기(비율) 일괄적용",
-                "row_label_fixed": "슬롯 기본 크기(크기) 일괄적용"
-            },
-            "form": {
-                "title_edit": "슬롯 기본 크기 일괄적용",
-                "description": "선택한 슬롯의 기본 표시 크기(비율 또는 고정)를 일괄 적용합니다.",
-                "update_success": "슬롯 기본 크기를 일괄 적용했습니다.",
-                "validation_error": "입력값을 확인해 주세요.",
-                "fields": {
-                    "slot_key": "슬롯",
-                    "size_mode": "크기 모드",
-                    "size_mode_ratio": "비율 (ratio)",
-                    "size_mode_fixed": "너비·높이 강제 (fixed)",
-                    "aspect_desktop": "데스크톱 비율",
-                    "aspect_mobile": "모바일 비율",
-                    "aspect_placeholder": "예: 3/1",
-                    "width_px": "너비 (px)",
-                    "height_px": "높이 (px)",
-                    "max_width_px": "최대 너비 (px)",
-                    "width_px_hint": "비우면 컨테이너 100%",
-                    "height_px_hint": "fixed 모드에서 필수",
-                    "max_width_px_hint": "선택"
-                },
-                "title_edit_ratio": "슬롯 기본 크기(비율) 일괄적용",
-                "title_edit_fixed": "슬롯 기본 크기(크기) 일괄적용",
-                "update_success_ratio": "슬롯 기본 크기(비율)를 일괄 적용했습니다.",
-                "update_success_fixed": "슬롯 기본 크기(크기)를 일괄 적용했습니다."
-            }
+  "admin": {
+    "ads": {
+      "index": {
+        "title": "광고 슬롯",
+        "description": "홈/쇼핑몰/인기글 영역별 광고를 관리합니다.",
+        "empty": "등록된 광고가 없습니다. 광고를 추가해 주세요.",
+        "edit": "수정",
+        "delete": "삭제",
+        "toggle": "활성 전환",
+        "delete_success": "광고가 삭제되었습니다.",
+        "toggle_success": "활성 상태가 변경되었습니다.",
+        "active": "활성",
+        "inactive": "비활성",
+        "duplicate": "복제",
+        "duplicate_success": "광고가 복제되었습니다. (비활성)",
+        "activate": "활성화하기",
+        "deactivate": "비활성하기",
+        "slot_defaults": "슬롯 기본크기"
+      },
+      "form": {
+        "title_create": "광고 추가",
+        "title_edit": "광고 수정",
+        "description": "광고 슬롯 항목을 생성하거나 수정합니다.",
+        "validation_error": "입력값을 확인해 주세요.",
+        "create_success": "광고가 등록되었습니다.",
+        "update_success": "광고가 수정되었습니다.",
+        "type_static": "정적 (이미지)",
+        "type_dynamic": "동적 (HTML/스크립트)",
+        "fields": {
+          "slot_key": "슬롯 위치",
+          "type": "유형",
+          "title": "제목",
+          "title_placeholder": "관리용 제목",
+          "image_url": "이미지 URL (레거시 폴백)",
+          "image_url_desktop": "데스크톱/히어로 이미지 URL",
+          "image_url_mobile": "모바일 이미지 URL",
+          "bg_color": "배경색 (레터박스)",
+          "link_url": "링크 URL",
+          "html_content": "HTML 콘텐츠",
+          "html_content_placeholder": "동적 광고 HTML (신뢰된 콘텐츠만)",
+          "script_src": "스크립트 SRC",
+          "sort_order": "정렬 순서",
+          "is_active": "활성화",
+          "starts_at": "시작 일시",
+          "ends_at": "종료 일시",
+          "datetime_placeholder": "날짜·시간 선택",
+          "datetime_hint": "달력에서 날짜를 고르고, 시간을 선택하세요. 비우면 제한 없음.",
+          "prevent_right_click": "우클릭 방지",
+          "prevent_right_click_hint": "브라우저 우클릭 메뉴만 막습니다",
+          "open_in_new_tab": "새 창에서 열기",
+          "open_in_new_tab_hint": "끄면 같은 창에서 광고 링크로 이동합니다",
+          "size_mode": "크기 모드",
+          "size_mode_inherit": "슬롯 기본값 사용",
+          "size_mode_ratio": "비율 (ratio)",
+          "size_mode_fixed": "너비·높이 강제 (fixed)",
+          "size_mode_hint": "비우면 슬롯 기본값을 사용합니다.",
+          "aspect_desktop": "데스크톱 비율",
+          "aspect_mobile": "모바일 비율",
+          "aspect_placeholder": "예: 3/1",
+          "aspect_hint": "비우면 슬롯 기본값. 예: 3/1 또는 2/1",
+          "width_px": "너비 (px)",
+          "height_px": "높이 (px)",
+          "max_width_px": "최대 너비 (px)",
+          "width_px_hint": "비우면 컨테이너 100%",
+          "height_px_hint": "fixed 모드에서 필수 (비우면 슬롯 기본값)",
+          "max_width_px_hint": "선택. 비우면 제한 없음",
+          "size_section": "표시 크기",
+          "upload": "이미지 업로드",
+          "upload_hint": "파일을 선택하면 바로 업로드되고 위 URL 칸과 미리보기가 채워집니다. 저장 시 DB에 URL이 기록됩니다. 지우기 후 저장하면 DB에서 제거됩니다.",
+          "upload_success": "이미지를 업로드했습니다.",
+          "upload_in_progress": "이미지 업로드 중…",
+          "clear_image": "이미지 지우기"
         }
+      }
     },
-    "slots": {
-        "home": {
-            "top": "홈 상단",
-            "mid": "홈 중단",
-            "bottom": "홈 하단"
+    "placements": {
+      "index": {
+        "title": "슬롯 기본크기",
+        "description": "슬롯(placement)별 기본 크기 모드와 비율·고정 크기를 설정합니다. 광고 항목에서 비워 두면 이 값을 따릅니다.",
+        "edit": "수정",
+        "empty": "슬롯 설정이 없습니다.",
+        "row_label_ratio": "슬롯 기본크기(비율)",
+        "row_label_fixed": "슬롯 기본크기(크기)",
+        "empty_hint": "테이블이 없거나 비어 있으면 php82 artisan migrate 후 다시 열어 주세요. (시드: home.top 등)"
+      },
+      "form": {
+        "title_edit": "슬롯 기본크기",
+        "description": "선택한 슬롯의 기본 표시 크기(비율 또는 고정)를 설정합니다.",
+        "update_success": "슬롯 기본크기를 저장했습니다.",
+        "validation_error": "입력값을 확인해 주세요.",
+        "fields": {
+          "slot_key": "슬롯",
+          "size_mode": "크기 모드",
+          "size_mode_ratio": "비율 (ratio)",
+          "size_mode_fixed": "너비·높이 강제 (fixed)",
+          "aspect_desktop": "데스크톱 비율",
+          "aspect_mobile": "모바일 비율",
+          "aspect_placeholder": "예: 3/1",
+          "width_px": "너비 (px)",
+          "height_px": "높이 (px)",
+          "max_width_px": "최대 너비 (px)",
+          "width_px_hint": "비우면 컨테이너 100%",
+          "height_px_hint": "fixed 모드에서 필수",
+          "max_width_px_hint": "선택"
         },
-        "shop": {
-            "list": {
-                "top": "쇼핑몰 목록 상단",
-                "bottom": "쇼핑몰 목록 하단"
-            },
-            "detail": {
-                "top": "상품 상세 상단",
-                "bottom": "상품 상세 하단"
-            },
-            "cart": {
-                "top": "장바구니 상단",
-                "bottom": "장바구니 하단"
-            }
-        },
-        "home.top": "홈 상단",
-        "home.mid": "홈 중단",
-        "home.bottom": "홈 하단",
-        "shop.list.top": "쇼핑몰 목록 상단",
-        "shop.detail.top": "상품 상세 상단",
-        "shop.cart.top": "장바구니 상단",
-        "board": {
-            "popular": {
-                "top": "인기글 상단",
-                "bottom": "인기글 하단"
-            },
-            "index": {
-                "top": "게시판 목록 상단",
-                "bottom": "게시판 목록 하단"
-            },
-            "show": {
-                "top": "게시글 상세 상단",
-                "bottom": "게시글 상세 하단"
-            },
-            "form": {
-                "top": "게시글 작성 상단",
-                "bottom": "게시글 작성 하단"
-            },
-            "boards": {
-                "top": "게시판 목록(전체) 상단",
-                "bottom": "게시판 목록(전체) 하단"
-            }
-        },
-        "board.popular.top": "인기글 상단",
-        "global": {
-            "top": "전체 · 상단",
-            "bottom": "전체 · 하단"
-        },
-        "global.top": "전체 · 상단",
-        "global.bottom": "전체 · 하단",
-        "shop.list.bottom": "쇼핑몰 목록 하단",
-        "shop.detail.bottom": "상품 상세 하단",
-        "shop.cart.bottom": "장바구니 하단",
-        "board.popular.bottom": "인기글 하단",
-        "board.index.top": "게시판 목록 상단",
-        "board.index.bottom": "게시판 목록 하단",
-        "board.show.top": "게시글 상세 상단",
-        "board.show.bottom": "게시글 상세 하단",
-        "board.form.top": "게시글 작성 상단",
-        "board.form.bottom": "게시글 작성 하단",
-        "board.boards.top": "게시판 목록(전체) 상단",
-        "board.boards.bottom": "게시판 목록(전체) 하단",
-        "mypage.top": "마이페이지 상단",
-        "mypage.bottom": "마이페이지 하단",
-        "mypage": {
-            "top": "마이페이지 상단",
-            "bottom": "마이페이지 하단"
-        },
-        "maker_bids": {
-            "top": "제작·입찰 상단",
-            "bottom": "제작·입찰 하단"
-        },
-        "share": {
-            "top": "공유 상단",
-            "bottom": "공유 하단"
-        },
-        "page": {
-            "top": "정적 페이지 상단",
-            "bottom": "정적 페이지 하단"
-        },
-        "maker_bids.top": "제작·입찰 상단",
-        "maker_bids.bottom": "제작·입찰 하단",
-        "share.top": "공유 상단",
-        "share.bottom": "공유 하단",
-        "page.top": "정적 페이지 상단",
-        "page.bottom": "정적 페이지 하단"
+        "title_edit_ratio": "슬롯 기본크기(비율)",
+        "title_edit_fixed": "슬롯 기본크기(크기)",
+        "update_success_ratio": "슬롯 기본크기(비율)를 저장했습니다.",
+        "update_success_fixed": "슬롯 기본크기(크기)를 저장했습니다."
+      }
     }
+  },
+  "slots": {
+    "home": {
+      "top": "홈 상단",
+      "mid": "홈 중단",
+      "bottom": "홈 하단"
+    },
+    "shop": {
+      "list": {
+        "top": "쇼핑몰 목록 상단",
+        "bottom": "쇼핑몰 목록 하단"
+      },
+      "detail": {
+        "top": "상품 상세 상단",
+        "bottom": "상품 상세 하단"
+      },
+      "cart": {
+        "top": "장바구니 상단",
+        "bottom": "장바구니 하단"
+      }
+    },
+    "home.top": "홈 상단",
+    "home.mid": "홈 중단",
+    "home.bottom": "홈 하단",
+    "shop.list.top": "쇼핑몰 목록 상단",
+    "shop.detail.top": "상품 상세 상단",
+    "shop.cart.top": "장바구니 상단",
+    "board": {
+      "popular": {
+        "top": "인기글 상단",
+        "bottom": "인기글 하단"
+      },
+      "index": {
+        "top": "게시판 목록 상단",
+        "bottom": "게시판 목록 하단"
+      },
+      "show": {
+        "top": "게시글 상세 상단",
+        "bottom": "게시글 상세 하단"
+      },
+      "form": {
+        "top": "게시글 작성 상단",
+        "bottom": "게시글 작성 하단"
+      },
+      "boards": {
+        "top": "게시판 목록(전체) 상단",
+        "bottom": "게시판 목록(전체) 하단"
+      }
+    },
+    "board.popular.top": "인기글 상단",
+    "global": {
+      "top": "전체 · 상단",
+      "bottom": "전체 · 하단"
+    },
+    "global.top": "전체 · 상단",
+    "global.bottom": "전체 · 하단",
+    "shop.list.bottom": "쇼핑몰 목록 하단",
+    "shop.detail.bottom": "상품 상세 하단",
+    "shop.cart.bottom": "장바구니 하단",
+    "board.popular.bottom": "인기글 하단",
+    "board.index.top": "게시판 목록 상단",
+    "board.index.bottom": "게시판 목록 하단",
+    "board.show.top": "게시글 상세 상단",
+    "board.show.bottom": "게시글 상세 하단",
+    "board.form.top": "게시글 작성 상단",
+    "board.form.bottom": "게시글 작성 하단",
+    "board.boards.top": "게시판 목록(전체) 상단",
+    "board.boards.bottom": "게시판 목록(전체) 하단",
+    "mypage.top": "마이페이지 상단",
+    "mypage.bottom": "마이페이지 하단",
+    "mypage": {
+      "top": "마이페이지 상단",
+      "bottom": "마이페이지 하단"
+    },
+    "maker_bids": {
+      "top": "제작·입찰 상단",
+      "bottom": "제작·입찰 하단"
+    },
+    "share": {
+      "top": "공유 상단",
+      "bottom": "공유 하단"
+    },
+    "page": {
+      "top": "정적 페이지 상단",
+      "bottom": "정적 페이지 하단"
+    },
+    "maker_bids.top": "제작·입찰 상단",
+    "maker_bids.bottom": "제작·입찰 하단",
+    "share.top": "공유 상단",
+    "share.bottom": "공유 하단",
+    "page.top": "정적 페이지 상단",
+    "page.bottom": "정적 페이지 하단"
+  }
 }

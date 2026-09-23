@@ -1,5 +1,5 @@
 {
-    "version": "1.0.0",
+    "version": "1.0.1",
     "meta": {
         "title": "$t:custom-ad_slots.admin.placements.form.title_edit",
         "description": "$t:custom-ad_slots.admin.placements.form.description"
@@ -50,7 +50,7 @@
                     {
                         "type": "basic",
                         "name": "H1",
-                        "if": "{{(_local.form?.size_mode ?? 'ratio') !== 'fixed'}}",
+                        "if": "{{((_local.form && _local.form.size_mode) || 'ratio') !== 'fixed'}}",
                         "props": {
                             "className": "text-page-heading mb-6"
                         },
@@ -59,7 +59,7 @@
                     {
                         "type": "basic",
                         "name": "H1",
-                        "if": "{{(_local.form?.size_mode ?? 'ratio') === 'fixed'}}",
+                        "if": "{{((_local.form && _local.form.size_mode) || 'ratio') === 'fixed'}}",
                         "props": {
                             "className": "text-page-heading mb-6"
                         },
@@ -99,7 +99,7 @@
                                         "props": {
                                             "className": "text-sm text-gray-700 dark:text-gray-200"
                                         },
-                                        "text": "{{_local.form?.slot_label || _local.form?.slot_key || route?.slotKey}}"
+                                        "text": "{{(_local.form && _local.form.slot_label) || (_local.form && _local.form.slot_key) || (route && route.slotKey)}}"
                                     }
                                 ]
                             },
@@ -129,7 +129,7 @@
                                         "name": "Select",
                                         "props": {
                                             "name": "size_mode",
-                                            "value": "{{_local.form?.size_mode ?? 'ratio'}}",
+                                            "value": "{{(_local.form && _local.form.size_mode) || 'ratio'}}",
                                             "className": "input w-full",
                                             "options": [
                                                 {
@@ -158,7 +158,7 @@
                             {
                                 "type": "basic",
                                 "name": "Div",
-                                "if": "{{_local.form?.size_mode !== 'fixed'}}",
+                                "if": "{{(_local.form && _local.form.size_mode) !== 'fixed'}}",
                                 "props": {
                                     "className": "form-group w-full"
                                 },
@@ -192,7 +192,7 @@
                             {
                                 "type": "basic",
                                 "name": "Div",
-                                "if": "{{_local.form?.size_mode !== 'fixed'}}",
+                                "if": "{{(_local.form && _local.form.size_mode) !== 'fixed'}}",
                                 "props": {
                                     "className": "form-group w-full"
                                 },
@@ -226,7 +226,7 @@
                             {
                                 "type": "basic",
                                 "name": "Div",
-                                "if": "{{_local.form?.size_mode === 'fixed'}}",
+                                "if": "{{(_local.form && _local.form.size_mode) === 'fixed'}}",
                                 "props": {
                                     "className": "form-group w-full"
                                 },
@@ -268,7 +268,7 @@
                             {
                                 "type": "basic",
                                 "name": "Div",
-                                "if": "{{_local.form?.size_mode === 'fixed'}}",
+                                "if": "{{(_local.form && _local.form.size_mode) === 'fixed'}}",
                                 "props": {
                                     "className": "form-group w-full"
                                 },
@@ -310,7 +310,7 @@
                             {
                                 "type": "basic",
                                 "name": "Div",
-                                "if": "{{_local.form?.size_mode === 'fixed'}}",
+                                "if": "{{(_local.form && _local.form.size_mode) === 'fixed'}}",
                                 "props": {
                                     "className": "form-group w-full"
                                 },
@@ -400,16 +400,16 @@
                                             {
                                                 "handler": "apiCall",
                                                 "auth_required": true,
-                                                "target": "/api/modules/custom-ad_slots/admin/placements/{{route.slotKey || _local.form?.slot_key}}",
+                                                "target": "/api/modules/custom-ad_slots/admin/placements/{{route.slotKey || (_local.form && _local.form.slot_key)}}",
                                                 "params": {
                                                     "method": "PUT",
                                                     "body": {
-                                                        "size_mode": "{{_local.form?.size_mode || 'ratio'}}",
-                                                        "aspect_desktop": "{{_local.form?.aspect_desktop ?? ''}}",
-                                                        "aspect_mobile": "{{_local.form?.aspect_mobile ?? ''}}",
-                                                        "width_px": "{{_local.form?.width_px || null}}",
-                                                        "height_px": "{{_local.form?.height_px || null}}",
-                                                        "max_width_px": "{{_local.form?.max_width_px || null}}"
+                                                        "size_mode": "{{(_local.form && _local.form.size_mode) || 'ratio'}}",
+                                                        "aspect_desktop": "{{(_local.form && _local.form.aspect_desktop) || ''}}",
+                                                        "aspect_mobile": "{{(_local.form && _local.form.aspect_mobile) || ''}}",
+                                                        "width_px": "{{(_local.form && _local.form.width_px) || null}}",
+                                                        "height_px": "{{(_local.form && _local.form.height_px) || null}}",
+                                                        "max_width_px": "{{(_local.form && _local.form.max_width_px) || null}}"
                                                     }
                                                 },
                                                 "onSuccess": [
@@ -425,7 +425,7 @@
                                                         "handler": "toast",
                                                         "params": {
                                                             "type": "success",
-                                                            "message": "{{(_local.form?.size_mode ?? 'ratio') === 'fixed' ? '$t:custom-ad_slots.admin.placements.form.update_success_fixed' : '$t:custom-ad_slots.admin.placements.form.update_success_ratio'}}"
+                                                            "message": "{{((_local.form && _local.form.size_mode) || 'ratio') === 'fixed' ? '$t:custom-ad_slots.admin.placements.form.update_success_fixed' : '$t:custom-ad_slots.admin.placements.form.update_success_ratio'}}"
                                                         }
                                                     },
                                                     {
@@ -443,14 +443,14 @@
                                                         "params": {
                                                             "target": "local",
                                                             "saving": false,
-                                                            "errors": "{{error.errors ?? { message: [error.message] }}}"
+                                                            "errors": "{{(error && error.errors) || { message: [error.message] }}}"
                                                         }
                                                     },
                                                     {
                                                         "handler": "toast",
                                                         "params": {
                                                             "type": "error",
-                                                            "message": "{{error.message ?? '$t:custom-ad_slots.admin.placements.form.validation_error'}}"
+                                                            "message": "{{(error && error.message) || '$t:custom-ad_slots.admin.placements.form.validation_error'}}"
                                                         }
                                                     }
                                                 ]
