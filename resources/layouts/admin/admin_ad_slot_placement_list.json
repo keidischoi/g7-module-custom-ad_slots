@@ -31,104 +31,43 @@
                 "type": "basic",
                 "name": "Div",
                 "props": {
-                    "className": "admin-page-content w-full md:w-[70%] md:max-w-[70%] md:mx-auto"
+                    "className": "admin-page-content"
                 },
                 "children": [
                     {
+                        "id": "placement_list_width_wrap",
                         "type": "basic",
                         "name": "Div",
                         "props": {
-                            "className": "flex items-center justify-between mb-6 gap-3 flex-wrap"
+                            "className": "w-full max-w-5xl mx-auto"
                         },
                         "children": [
                             {
                                 "type": "basic",
                                 "name": "Div",
-                                "children": [
-                                    {
-                                        "type": "basic",
-                                        "name": "H1",
-                                        "props": {
-                                            "className": "text-2xl font-bold text-gray-900 dark:text-white"
-                                        },
-                                        "text": "$t:custom-ad_slots.admin.placements.index.title"
-                                    },
-                                    {
-                                        "type": "basic",
-                                        "name": "P",
-                                        "props": {
-                                            "className": "mt-1 text-sm text-gray-500 dark:text-gray-400"
-                                        },
-                                        "text": "$t:custom-ad_slots.admin.placements.index.description"
-                                    }
-                                ]
-                            },
-                            {
-                                "type": "basic",
-                                "name": "Button",
                                 "props": {
-                                    "type": "button",
-                                    "className": "px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-lg text-sm font-medium dark:bg-gray-700 dark:text-gray-100"
-                                },
-                                "actions": [
-                                    {
-                                        "type": "click",
-                                        "handler": "navigate",
-                                        "params": {
-                                            "path": "/admin/ad-slots",
-                                            "mergeQuery": true,
-                                            "query": {}
-                                        }
-                                    }
-                                ],
-                                "children": [
-                                    {
-                                        "type": "basic",
-                                        "name": "Span",
-                                        "text": "$t:custom-ad_slots.admin.ads.index.title"
-                                    }
-                                ]
-                            }
-                        ]
-                    },
-                    {
-                        "type": "basic",
-                        "name": "Div",
-                        "props": {
-                            "className": "space-y-2"
-                        },
-                        "children": [
-                            {
-                                "type": "basic",
-                                "name": "Div",
-                                "iteration": "{{placements?.data?.data ?? []}}",
-                                "as": "row",
-                                "props": {
-                                    "className": "flex items-center justify-between gap-3 p-3 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700"
+                                    "className": "flex items-center justify-between mb-6 gap-3 flex-wrap"
                                 },
                                 "children": [
                                     {
                                         "type": "basic",
                                         "name": "Div",
-                                        "props": {
-                                            "className": "min-w-0"
-                                        },
                                         "children": [
                                             {
                                                 "type": "basic",
-                                                "name": "P",
+                                                "name": "H1",
                                                 "props": {
-                                                    "className": "font-medium text-gray-900 dark:text-white"
+                                                    "className": "text-2xl font-bold text-gray-900 dark:text-white"
                                                 },
-                                                "text": "{{row.slot_label || row.slot_key}}"
+                                                "text": "$t:custom-ad_slots.admin.placements.index.title"
                                             },
                                             {
                                                 "type": "basic",
                                                 "name": "P",
                                                 "props": {
-                                                    "className": "text-xs text-gray-500"
+                                                    "className": "mt-1 text-sm text-gray-500 dark:text-gray-400"
                                                 },
-                                                "text": "{{row.slot_key}} · {{row.size_mode}}{{row.aspect_desktop ? ' · D '+row.aspect_desktop : ''}}{{row.aspect_mobile ? ' · M '+row.aspect_mobile : ''}}{{row.height_px ? ' · H '+row.height_px+'px' : ''}}"
+                                                "text": "$t:custom-ad_slots.admin.placements.index.description"
                                             }
                                         ]
                                     },
@@ -137,14 +76,14 @@
                                         "name": "Button",
                                         "props": {
                                             "type": "button",
-                                            "className": "px-3 py-1.5 text-sm font-medium rounded-md bg-gray-100 text-gray-800 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-100"
+                                            "className": "px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-lg text-sm font-medium dark:bg-gray-700 dark:text-gray-100"
                                         },
                                         "actions": [
                                             {
                                                 "type": "click",
                                                 "handler": "navigate",
                                                 "params": {
-                                                    "path": "/admin/ad-slots/placements/{{row.slot_key}}/edit",
+                                                    "path": "/admin/ad-slots",
                                                     "mergeQuery": true,
                                                     "query": {}
                                                 }
@@ -154,7 +93,78 @@
                                             {
                                                 "type": "basic",
                                                 "name": "Span",
-                                                "text": "$t:custom-ad_slots.admin.placements.index.edit"
+                                                "text": "$t:custom-ad_slots.admin.ads.index.title"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "type": "basic",
+                                "name": "Div",
+                                "props": {
+                                    "className": "space-y-2"
+                                },
+                                "children": [
+                                    {
+                                        "type": "basic",
+                                        "name": "Div",
+                                        "iteration": "{{placements?.data?.data ?? []}}",
+                                        "as": "row",
+                                        "props": {
+                                            "className": "flex items-center justify-between gap-3 p-3 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700"
+                                        },
+                                        "children": [
+                                            {
+                                                "type": "basic",
+                                                "name": "Div",
+                                                "props": {
+                                                    "className": "min-w-0"
+                                                },
+                                                "children": [
+                                                    {
+                                                        "type": "basic",
+                                                        "name": "P",
+                                                        "props": {
+                                                            "className": "font-medium text-gray-900 dark:text-white"
+                                                        },
+                                                        "text": "{{row.slot_label || row.slot_key}}"
+                                                    },
+                                                    {
+                                                        "type": "basic",
+                                                        "name": "P",
+                                                        "props": {
+                                                            "className": "text-xs text-gray-500"
+                                                        },
+                                                        "text": "{{row.slot_key}} · {{row.size_mode}}{{row.aspect_desktop ? ' · D '+row.aspect_desktop : ''}}{{row.aspect_mobile ? ' · M '+row.aspect_mobile : ''}}{{row.height_px ? ' · H '+row.height_px+'px' : ''}}"
+                                                    }
+                                                ]
+                                            },
+                                            {
+                                                "type": "basic",
+                                                "name": "Button",
+                                                "props": {
+                                                    "type": "button",
+                                                    "className": "px-3 py-1.5 text-sm font-medium rounded-md bg-gray-100 text-gray-800 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-100"
+                                                },
+                                                "actions": [
+                                                    {
+                                                        "type": "click",
+                                                        "handler": "navigate",
+                                                        "params": {
+                                                            "path": "/admin/ad-slots/placements/{{row.slot_key}}/edit",
+                                                            "mergeQuery": true,
+                                                            "query": {}
+                                                        }
+                                                    }
+                                                ],
+                                                "children": [
+                                                    {
+                                                        "type": "basic",
+                                                        "name": "Span",
+                                                        "text": "$t:custom-ad_slots.admin.placements.index.edit"
+                                                    }
+                                                ]
                                             }
                                         ]
                                     }

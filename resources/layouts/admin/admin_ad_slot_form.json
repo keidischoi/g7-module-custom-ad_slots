@@ -1,5 +1,5 @@
 {
-    "version": "1.1.3",
+    "version": "1.1.4",
     "meta": {
         "title": "{{route?.id ? '$t:custom-ad_slots.admin.ads.form.title_edit' : '$t:custom-ad_slots.admin.ads.form.title_create'}}",
         "description": "$t:custom-ad_slots.admin.ads.form.description"
@@ -21,7 +21,7 @@
             "auth_required": true,
             "if": "{{route?.id}}",
             "initLocal": "form",
-            "refetchOnMount": true,
+            "refetchOnMount": false,
             "fallback": {
                 "data": null
             }
@@ -80,7 +80,7 @@
                 "dataKey": "form",
                 "trackChanges": false,
                 "props": {
-                    "className": "admin-page-content w-full max-w-none md:w-[70%] md:max-w-[70%] md:mx-auto"
+                    "className": "admin-page-content w-full max-w-none"
                 },
                 "children": [
                     {
@@ -133,7 +133,7 @@
                         "type": "basic",
                         "name": "Div",
                         "props": {
-                            "className": "admin-card row-stack"
+                            "className": "admin-card row-stack w-full max-w-5xl mx-auto"
                         },
                         "children": [
                             {
@@ -501,12 +501,8 @@
                                                     "collection": "ad_slot_images",
                                                     "className": "w-full min-h-[96px]",
                                                     "apiEndpoints": {
-                                                        "upload": "/api/modules/custom-ad_slots/admin/uploads",
-                                                        "delete": "/api/modules/custom-ad_slots/admin/uploads/:id",
-                                                        "reorder": "/api/modules/custom-ad_slots/admin/uploads/reorder"
-                                                    },
-                                                    "files": "{{_local.form?.image_url_files ?? []}}",
-                                                    "value": "{{_local.form?.image_url_files ?? []}}"
+                                                        "upload": "/api/modules/custom-ad_slots/admin/uploads"
+                                                    }
                                                 },
                                                 "actions": [
                                                     {
@@ -635,12 +631,8 @@
                                                     "collection": "ad_slot_images",
                                                     "className": "w-full min-h-[96px]",
                                                     "apiEndpoints": {
-                                                        "upload": "/api/modules/custom-ad_slots/admin/uploads",
-                                                        "delete": "/api/modules/custom-ad_slots/admin/uploads/:id",
-                                                        "reorder": "/api/modules/custom-ad_slots/admin/uploads/reorder"
-                                                    },
-                                                    "files": "{{_local.form?.image_url_desktop_files ?? []}}",
-                                                    "value": "{{_local.form?.image_url_desktop_files ?? []}}"
+                                                        "upload": "/api/modules/custom-ad_slots/admin/uploads"
+                                                    }
                                                 },
                                                 "actions": [
                                                     {
@@ -769,12 +761,8 @@
                                                     "collection": "ad_slot_images",
                                                     "className": "w-full min-h-[96px]",
                                                     "apiEndpoints": {
-                                                        "upload": "/api/modules/custom-ad_slots/admin/uploads",
-                                                        "delete": "/api/modules/custom-ad_slots/admin/uploads/:id",
-                                                        "reorder": "/api/modules/custom-ad_slots/admin/uploads/reorder"
-                                                    },
-                                                    "files": "{{_local.form?.image_url_mobile_files ?? []}}",
-                                                    "value": "{{_local.form?.image_url_mobile_files ?? []}}"
+                                                        "upload": "/api/modules/custom-ad_slots/admin/uploads"
+                                                    }
                                                 },
                                                 "actions": [
                                                     {
@@ -1660,7 +1648,7 @@
                         "type": "basic",
                         "name": "Div",
                         "props": {
-                            "className": "flex gap-3 mt-6"
+                            "className": "flex gap-3 mt-6 w-full max-w-5xl mx-auto"
                         },
                         "children": [
                             {

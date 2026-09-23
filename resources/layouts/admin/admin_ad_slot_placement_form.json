@@ -19,7 +19,7 @@
             "auto_fetch": true,
             "auth_required": true,
             "initLocal": "form",
-            "refetchOnMount": true,
+            "refetchOnMount": false,
             "fallback": {
                 "data": null
             }
@@ -44,7 +44,7 @@
                 "dataKey": "form",
                 "trackChanges": true,
                 "props": {
-                    "className": "admin-page-content w-full max-w-none md:w-[70%] md:max-w-[70%] md:mx-auto"
+                    "className": "admin-page-content w-full max-w-none"
                 },
                 "children": [
                     {
@@ -59,7 +59,7 @@
                         "type": "basic",
                         "name": "Div",
                         "props": {
-                            "className": "admin-card row-stack"
+                            "className": "admin-card row-stack w-full max-w-5xl mx-auto"
                         },
                         "children": [
                             {
@@ -337,7 +337,7 @@
                         "type": "basic",
                         "name": "Div",
                         "props": {
-                            "className": "flex gap-3 mt-6"
+                            "className": "flex gap-3 mt-6 w-full max-w-5xl mx-auto"
                         },
                         "children": [
                             {

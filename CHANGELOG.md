@@ -1,5 +1,25 @@
 # Changelog
 
+## [1.4.2] - 2026-09-23
+
+### Fixed
+
+- **관리자 수정 페이지 무한로딩:** FileUploader에 존재하지 않는 delete/reorder 엔드포인트와 `files`/`value` 바인딩이 첨부 동기화로 폼 hydrate를 가로막던 문제를 수정. 업로드(POST)만 사용하고 기존 이미지는 URL 미리보기로 표시.
+- **수정 폼 DB 미표시:** show API 리소스 매핑 실패(사이즈 컬럼 미마이그레이션 등) 시에도 핵심 필드로 soft-fail hydrate. `refetchOnMount` 비활성화로 로드 루프 방지.
+- **새로고침 시 좌측 관리 메뉴 소실:** 70% 폭 제약을 `admin-page-content`(어드민 크롬)가 아니라 폼 카드/`max-w-5xl`에만 적용.
+
+### Changed
+
+- Version **1.4.2**. 광고 JS `hero-carousel.js?v=1.4.2`.
+
+### Deploy
+
+```
+php82 artisan module:update custom-ad_slots
+php82 artisan cache:clear
+php82 artisan view:clear
+```
+
 ## [1.4.1] - 2026-09-23
 
 ### Fixed
