@@ -44,14 +44,26 @@ class AdSlotUploadController extends AdminBaseController
 
             $payload = $this->uploadService->storeImage($file);
 
-            // FileUploader reads Attachment from response.data.data (digital_product contract).
-            return $this->success(
-                'custom-ad_slots::messages.upload.success',
-                array_merge($payload, [
+            // Remember URL for this admin field so create/update can persist even if
+            // the layout save body races ahead of onUploadComplete (DP temp_key pattern).
+            $field = (string) $request->input('field', $request->query('field', ''));
+            if ($field !== '' && $request->user()) {
+                AdSlotUploadService::rememberUrl($request->user()->id, $field, (string) ($payload['download_url'] ?? $payload['url'] ?? ''));
+            }
+
+            // Exact digital_product shape: FileUploader reads Attachment at response.data.data.
+            // Use raw json so AdminBaseController::success cannot re-wrap / flatten.
+            return response()->json([
+                'success' => true,
+                'message' => __('custom-ad_slots::messages.upload.success'),
+                'data' => [
                     'data' => $payload,
-                ]),
-                201
-            );
+                    'download_url' => $payload['download_url'] ?? null,
+                    'url' => $payload['url'] ?? null,
+                    'path' => $payload['path'] ?? null,
+                    'id' => $payload['id'] ?? null,
+                ],
+            ], 201);
         } catch (\Illuminate\Validation\ValidationException $e) {
             throw $e;
         } catch (\Exception $e) {
@@ -72,6 +84,11 @@ class AdSlotUploadController extends AdminBaseController
 
             $result = $this->uploadService->deleteByUploadId($uploadId);
 
+            $field = (string) $request->input('field', $request->query('field', ''));
+            if ($field !== '' && $request->user()) {
+                AdSlotUploadService::forgetUrl($request->user()->id, $field);
+            }
+
             return $this->success('custom-ad_slots::messages.upload.delete_success', [
                 'data' => true,
                 'id' => $result['id'],
@@ -79,6 +96,10 @@ class AdSlotUploadController extends AdminBaseController
                 'path' => $result['path'],
             ]);
         } catch (\Exception $e) {
+            $field = (string) $request->input('field', $request->query('field', ''));
+            if ($field !== '' && $request->user()) {
+                AdSlotUploadService::forgetUrl($request->user()->id, $field);
+            }
             // Soft-success: still let the uploader UI clear the chip.
             return $this->success('custom-ad_slots::messages.upload.delete_success', [
                 'data' => true,

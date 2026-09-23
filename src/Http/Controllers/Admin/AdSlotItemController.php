@@ -110,7 +110,11 @@ class AdSlotItemController extends AdminBaseController
     public function store(StoreAdSlotItemRequest $request): JsonResponse
     {
         try {
-            $item = $this->adSlotService->create($request->validated());
+            $data = AdSlotUploadService::mergeRememberedUrls(
+                (int) ($request->user()?->id ?? 0),
+                $request->validated()
+            );
+            $item = $this->adSlotService->create($data);
 
             return $this->success(
                 'custom-ad_slots::messages.ad.create_success',
@@ -126,7 +130,11 @@ class AdSlotItemController extends AdminBaseController
     {
         try {
             $item = $this->adSlotService->findOrFail($id);
-            $item = $this->adSlotService->update($item, $request->validated());
+            $data = AdSlotUploadService::mergeRememberedUrls(
+                (int) ($request->user()?->id ?? 0),
+                $request->validated()
+            );
+            $item = $this->adSlotService->update($item, $data);
 
             return $this->success(
                 'custom-ad_slots::messages.ad.update_success',

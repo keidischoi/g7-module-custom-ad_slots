@@ -3,6 +3,7 @@
 namespace Modules\Custom\AdSlots\Services;
 
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
@@ -11,6 +12,8 @@ use Illuminate\Support\Str;
  *
  * Prefers G7 StorageInterface (images category); falls back to public disk.
  * File ids are base64url(relative path) so destroy can remove the blob.
+ * Also remembers last upload URL per admin user + field (digital_product temp_key
+ * equivalent) so create/update can persist URLs even if the form body races.
  */
 class AdSlotUploadService
 {
@@ -92,6 +95,74 @@ class AdSlotUploadService
         $deleted = $this->deletePath($path);
 
         return ['id' => $raw, 'deleted' => $deleted, 'path' => $path];
+    }
+
+
+    public const URL_FIELDS = ['image_url', 'image_url_desktop', 'image_url_mobile'];
+
+    private const REMEMBER_TTL = 1800;
+
+    public static function isUrlField(string $field): bool
+    {
+        return in_array($field, self::URL_FIELDS, true);
+    }
+
+    public static function rememberUrl(int|string $userId, string $field, string $url): void
+    {
+        if (! self::isUrlField($field)) {
+            return;
+        }
+        $url = trim($url);
+        if ($url === '') {
+            return;
+        }
+        Cache::put(self::rememberKey($userId, $field), $url, self::REMEMBER_TTL);
+    }
+
+    public static function forgetUrl(int|string $userId, string $field): void
+    {
+        if (! self::isUrlField($field)) {
+            return;
+        }
+        Cache::forget(self::rememberKey($userId, $field));
+    }
+
+    public static function forgetAllUrls(int|string $userId): void
+    {
+        foreach (self::URL_FIELDS as $field) {
+            self::forgetUrl($userId, $field);
+        }
+    }
+
+    /**
+     * If request URL fields are empty, fill from remembered uploads (post-upload race).
+     * Non-empty request values win (manual URL text fields / successful onUploadComplete).
+     *
+     * @param  array<string, mixed>  $data
+     * @return array<string, mixed>
+     */
+    public static function mergeRememberedUrls(int|string $userId, array $data): array
+    {
+        foreach (self::URL_FIELDS as $field) {
+            $current = $data[$field] ?? null;
+            if (is_string($current) && trim($current) !== '') {
+                // Client already has a URL — drop remember so a later clear stays clear.
+                self::forgetUrl($userId, $field);
+                continue;
+            }
+            $remembered = Cache::get(self::rememberKey($userId, $field));
+            if (is_string($remembered) && trim($remembered) !== '') {
+                $data[$field] = trim($remembered);
+                self::forgetUrl($userId, $field);
+            }
+        }
+
+        return $data;
+    }
+
+    private static function rememberKey(int|string $userId, string $field): string
+    {
+        return 'custom-ad_slots:last_upload:'.(string) $userId.':'.$field;
     }
 
     /**

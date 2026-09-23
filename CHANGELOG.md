@@ -1,5 +1,31 @@
 # Changelog
 
+## [1.4.13] - 2026-09-23
+
+### Fixed
+- **이미지 URL 미저장:** `autoUpload:false` + 저장 시 `emitEvent` 직후 `apiCall` 레이스로 `_local.form.image_url*`가 비어 DB null이 되던 문제.
+  - 업로드 API가 field별 URL을 서버 캐시에 기억(digital_product `temp_key` 패턴) → store/update 시 요청 URL이 비면 병합.
+  - 업로드 응답을 digital_product와 동일한 `data.data` Attachment raw JSON으로 반환.
+  - 선택 시 즉시 업로드 + `onUploadComplete` URL 추출 강화; 저장은 업로드 중이면 경고 후 중단(emit 레이스 제거).
+  - 저장 body는 `form.image_url*` 또는 `uploader_*[0].download_url/url` 폴백.
+- **수정 화면 업로드 박스 빈 칩:** `initialFiles`를 DP식으로 단순화(`.length`로 빈 배열 스킵) + `ad.data`/`ad.data.data` 폴백; `form.id`·URL 도착 시 key remount.
+- **삭제:** delete URL에 `?field=`를 붙여 서버 remember 캐시 제거; 클라이언트 URL/uploader 배열 클리어 유지.
+
+### Unchanged
+- `autoUpload: false` (cold-load autoUpload 없음 — 1.4.8 사이드바 회귀 방지).
+- 크롬 `admin-page-content-responsive` only.
+- `files`/`value` two-way 바인딩 및 1.4.1–1.4.7 shell hacks 없음.
+
+### Meta
+- Version **1.4.13**. 광고 JS `hero-carousel.js?v=1.4.13`.
+
+### Deploy
+```
+php82 artisan module:update custom-ad_slots
+php82 artisan cache:clear
+php82 artisan view:clear
+```
+
 ## [1.4.12] - 2026-09-23
 
 ### Fixed
