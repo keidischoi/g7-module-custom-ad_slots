@@ -21,7 +21,6 @@
             "if": "{{route?.id}}",
             "initLocal": "form",
             "refetchOnMount": true,
-            "loading_strategy": "progressive",
             "errorHandling": {
                 "403": {
                     "handler": "showErrorPage",

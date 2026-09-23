@@ -1,5 +1,28 @@
 # Changelog
 
+## [1.4.7] - 2026-09-23
+
+### Fixed
+
+- **수정(`/admin/ad-slots/{id}/edit`) 하드 리프레시 시 좌측 관리 메뉴 소실 + 폼 붕괴 (edit 전용):** create/list는 정상. create vs edit 슬롯 트리는 의도적 문자열(제목·POST/PUT·wrapper id)만 다르고 **FileUploader 포함 content는 동일**. 유일 상단 델타가 edit show data_source의 `loading_strategy: "progressive"`. 공식 `sirsoft-page` admin form·동일 모듈 placement edit 폼에는 progressive가 없음. progressive를 제거해 create/placement와 정렬(show GET `if/endpoint: {{route?.id}}` + `initLocal: form` + `refetchOnMount` 유지). 크롬 class/`_admin_base`·레이아웃 분리(1.4.6)는 유지.
+
+### Unchanged
+
+- create 레이아웃·FileUploader upload/delete noop·show API `success(msg, $payload)` / `initLocal: form` 페이로드 형상 유지.
+
+### Changed
+
+- Version **1.4.7**. 광고 JS `hero-carousel.js?v=1.4.7`.
+
+### Deploy
+
+```
+php82 artisan module:update custom-ad_slots
+php82 artisan cache:clear
+php82 artisan view:clear
+```
+
+
 ## [1.4.6] - 2026-09-23
 
 ### Fixed
