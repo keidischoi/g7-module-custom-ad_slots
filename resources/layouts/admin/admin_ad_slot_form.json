@@ -502,7 +502,7 @@
                                                 "props": {
                                                     "accept": ".jpg,.jpeg,.png,.gif,.webp,image/*",
                                                     "apiEndpoints": {
-                                                        "upload": "/api/modules/custom-ad_slots/admin/uploads",
+                                                        "upload": "/api/modules/custom-ad_slots/admin/uploads?field=image_url",
                                                         "delete": "/api/modules/custom-ad_slots/admin/uploads/:id?field=image_url"
                                                     },
                                                     "autoUpload": false,
@@ -551,14 +551,14 @@
                                                             },
                                                             {
                                                                 "handler": "emitEvent",
-                                                                "if": "{{!!($args[0] && $args[0].length && !_local.uploading_image_url && !($args[0][0] && ($args[0][0].download_url || $args[0][0].path)))}}",
+                                                                "if": "{{!!($args[0] && $args[0].length && !_local.uploading_image_url && !($args[0][0] && ($args[0][0].download_url || (($args[0][0].url || '').indexOf('http') === 0) || $args[0][0].uploaded)))}}",
                                                                 "params": {
                                                                     "event": "upload:ad_image_url"
                                                                 }
                                                             },
                                                             {
                                                                 "handler": "setState",
-                                                                "if": "{{!!($args[0] && $args[0].length && !_local.uploading_image_url && !($args[0][0] && ($args[0][0].download_url || $args[0][0].path)))}}",
+                                                                "if": "{{!!($args[0] && $args[0].length && !_local.uploading_image_url && !($args[0][0] && ($args[0][0].download_url || (($args[0][0].url || '').indexOf('http') === 0) || $args[0][0].uploaded)))}}",
                                                                 "params": {
                                                                     "target": "local",
                                                                     "uploading_image_url": true
@@ -776,7 +776,7 @@
                                                 "props": {
                                                     "accept": ".jpg,.jpeg,.png,.gif,.webp,image/*",
                                                     "apiEndpoints": {
-                                                        "upload": "/api/modules/custom-ad_slots/admin/uploads",
+                                                        "upload": "/api/modules/custom-ad_slots/admin/uploads?field=image_url_desktop",
                                                         "delete": "/api/modules/custom-ad_slots/admin/uploads/:id?field=image_url_desktop"
                                                     },
                                                     "autoUpload": false,
@@ -825,14 +825,14 @@
                                                             },
                                                             {
                                                                 "handler": "emitEvent",
-                                                                "if": "{{!!($args[0] && $args[0].length && !_local.uploading_image_url_desktop && !($args[0][0] && ($args[0][0].download_url || $args[0][0].path)))}}",
+                                                                "if": "{{!!($args[0] && $args[0].length && !_local.uploading_image_url_desktop && !($args[0][0] && ($args[0][0].download_url || (($args[0][0].url || '').indexOf('http') === 0) || $args[0][0].uploaded)))}}",
                                                                 "params": {
                                                                     "event": "upload:ad_image_url_desktop"
                                                                 }
                                                             },
                                                             {
                                                                 "handler": "setState",
-                                                                "if": "{{!!($args[0] && $args[0].length && !_local.uploading_image_url_desktop && !($args[0][0] && ($args[0][0].download_url || $args[0][0].path)))}}",
+                                                                "if": "{{!!($args[0] && $args[0].length && !_local.uploading_image_url_desktop && !($args[0][0] && ($args[0][0].download_url || (($args[0][0].url || '').indexOf('http') === 0) || $args[0][0].uploaded)))}}",
                                                                 "params": {
                                                                     "target": "local",
                                                                     "uploading_image_url_desktop": true
@@ -1050,7 +1050,7 @@
                                                 "props": {
                                                     "accept": ".jpg,.jpeg,.png,.gif,.webp,image/*",
                                                     "apiEndpoints": {
-                                                        "upload": "/api/modules/custom-ad_slots/admin/uploads",
+                                                        "upload": "/api/modules/custom-ad_slots/admin/uploads?field=image_url_mobile",
                                                         "delete": "/api/modules/custom-ad_slots/admin/uploads/:id?field=image_url_mobile"
                                                     },
                                                     "autoUpload": false,
@@ -1099,14 +1099,14 @@
                                                             },
                                                             {
                                                                 "handler": "emitEvent",
-                                                                "if": "{{!!($args[0] && $args[0].length && !_local.uploading_image_url_mobile && !($args[0][0] && ($args[0][0].download_url || $args[0][0].path)))}}",
+                                                                "if": "{{!!($args[0] && $args[0].length && !_local.uploading_image_url_mobile && !($args[0][0] && ($args[0][0].download_url || (($args[0][0].url || '').indexOf('http') === 0) || $args[0][0].uploaded)))}}",
                                                                 "params": {
                                                                     "event": "upload:ad_image_url_mobile"
                                                                 }
                                                             },
                                                             {
                                                                 "handler": "setState",
-                                                                "if": "{{!!($args[0] && $args[0].length && !_local.uploading_image_url_mobile && !($args[0][0] && ($args[0][0].download_url || $args[0][0].path)))}}",
+                                                                "if": "{{!!($args[0] && $args[0].length && !_local.uploading_image_url_mobile && !($args[0][0] && ($args[0][0].download_url || (($args[0][0].url || '').indexOf('http') === 0) || $args[0][0].uploaded)))}}",
                                                                 "params": {
                                                                     "target": "local",
                                                                     "uploading_image_url_mobile": true
