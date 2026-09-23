@@ -82,6 +82,21 @@ class AdSlotItemResource extends JsonResource
             $size = AdSizeSettings::resolve(null, null, (string) $this->slot_key);
         }
 
+
+        $thumbAspect = null;
+        $mode = is_array($size) ? ($size['mode'] ?? null) : null;
+        if ($mode === 'ratio') {
+            $thumbAspect = is_array($size) ? ($size['aspect_desktop'] ?? null) : null;
+        } elseif ($mode === 'fixed') {
+            $w = is_array($size) ? ($size['width_px'] ?? null) : null;
+            $h = is_array($size) ? ($size['height_px'] ?? null) : null;
+            if ($w && $h) {
+                $thumbAspect = $w.' / '.$h;
+            }
+        }
+        if (($thumbAspect === null || $thumbAspect === '') && method_exists(AdSizeSettings::class, 'normalizeAspect')) {
+            $thumbAspect = AdSizeSettings::normalizeAspect($this->sizeAttr('aspect_desktop'));
+        }
         return [
             'id' => $this->id,
             'slot_key' => $this->slot_key,
@@ -110,6 +125,7 @@ class AdSlotItemResource extends JsonResource
             'height_px' => $this->sizeAttr('height_px'),
             'max_width_px' => $this->sizeAttr('max_width_px'),
             'size' => $size,
+            'thumb_aspect' => $thumbAspect,
             'starts_at' => optional($this->starts_at)?->toIso8601String(),
             'ends_at' => optional($this->ends_at)?->toIso8601String(),
             'starts_at_local' => $this->toDatetimeLocal($this->starts_at),

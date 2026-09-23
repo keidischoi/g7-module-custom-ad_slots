@@ -16,7 +16,7 @@
                 "duplicate_success": "광고가 복제되었습니다. (비활성)",
                 "activate": "활성화하기",
                 "deactivate": "비활성하기",
-                "slot_defaults": "슬롯 기본 크기"
+                "slot_defaults": "슬롯 기본 크기 일괄적용"
             },
             "form": {
                 "title_create": "광고 추가",
@@ -74,15 +74,17 @@
         },
         "placements": {
             "index": {
-                "title": "슬롯 기본 크기",
-                "description": "슬롯(placement)별 기본 크기 모드와 비율·고정 크기를 설정합니다. 광고 항목에서 비워 두면 이 값을 따릅니다.",
+                "title": "슬롯 기본 크기 일괄적용",
+                "description": "슬롯(placement)별 기본 크기 모드와 비율·고정 크기를 일괄 적용합니다. 광고 항목에서 비워 두면 이 값을 따릅니다.",
                 "edit": "수정",
-                "empty": "슬롯 설정이 없습니다."
+                "empty": "슬롯 설정이 없습니다.",
+                "row_label_ratio": "슬롯 기본 크기(비율) 일괄적용",
+                "row_label_fixed": "슬롯 기본 크기(크기) 일괄적용"
             },
             "form": {
-                "title_edit": "슬롯 기본 크기 수정",
-                "description": "선택한 슬롯의 기본 표시 크기를 설정합니다.",
-                "update_success": "슬롯 기본 크기를 저장했습니다.",
+                "title_edit": "슬롯 기본 크기 일괄적용",
+                "description": "선택한 슬롯의 기본 표시 크기(비율 또는 고정)를 일괄 적용합니다.",
+                "update_success": "슬롯 기본 크기를 일괄 적용했습니다.",
                 "validation_error": "입력값을 확인해 주세요.",
                 "fields": {
                     "slot_key": "슬롯",
@@ -98,7 +100,11 @@
                     "width_px_hint": "비우면 컨테이너 100%",
                     "height_px_hint": "fixed 모드에서 필수",
                     "max_width_px_hint": "선택"
-                }
+                },
+                "title_edit_ratio": "슬롯 기본 크기(비율) 일괄적용",
+                "title_edit_fixed": "슬롯 기본 크기(크기) 일괄적용",
+                "update_success_ratio": "슬롯 기본 크기(비율)를 일괄 적용했습니다.",
+                "update_success_fixed": "슬롯 기본 크기(크기)를 일괄 적용했습니다."
             }
         }
     },

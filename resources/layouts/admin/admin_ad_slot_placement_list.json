@@ -134,6 +134,14 @@
                                                         "type": "basic",
                                                         "name": "P",
                                                         "props": {
+                                                            "className": "text-xs text-indigo-600 dark:text-indigo-300 mt-0.5"
+                                                        },
+                                                        "text": "{{row.size_mode === 'fixed' ? '$t:custom-ad_slots.admin.placements.index.row_label_fixed' : '$t:custom-ad_slots.admin.placements.index.row_label_ratio'}}"
+                                                    },
+                                                    {
+                                                        "type": "basic",
+                                                        "name": "P",
+                                                        "props": {
                                                             "className": "text-xs text-gray-500"
                                                         },
                                                         "text": "{{row.slot_key}} · {{row.size_mode}}{{row.aspect_desktop ? ' · D '+row.aspect_desktop : ''}}{{row.aspect_mobile ? ' · M '+row.aspect_mobile : ''}}{{row.height_px ? ' · H '+row.height_px+'px' : ''}}"
