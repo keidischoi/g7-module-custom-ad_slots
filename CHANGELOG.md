@@ -1,5 +1,30 @@
 # Changelog
 
+## [1.4.5] - 2026-09-23
+
+### Fixed
+
+- **수정 페이지 하드 리프레시 시 좌측 관리 메뉴(`_admin_base`) 소실 (우선):** v1.4.4 data_source `if`/endpoint·메타/저장 분기에 `Number(...)`, `route?.params?.id`, 경로 `split('/ad-slots/')` 등 복잡한 표현식이 있어 G7 표현식 평가가 실패하면 레이아웃 마운트가 중단되고 어드민 크롬(사이드바)이 비었다. 공식 `sirsoft-page` `admin_page_form`과 동일하게 `if: "{{route?.id}}"`, `endpoint: ".../admin/ads/{{route?.id}}"`만 사용. `loading_strategy: "progressive"`로 셸이 show 응답을 기다리지 않고 마운트. 403은 content 슬롯만 에러 페이지. 래퍼 `dataKey: "form"` 제거(빈 FormContext로 크롬/폼이 리셋될 여지 차단). `extends: _admin_base` 유지.
+- **수정 폼 DB 필드 미표시:** 위와 같은 `if` 실패로 show API가 호출되지 않아 `initLocal: "form"` hydrate가 안 되던 문제. 단순 `route?.id`로 show가 호출되면 `_local.form`에 DB 값이 채워짐.
+- **create가 edit를 덮을 위험:** create-only `init_actions`를 `if: "{{!route?.id}}"`로 form=null → 기본값 (sirsoft-page와 동일). edit 경로에서는 init_actions 미실행.
+
+### Unchanged
+
+- 이미지 업로드/삭제(FileUploader upload+delete soft-success, URL 필드 단일 소스) 유지.
+- show()는 `success(msg, $payload)` 유지 (`actualData = data.data ?? data`).
+
+### Changed
+
+- Version **1.4.5**. 광고 JS `hero-carousel.js?v=1.4.5`.
+
+### Deploy
+
+```
+php82 artisan module:update custom-ad_slots
+php82 artisan cache:clear
+php82 artisan view:clear
+```
+
 ## [1.4.4] - 2026-09-23
 
 ### Fixed

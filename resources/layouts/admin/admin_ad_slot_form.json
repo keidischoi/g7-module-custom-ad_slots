@@ -1,7 +1,7 @@
 {
     "version": "1.1.6",
     "meta": {
-        "title": "{{!!Number(route?.params?.id ?? route?.id ?? params?.id ?? (String(route?.path || route?.pathname || route?.fullPath || '').split('/ad-slots/')[1] || '').split('/')[0]) ? '$t:custom-ad_slots.admin.ads.form.title_edit' : '$t:custom-ad_slots.admin.ads.form.title_create'}}",
+        "title": "{{route?.id ? '$t:custom-ad_slots.admin.ads.form.title_edit' : '$t:custom-ad_slots.admin.ads.form.title_create'}}",
         "description": "$t:custom-ad_slots.admin.ads.form.description"
     },
     "layout_name": "admin_ad_slot_form",
@@ -15,14 +15,22 @@
         {
             "id": "ad",
             "type": "api",
-            "endpoint": "/api/modules/custom-ad_slots/admin/ads/{{route?.params?.id ?? route?.id ?? params?.id ?? (String(route?.path || route?.pathname || route?.fullPath || '').split('/ad-slots/')[1] || '').split('/')[0]}}",
+            "endpoint": "/api/modules/custom-ad_slots/admin/ads/{{route?.id}}",
             "method": "GET",
             "auto_fetch": true,
             "auth_required": true,
-            "if": "{{!!Number(route?.params?.id ?? route?.id ?? params?.id ?? (String(route?.path || route?.pathname || route?.fullPath || '').split('/ad-slots/')[1] || '').split('/')[0])}}",
+            "if": "{{route?.id}}",
             "initLocal": "form",
             "refetchOnMount": true,
             "loading_strategy": "progressive",
+            "errorHandling": {
+                "403": {
+                    "handler": "showErrorPage",
+                    "params": {
+                        "target": "content"
+                    }
+                }
+            },
             "fallback": {
                 "data": null
             }
@@ -30,7 +38,17 @@
     ],
     "init_actions": [
         {
-            "if": "{{String(route?.path || route?.pathname || route?.fullPath || '').includes('/create')}}",
+            "comment": "Create only: clear any stale form before defaults (sirsoft-page pattern). Never run on edit.",
+            "if": "{{!route?.id}}",
+            "handler": "setState",
+            "params": {
+                "target": "local",
+                "form": null
+            }
+        },
+        {
+            "comment": "Create only: default ad slot fields.",
+            "if": "{{!route?.id}}",
             "handler": "setState",
             "params": {
                 "target": "local",
@@ -61,15 +79,6 @@
                 "errors": null,
                 "saving": false
             }
-        },
-        {
-            "if": "{{!!Number(route?.params?.id ?? route?.id ?? params?.id ?? (String(route?.path || route?.pathname || route?.fullPath || '').split('/ad-slots/')[1] || '').split('/')[0]) || String(route?.path || route?.pathname || route?.fullPath || '').includes('/edit')}}",
-            "handler": "setState",
-            "params": {
-                "target": "local",
-                "errors": null,
-                "saving": false
-            }
         }
     ],
     "slots": {
@@ -78,7 +87,6 @@
                 "id": "ad_slot_form_wrapper",
                 "type": "basic",
                 "name": "Div",
-                "dataKey": "form",
                 "trackChanges": false,
                 "props": {
                     "className": "admin-page-content w-full max-w-none"
@@ -98,7 +106,7 @@
                                 "props": {
                                     "className": "text-page-heading"
                                 },
-                                "text": "{{!!Number(route?.params?.id ?? route?.id ?? params?.id ?? (String(route?.path || route?.pathname || route?.fullPath || '').split('/ad-slots/')[1] || '').split('/')[0]) ? '$t:custom-ad_slots.admin.ads.form.title_edit' : '$t:custom-ad_slots.admin.ads.form.title_create'}}"
+                                "text": "{{route?.id ? '$t:custom-ad_slots.admin.ads.form.title_edit' : '$t:custom-ad_slots.admin.ads.form.title_create'}}"
                             }
                         ]
                     },
@@ -1758,9 +1766,9 @@
                                             {
                                                 "handler": "apiCall",
                                                 "auth_required": true,
-                                                "target": "{{!!Number(route?.params?.id ?? route?.id ?? params?.id ?? (String(route?.path || route?.pathname || route?.fullPath || '').split('/ad-slots/')[1] || '').split('/')[0]) ? '/api/modules/custom-ad_slots/admin/ads/' + (route?.params?.id ?? route?.id ?? params?.id ?? (String(route?.path || route?.pathname || route?.fullPath || '').split('/ad-slots/')[1] || '').split('/')[0]) : '/api/modules/custom-ad_slots/admin/ads'}}",
+                                                "target": "{{route?.id ? '/api/modules/custom-ad_slots/admin/ads/' + route?.id : '/api/modules/custom-ad_slots/admin/ads'}}",
                                                 "params": {
-                                                    "method": "{{!!Number(route?.params?.id ?? route?.id ?? params?.id ?? (String(route?.path || route?.pathname || route?.fullPath || '').split('/ad-slots/')[1] || '').split('/')[0]) ? 'PUT' : 'POST'}}",
+                                                    "method": "{{route?.id ? 'PUT' : 'POST'}}",
                                                     "body": {
                                                         "slot_key": "{{_local.form?.slot_key}}",
                                                         "type": "{{_local.form?.type}}",
@@ -1799,7 +1807,7 @@
                                                         "handler": "toast",
                                                         "params": {
                                                             "type": "success",
-                                                            "message": "{{!!Number(route?.params?.id ?? route?.id ?? params?.id ?? (String(route?.path || route?.pathname || route?.fullPath || '').split('/ad-slots/')[1] || '').split('/')[0]) ? '$t:custom-ad_slots.admin.ads.form.update_success' : '$t:custom-ad_slots.admin.ads.form.create_success'}}"
+                                                            "message": "{{route?.id ? '$t:custom-ad_slots.admin.ads.form.update_success' : '$t:custom-ad_slots.admin.ads.form.create_success'}}"
                                                         }
                                                     },
                                                     {
