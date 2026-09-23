@@ -82,7 +82,7 @@
                 "dataKey": "form",
                 "trackChanges": true,
                 "props": {
-                    "className": "admin-page-content w-full max-w-none"
+                    "className": "admin-page-content-responsive"
                 },
                 "children": [
                     {
@@ -356,35 +356,53 @@
                                     },
                                     {
                                         "id": "upload_image_url",
-                                        "type": "basic",
                                         "name": "Div",
+                                        "type": "basic",
                                         "props": {
                                             "className": "mt-2"
                                         },
                                         "children": [
                                             {
-                                                "type": "basic",
                                                 "name": "P",
+                                                "type": "basic",
                                                 "props": {
                                                     "className": "mb-1 text-xs text-gray-500 dark:text-gray-400"
                                                 },
                                                 "text": "$t:custom-ad_slots.admin.ads.form.fields.upload_hint"
                                             },
                                             {
-                                                "type": "composite",
+                                                "id": "fu_image_url",
                                                 "name": "FileUploader",
+                                                "type": "composite",
                                                 "props": {
-                                                    "autoUpload": true,
+                                                    "accept": ".jpg,.jpeg,.png,.gif,.webp,image/*",
+                                                    "apiEndpoints": {
+                                                        "upload": "/api/modules/custom-ad_slots/admin/uploads",
+                                                        "delete": "/api/modules/custom-ad_slots/admin/uploads/noop"
+                                                    },
+                                                    "autoUpload": false,
+                                                    "className": "w-full",
+                                                    "collection": "ad_slot_images",
+                                                    "confirmBeforeRemove": true,
+                                                    "initialFiles": [],
                                                     "maxFiles": 1,
                                                     "maxSize": 5,
-                                                    "accept": ".jpg,.jpeg,.png,.gif,.webp,image/*",
-                                                    "collection": "ad_slot_images",
-                                                    "className": "w-full",
-                                                    "apiEndpoints": {
-                                                        "upload": "/api/modules/custom-ad_slots/admin/uploads"
-                                                    }
+                                                    "uploadTriggerEvent": "upload:ad_image_url"
                                                 },
                                                 "actions": [
+                                                    {
+                                                        "event": "onFilesChange",
+                                                        "type": "change",
+                                                        "handler": "sequence",
+                                                        "actions": [
+                                                            {
+                                                                "handler": "emitEvent",
+                                                                "params": {
+                                                                    "event": "upload:ad_image_url"
+                                                                }
+                                                            }
+                                                        ]
+                                                    },
                                                     {
                                                         "event": "onUploadComplete",
                                                         "type": "change",
@@ -455,35 +473,53 @@
                                     },
                                     {
                                         "id": "upload_image_url_desktop",
-                                        "type": "basic",
                                         "name": "Div",
+                                        "type": "basic",
                                         "props": {
                                             "className": "mt-2"
                                         },
                                         "children": [
                                             {
-                                                "type": "basic",
                                                 "name": "P",
+                                                "type": "basic",
                                                 "props": {
                                                     "className": "mb-1 text-xs text-gray-500 dark:text-gray-400"
                                                 },
                                                 "text": "$t:custom-ad_slots.admin.ads.form.fields.upload_hint"
                                             },
                                             {
-                                                "type": "composite",
+                                                "id": "fu_image_url_desktop",
                                                 "name": "FileUploader",
+                                                "type": "composite",
                                                 "props": {
-                                                    "autoUpload": true,
+                                                    "accept": ".jpg,.jpeg,.png,.gif,.webp,image/*",
+                                                    "apiEndpoints": {
+                                                        "upload": "/api/modules/custom-ad_slots/admin/uploads",
+                                                        "delete": "/api/modules/custom-ad_slots/admin/uploads/noop"
+                                                    },
+                                                    "autoUpload": false,
+                                                    "className": "w-full",
+                                                    "collection": "ad_slot_images",
+                                                    "confirmBeforeRemove": true,
+                                                    "initialFiles": [],
                                                     "maxFiles": 1,
                                                     "maxSize": 5,
-                                                    "accept": ".jpg,.jpeg,.png,.gif,.webp,image/*",
-                                                    "collection": "ad_slot_images",
-                                                    "className": "w-full",
-                                                    "apiEndpoints": {
-                                                        "upload": "/api/modules/custom-ad_slots/admin/uploads"
-                                                    }
+                                                    "uploadTriggerEvent": "upload:ad_image_url_desktop"
                                                 },
                                                 "actions": [
+                                                    {
+                                                        "event": "onFilesChange",
+                                                        "type": "change",
+                                                        "handler": "sequence",
+                                                        "actions": [
+                                                            {
+                                                                "handler": "emitEvent",
+                                                                "params": {
+                                                                    "event": "upload:ad_image_url_desktop"
+                                                                }
+                                                            }
+                                                        ]
+                                                    },
                                                     {
                                                         "event": "onUploadComplete",
                                                         "type": "change",
@@ -554,35 +590,53 @@
                                     },
                                     {
                                         "id": "upload_image_url_mobile",
-                                        "type": "basic",
                                         "name": "Div",
+                                        "type": "basic",
                                         "props": {
                                             "className": "mt-2"
                                         },
                                         "children": [
                                             {
-                                                "type": "basic",
                                                 "name": "P",
+                                                "type": "basic",
                                                 "props": {
                                                     "className": "mb-1 text-xs text-gray-500 dark:text-gray-400"
                                                 },
                                                 "text": "$t:custom-ad_slots.admin.ads.form.fields.upload_hint"
                                             },
                                             {
-                                                "type": "composite",
+                                                "id": "fu_image_url_mobile",
                                                 "name": "FileUploader",
+                                                "type": "composite",
                                                 "props": {
-                                                    "autoUpload": true,
+                                                    "accept": ".jpg,.jpeg,.png,.gif,.webp,image/*",
+                                                    "apiEndpoints": {
+                                                        "upload": "/api/modules/custom-ad_slots/admin/uploads",
+                                                        "delete": "/api/modules/custom-ad_slots/admin/uploads/noop"
+                                                    },
+                                                    "autoUpload": false,
+                                                    "className": "w-full",
+                                                    "collection": "ad_slot_images",
+                                                    "confirmBeforeRemove": true,
+                                                    "initialFiles": [],
                                                     "maxFiles": 1,
                                                     "maxSize": 5,
-                                                    "accept": ".jpg,.jpeg,.png,.gif,.webp,image/*",
-                                                    "collection": "ad_slot_images",
-                                                    "className": "w-full",
-                                                    "apiEndpoints": {
-                                                        "upload": "/api/modules/custom-ad_slots/admin/uploads"
-                                                    }
+                                                    "uploadTriggerEvent": "upload:ad_image_url_mobile"
                                                 },
                                                 "actions": [
+                                                    {
+                                                        "event": "onFilesChange",
+                                                        "type": "change",
+                                                        "handler": "sequence",
+                                                        "actions": [
+                                                            {
+                                                                "handler": "emitEvent",
+                                                                "params": {
+                                                                    "event": "upload:ad_image_url_mobile"
+                                                                }
+                                                            }
+                                                        ]
+                                                    },
                                                     {
                                                         "event": "onUploadComplete",
                                                         "type": "change",
@@ -1100,6 +1154,24 @@
                                                     "target": "local",
                                                     "saving": true,
                                                     "errors": null
+                                                }
+                                            },
+                                            {
+                                                "handler": "emitEvent",
+                                                "params": {
+                                                    "event": "upload:ad_image_url"
+                                                }
+                                            },
+                                            {
+                                                "handler": "emitEvent",
+                                                "params": {
+                                                    "event": "upload:ad_image_url_desktop"
+                                                }
+                                            },
+                                            {
+                                                "handler": "emitEvent",
+                                                "params": {
+                                                    "event": "upload:ad_image_url_mobile"
                                                 }
                                             },
                                             {
