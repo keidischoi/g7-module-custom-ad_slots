@@ -6,6 +6,8 @@ use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Collection as SupportCollection;
 use Modules\Custom\AdSlots\Models\AdSlotItem;
+use Modules\Custom\AdSlots\Models\AdSlotPlacement;
+use Modules\Custom\AdSlots\Support\AdSizeSettings;
 
 /**
  * 광고 슬롯 비즈니스 로직
@@ -115,6 +117,12 @@ class AdSlotService
             'is_active' => false,
             'prevent_right_click' => (bool) $item->prevent_right_click,
             'open_in_new_tab' => (bool) ($item->open_in_new_tab ?? true),
+            'size_mode' => $item->size_mode,
+            'aspect_desktop' => $item->aspect_desktop,
+            'aspect_mobile' => $item->aspect_mobile,
+            'width_px' => $item->width_px,
+            'height_px' => $item->height_px,
+            'max_width_px' => $item->max_width_px,
             'starts_at' => optional($item->starts_at)?->toIso8601String(),
             'ends_at' => optional($item->ends_at)?->toIso8601String(),
         ]);
@@ -143,6 +151,9 @@ class AdSlotService
             'link_url',
             'html_content',
             'script_src',
+            'size_mode',
+            'aspect_desktop',
+            'aspect_mobile',
             'starts_at',
             'ends_at',
         ];
@@ -179,6 +190,131 @@ class AdSlotService
                 $data['open_in_new_tab'] = true;
             } else {
                 $data['open_in_new_tab'] = filter_var($data['open_in_new_tab'], FILTER_VALIDATE_BOOLEAN);
+            }
+        }
+
+        if (array_key_exists('size_mode', $data)) {
+            if ($data['size_mode'] === '' || $data['size_mode'] === null) {
+                $data['size_mode'] = null;
+            } elseif (! in_array($data['size_mode'], AdSizeSettings::MODES, true)) {
+                $data['size_mode'] = null;
+            }
+        }
+
+        if (array_key_exists('aspect_desktop', $data)) {
+            $data['aspect_desktop'] = AdSizeSettings::normalizeAspect($data['aspect_desktop']);
+        }
+        if (array_key_exists('aspect_mobile', $data)) {
+            $data['aspect_mobile'] = AdSizeSettings::normalizeAspect($data['aspect_mobile']);
+        }
+
+        foreach (['width_px', 'height_px', 'max_width_px'] as $pxKey) {
+            if (! array_key_exists($pxKey, $data)) {
+                continue;
+            }
+            if ($data[$pxKey] === '' || $data[$pxKey] === null) {
+                $data[$pxKey] = null;
+            } else {
+                $data[$pxKey] = max(0, (int) $data[$pxKey]);
+            }
+        }
+
+        return $data;
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Collection<int, AdSlotPlacement>
+     */
+    public function listPlacements()
+    {
+        $this->ensurePlacementsSeeded();
+
+        return AdSlotPlacement::query()->orderBy('slot_key')->get();
+    }
+
+    public function findPlacementOrFail(string $slotKey): AdSlotPlacement
+    {
+        $this->ensurePlacementsSeeded();
+
+        return AdSlotPlacement::query()->findOrFail($slotKey);
+    }
+
+    /**
+     * @param  array<string, mixed>  $data
+     */
+    public function updatePlacement(AdSlotPlacement $placement, array $data): AdSlotPlacement
+    {
+        $normalized = $this->normalizePlacement($data);
+        $placement->fill($normalized);
+        $placement->save();
+
+        return $placement->refresh();
+    }
+
+    /**
+     * @return array<string, array<string, mixed>>
+     */
+    public function getPlacementSizeMap(): array
+    {
+        $this->ensurePlacementsSeeded();
+        $map = [];
+        foreach (AdSlotPlacement::query()->get() as $row) {
+            $map[$row->slot_key] = $row->toSizeArray();
+        }
+
+        return $map;
+    }
+
+    /**
+     * Ensure every known slot_key has a placements row (idempotent).
+     */
+    public function ensurePlacementsSeeded(): void
+    {
+        $existing = AdSlotPlacement::query()->pluck('slot_key')->all();
+        $missing = array_values(array_diff(AdSlotItem::SLOT_KEYS, $existing));
+        if ($missing === []) {
+            return;
+        }
+        foreach ($missing as $slotKey) {
+            $builtin = AdSizeSettings::builtInFor($slotKey);
+            AdSlotPlacement::query()->create([
+                'slot_key' => $slotKey,
+                'size_mode' => $builtin['size_mode'],
+                'aspect_desktop' => $builtin['aspect_desktop'],
+                'aspect_mobile' => $builtin['aspect_mobile'],
+                'width_px' => $builtin['width_px'],
+                'height_px' => $builtin['height_px'],
+                'max_width_px' => $builtin['max_width_px'],
+            ]);
+        }
+    }
+
+    /**
+     * @param  array<string, mixed>  $data
+     * @return array<string, mixed>
+     */
+    private function normalizePlacement(array $data): array
+    {
+        if (array_key_exists('size_mode', $data)) {
+            if ($data['size_mode'] === '' || $data['size_mode'] === null) {
+                $data['size_mode'] = AdSizeSettings::MODE_RATIO;
+            }
+        }
+
+        foreach (['aspect_desktop', 'aspect_mobile'] as $key) {
+            if (array_key_exists($key, $data)) {
+                $data[$key] = AdSizeSettings::normalizeAspect($data[$key]);
+            }
+        }
+
+        foreach (['width_px', 'height_px', 'max_width_px'] as $pxKey) {
+            if (! array_key_exists($pxKey, $data)) {
+                continue;
+            }
+            if ($data[$pxKey] === '' || $data[$pxKey] === null) {
+                $data[$pxKey] = null;
+            } else {
+                $data[$pxKey] = max(0, (int) $data[$pxKey]);
             }
         }
 

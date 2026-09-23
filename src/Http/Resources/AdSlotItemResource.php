@@ -5,6 +5,8 @@ namespace Modules\Custom\AdSlots\Http\Resources;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Carbon;
+use Modules\Custom\AdSlots\Models\AdSlotPlacement;
+use Modules\Custom\AdSlots\Support\AdSizeSettings;
 
 /**
  * 관리자/공개 공통 광고 아이템 리소스.
@@ -38,6 +40,12 @@ class AdSlotItemResource extends JsonResource
         'board.boards.bottom' => '게시판 목록(전체) 하단',
         'mypage.top' => '마이페이지 상단',
         'mypage.bottom' => '마이페이지 하단',
+        'maker_bids.top' => '제작·입찰 상단',
+        'maker_bids.bottom' => '제작·입찰 하단',
+        'share.top' => '공유 상단',
+        'share.bottom' => '공유 하단',
+        'page.top' => '정적 페이지 상단',
+        'page.bottom' => '정적 페이지 하단',
         'global.top' => '전체 · 상단',
         'global.bottom' => '전체 · 하단',
     ];
@@ -49,6 +57,26 @@ class AdSlotItemResource extends JsonResource
     {
         $desktop = $this->image_url_desktop ?: $this->image_url;
         $mobile = $this->image_url_mobile ?: $this->image_url_desktop ?: $this->image_url;
+
+        $placement = null;
+        if ($this->resource->relationLoaded('placement')) {
+            $placement = $this->placement;
+        } elseif (! empty($this->additional['placement_map']) && isset($this->additional['placement_map'][$this->slot_key])) {
+            $placement = $this->additional['placement_map'][$this->slot_key];
+        }
+
+        $size = AdSizeSettings::resolve(
+            [
+                'size_mode' => $this->size_mode,
+                'aspect_desktop' => $this->aspect_desktop,
+                'aspect_mobile' => $this->aspect_mobile,
+                'width_px' => $this->width_px,
+                'height_px' => $this->height_px,
+                'max_width_px' => $this->max_width_px,
+            ],
+            $placement instanceof AdSlotPlacement ? $placement->toSizeArray() : (is_array($placement) ? $placement : null),
+            (string) $this->slot_key
+        );
 
         return [
             'id' => $this->id,
@@ -71,6 +99,13 @@ class AdSlotItemResource extends JsonResource
             'is_active' => (bool) $this->is_active,
             'prevent_right_click' => (bool) $this->prevent_right_click,
             'open_in_new_tab' => (bool) ($this->open_in_new_tab ?? true),
+            'size_mode' => $this->size_mode,
+            'aspect_desktop' => $this->aspect_desktop,
+            'aspect_mobile' => $this->aspect_mobile,
+            'width_px' => $this->width_px,
+            'height_px' => $this->height_px,
+            'max_width_px' => $this->max_width_px,
+            'size' => $size,
             'starts_at' => optional($this->starts_at)?->toIso8601String(),
             'ends_at' => optional($this->ends_at)?->toIso8601String(),
             'starts_at_local' => $this->toDatetimeLocal($this->starts_at),

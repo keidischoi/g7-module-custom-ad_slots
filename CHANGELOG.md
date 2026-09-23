@@ -1,5 +1,28 @@
 # Changelog
 
+## [1.4.0] - 2026-09-23
+
+### Added
+
+- **크기 모드 (ratio / fixed):** 슬롯 기본값(`ad_slots_placements`) + 광고 아이템 오버라이드. 비우면 슬롯 → 내장 폴백(히어로 `3/1`·`2/1`, 스택 원본 비율).
+- **슬롯 기본 크기 관리:** 관리자 `/admin/ad-slots/placements` 및 API `admin/placements`.
+- **이미지 업로드:** 관리자 폼 URL 필드 옆에 FileUploader. `POST /api/modules/custom-ad_slots/admin/uploads` (jpeg/png/gif/webp, max 5MB). 성공 시 해당 URL 필드 자동 채움.
+- **신규 슬롯:** `maker_bids.top/bottom` (`/maker-bids`), `share.top/bottom` (`/share`, `/board/share`와 별개), `page.top/bottom` (`/page/*`). path-routed `cas_page_*` 마운트에 연동.
+
+### Changed
+
+- 목록 활성 전환 버튼 문구: **활성화하기** / **비활성하기** (상태 배지·「광고 추가」는 유지).
+- Version **1.4.0**. 광고 JS `hero-carousel.js?v=1.4.0`.
+
+### Install
+
+```
+php82 artisan module:update custom-ad_slots
+php82 artisan migrate
+php82 artisan cache:clear
+php82 artisan view:clear
+```
+
 이 프로젝트의 모든 주요 변경사항을 기록합니다.
 형식은 [Keep a Changelog](https://keepachangelog.com/ko/1.1.0/)를 따르며,
 [Semantic Versioning](https://semver.org/lang/ko/)을 준수합니다.

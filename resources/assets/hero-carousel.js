@@ -1,6 +1,6 @@
 /*! custom-ad_slots — API-driven ad mounts (carousel + stacked banners) + path-routed page mounts */
 (function () {
-  var CAS_AD_VERSION = "1.3.7";
+  var CAS_AD_VERSION = "1.4.0";
   if (window.__casAdRenderVersion === CAS_AD_VERSION) return;
   window.__casAdRenderVersion = CAS_AD_VERSION;
   window.__casAdRenderInstalled = true;
@@ -98,6 +98,25 @@
         }
         if (n === "board/index") {
           return { top: "board.index.top", bottom: "board.index.bottom", excluded: false, path: path };
+        }
+        if (
+          n === "maker-bids" ||
+          n === "maker_bids" ||
+          n.indexOf("maker-bids/") === 0 ||
+          n.indexOf("maker_bids/") === 0 ||
+          n === "maker/bids" ||
+          n.indexOf("maker/bids/") === 0
+        ) {
+          return { top: "maker_bids.top", bottom: "maker_bids.bottom", excluded: false, path: path };
+        }
+        // Share landing (not board/share → board.index)
+        if (n === "share" || n.indexOf("share/") === 0) {
+          if (n.indexOf("board/") !== 0) {
+            return { top: "share.top", bottom: "share.bottom", excluded: false, path: path };
+          }
+        }
+        if (n === "page" || n.indexOf("page/") === 0) {
+          return { top: "page.top", bottom: "page.bottom", excluded: false, path: path };
         }
         if (n === "mypage" || n.indexOf("mypage/") === 0) {
           return { top: "mypage.top", bottom: "mypage.bottom", excluded: false, path: path };
@@ -208,6 +227,28 @@
       return { top: "shop.detail.top", bottom: "shop.detail.bottom", excluded: false, path: path };
     }
 
+    // Maker bids: /maker-bids, /maker_bids, /maker/bids
+    if (
+      lower === "/maker-bids" ||
+      lower.indexOf("/maker-bids/") === 0 ||
+      lower === "/maker_bids" ||
+      lower.indexOf("/maker_bids/") === 0 ||
+      lower === "/maker/bids" ||
+      lower.indexOf("/maker/bids/") === 0
+    ) {
+      return { top: "maker_bids.top", bottom: "maker_bids.bottom", excluded: false, path: path };
+    }
+
+    // Share landing: exact /share (NOT /board/share → board.index)
+    if (lower === "/share" || lower.indexOf("/share/") === 0) {
+      return { top: "share.top", bottom: "share.bottom", excluded: false, path: path };
+    }
+
+    // Static pages: /page/about, /page/faq, ...
+    if (lower === "/page" || lower.indexOf("/page/") === 0) {
+      return { top: "page.top", bottom: "page.bottom", excluded: false, path: path };
+    }
+
     return { top: null, bottom: null, excluded: false, path: path };
   }
 
@@ -246,6 +287,12 @@
       ad_board_boards_bottom_wrap: "board.boards.bottom",
       ad_mypage_top_wrap: "mypage.top",
       ad_mypage_bottom_wrap: "mypage.bottom",
+      ad_maker_bids_top_wrap: "maker_bids.top",
+      ad_maker_bids_bottom_wrap: "maker_bids.bottom",
+      ad_share_top_wrap: "share.top",
+      ad_share_bottom_wrap: "share.bottom",
+      ad_page_top_wrap: "page.top",
+      ad_page_bottom_wrap: "page.bottom",
     };
     return map[id] || null;
   }
@@ -291,6 +338,12 @@
       "ad_board_boards_bottom_wrap",
       "ad_mypage_top_wrap",
       "ad_mypage_bottom_wrap",
+      "ad_maker_bids_top_wrap",
+      "ad_maker_bids_bottom_wrap",
+      "ad_share_top_wrap",
+      "ad_share_bottom_wrap",
+      "ad_page_top_wrap",
+      "ad_page_bottom_wrap",
     ];
     for (var i = 0; i < ids.length; i++) {
       var el = document.getElementById(ids[i]);
@@ -371,6 +424,17 @@
         target = "_self";
       }
     }
+    var size = ad.size && typeof ad.size === "object" ? ad.size : null;
+    if (!size) {
+      size = {
+        mode: ad.size_mode || "ratio",
+        aspect_desktop: ad.aspect_desktop || null,
+        aspect_mobile: ad.aspect_mobile || null,
+        width_px: ad.width_px != null ? ad.width_px : null,
+        height_px: ad.height_px != null ? ad.height_px : null,
+        max_width_px: ad.max_width_px != null ? ad.max_width_px : null,
+      };
+    }
     return {
       id: ad.id,
       desktopSrc: desktop,
@@ -382,6 +446,7 @@
       title: ad.title || "",
       bg_color: ad.bg_color || "",
       preventRightClick: prevent,
+      size: size,
     };
   }
 
@@ -447,6 +512,7 @@
   function slideSignature(slides) {
     return slides
       .map(function (s) {
+        var sz = s.size || {};
         return (
           (s.id != null ? String(s.id) : "") +
           "|" +
@@ -454,13 +520,25 @@
           "|" +
           (s.mobileSrc || "") +
           "|" +
-          (s.href || "")
+          (s.href || "") +
+          "|" +
+          (sz.mode || "") +
+          "|" +
+          (sz.aspect_desktop || "") +
+          "|" +
+          (sz.aspect_mobile || "") +
+          "|" +
+          (sz.width_px != null ? sz.width_px : "") +
+          "|" +
+          (sz.height_px != null ? sz.height_px : "") +
+          "|" +
+          (sz.max_width_px != null ? sz.max_width_px : "")
         );
       })
       .join("||");
   }
 
-  /** Keep stacked banners at their intrinsic ratio despite theme image styles. */
+  /** Keep stacked banners sized despite theme image styles. */
   function ensureStackStyles() {
     var style = document.getElementById("cas-ad-stack-css");
     if (!style) {
@@ -470,31 +548,115 @@
     }
     style.textContent =
       ".cas-ad-stack{display:flex;flex-direction:column;align-items:stretch;gap:0.75rem;width:100%;}" +
-      ".cas-ad-stack > [data-cas-stack-row]{position:relative !important;width:100% !important;max-width:none !important;height:auto !important;padding:0 !important;overflow:hidden !important;aspect-ratio:auto !important;flex-shrink:0 !important;}" +
-      ".cas-ad-stack > [data-cas-stack-row] > *{position:relative !important;inset:auto !important;display:block !important;width:100% !important;height:auto !important;}" +
-      ".cas-ad-stack img{position:static !important;inset:auto !important;display:block;width:100% !important;height:auto !important;max-width:100% !important;max-height:none !important;object-fit:contain !important;margin:0 !important;}";
+      ".cas-ad-stack > [data-cas-stack-row]{position:relative !important;overflow:hidden !important;flex-shrink:0 !important;padding:0 !important;}" +
+      ".cas-ad-stack > [data-cas-stack-row][data-cas-size-mode='ratio'][data-cas-intrinsic='1']{width:100% !important;max-width:none !important;height:auto !important;aspect-ratio:auto !important;}" +
+      ".cas-ad-stack > [data-cas-stack-row][data-cas-size-mode='ratio'][data-cas-intrinsic='1'] > *{position:relative !important;inset:auto !important;display:block !important;width:100% !important;height:auto !important;}" +
+      ".cas-ad-stack > [data-cas-stack-row][data-cas-size-mode='ratio'][data-cas-intrinsic='1'] img{position:static !important;inset:auto !important;display:block;width:100% !important;height:auto !important;max-width:100% !important;max-height:none !important;object-fit:contain !important;margin:0 !important;}" +
+      ".cas-ad-stack > [data-cas-stack-row][data-cas-size-mode='ratio'][data-cas-intrinsic='0'] img," +
+      ".cas-ad-stack > [data-cas-stack-row][data-cas-size-mode='fixed'] img{position:absolute !important;inset:0 !important;display:block;width:100% !important;height:100% !important;object-fit:cover !important;object-position:center !important;margin:0 !important;}";
   }
 
-  function applyAspect(el) {
+  function isMd() {
     try {
-      var md = window.matchMedia && window.matchMedia(MD_MQ).matches;
-      el.style.aspectRatio = md ? "3 / 1" : "2 / 1";
+      return !!(window.matchMedia && window.matchMedia(MD_MQ).matches);
     } catch (e) {
-      el.style.aspectRatio = "2 / 1";
+      return false;
     }
   }
 
-  /** Fill the main content width; image height keeps its intrinsic ratio. */
-  function applyStackFrame(el) {
+  function normalizeCssAspect(raw, fallback) {
+    if (raw == null || raw === "") return fallback || null;
+    var s = String(raw).trim();
+    var m = s.match(/^(\d+(?:\.\d+)?)\s*[\/: ]\s*(\d+(?:\.\d+)?)$/);
+    if (m) return m[1] + " / " + m[2];
+    if (/^\d+(?:\.\d+)?$/.test(s)) return s + " / 1";
+    return s.replace(":", " / ");
+  }
+
+  function sizeOf(slideOrEl) {
+    if (!slideOrEl) return { mode: "ratio" };
+    if (slideOrEl.size) return slideOrEl.size;
+    return { mode: "ratio" };
+  }
+
+  /** Hero/carousel frame: fixed box or aspect-ratio (fallback 3/1 · 2/1). */
+  function applyAspect(el, size) {
+    size = size || {};
+    var mode = size.mode === "fixed" ? "fixed" : "ratio";
+    el.setAttribute("data-cas-size-mode", mode);
+    el.style.position = "relative";
+    el.style.overflow = "hidden";
+    if (mode === "fixed") {
+      el.style.aspectRatio = "auto";
+      el.style.height = size.height_px != null ? size.height_px + "px" : "200px";
+      if (size.width_px != null) {
+        el.style.width = size.width_px + "px";
+        el.style.maxWidth = size.max_width_px != null ? size.max_width_px + "px" : "100%";
+      } else {
+        el.style.width = "100%";
+        el.style.maxWidth = size.max_width_px != null ? size.max_width_px + "px" : "none";
+      }
+      return;
+    }
+    el.style.width = "100%";
+    el.style.maxWidth = size.max_width_px != null ? size.max_width_px + "px" : "none";
+    el.style.height = "auto";
+    var md = isMd();
+    var aspect = normalizeCssAspect(
+      md ? size.aspect_desktop : size.aspect_mobile,
+      md ? "3 / 1" : "2 / 1"
+    );
+    el.style.aspectRatio = aspect || (md ? "3 / 1" : "2 / 1");
+  }
+
+  /**
+   * Stack row: intrinsic (blank ratio), forced ratio, or fixed W×H.
+   * fillMode true → absolute cover images (ratio with aspects, or fixed).
+   */
+  function applyStackFrame(el, size) {
+    size = size || el.__casSize || {};
+    el.__casSize = size;
     el.setAttribute("data-cas-stack-row", "1");
     el.style.position = "relative";
-    el.style.width = "100%";
-    el.style.maxWidth = "none";
-    el.style.height = "auto";
     el.style.overflow = "hidden";
     el.style.flexShrink = "0";
-    el.style.aspectRatio = "auto";
     el.style.padding = "0";
+
+    var mode = size.mode === "fixed" ? "fixed" : "ratio";
+    el.setAttribute("data-cas-size-mode", mode);
+
+    if (mode === "fixed") {
+      el.setAttribute("data-cas-intrinsic", "0");
+      el.style.aspectRatio = "auto";
+      el.style.height = size.height_px != null ? size.height_px + "px" : "160px";
+      if (size.width_px != null) {
+        el.style.width = size.width_px + "px";
+        el.style.maxWidth = size.max_width_px != null ? size.max_width_px + "px" : "100%";
+      } else {
+        el.style.width = "100%";
+        el.style.maxWidth = size.max_width_px != null ? size.max_width_px + "px" : "none";
+      }
+      return true; // fillMode
+    }
+
+    var md = isMd();
+    var aspect = normalizeCssAspect(md ? size.aspect_desktop : size.aspect_mobile, null);
+    if (aspect) {
+      el.setAttribute("data-cas-intrinsic", "0");
+      el.style.width = "100%";
+      el.style.maxWidth = size.max_width_px != null ? size.max_width_px + "px" : "none";
+      el.style.height = "auto";
+      el.style.aspectRatio = aspect;
+      return true; // fillMode cover
+    }
+
+    // Intrinsic image height (current stack default)
+    el.setAttribute("data-cas-intrinsic", "1");
+    el.style.width = "100%";
+    el.style.maxWidth = size.max_width_px != null ? size.max_width_px + "px" : "none";
+    el.style.height = "auto";
+    el.style.aspectRatio = "auto";
+    return false;
   }
 
   function applyImgVisibility(desktopImg, mobileImg) {
@@ -666,7 +828,8 @@
     var frame = document.createElement("div");
     frame.style.position = "relative";
     frame.style.width = "100%";
-    applyAspect(frame);
+    frame.__casSize = (slides[0] && slides[0].size) || { mode: "ratio" };
+    applyAspect(frame, frame.__casSize);
     host.appendChild(frame);
 
     var state = {
@@ -834,7 +997,7 @@
     try {
       var mql = window.matchMedia(MD_MQ);
       var onMq = function () {
-        applyAspect(frame);
+        applyAspect(frame, frame.__casSize || (slides[0] && slides[0].size) || {});
         state.slideEls.forEach(function (el) {
           applyImgVisibility(el.__casDesktop, el.__casMobile);
         });
@@ -873,12 +1036,13 @@
       var row = document.createElement("div");
       row.className = "w-full overflow-hidden rounded-lg";
       row.style.borderRadius = "0.5rem";
-      applyStackFrame(row);
+      var fillMode = applyStackFrame(row, slide.size || { mode: "ratio" });
       if (slide.bg_color) row.style.backgroundColor = slide.bg_color;
 
-      var built = buildLinkedMedia(slide, false);
+      var built = buildLinkedMedia(slide, fillMode);
       row.appendChild(built.body);
       row.__casPrevent = slide.preventRightClick;
+      row.__casFill = fillMode;
       imgPairs.push(built);
       host.appendChild(row);
     });
@@ -899,9 +1063,20 @@
     try {
       var mql = window.matchMedia(MD_MQ);
       var onMq = function () {
-        Array.prototype.forEach.call(host.children, applyStackFrame);
-        imgPairs.forEach(function (p) {
-          applyImgVisibility(p.desktopImg, p.mobileImg);
+        Array.prototype.forEach.call(host.children, function (row, idx) {
+          var slide = slides[idx];
+          var fill = applyStackFrame(row, (slide && slide.size) || row.__casSize || { mode: "ratio" });
+          // If fill mode flipped, rebuild is heavy — restyle images in place
+          var pair = imgPairs[idx];
+          if (!pair) return;
+          if (fill) {
+            styleFillImg(pair.desktopImg);
+            styleFillImg(pair.mobileImg);
+          } else {
+            styleStackImg(pair.desktopImg);
+            styleStackImg(pair.mobileImg);
+          }
+          applyImgVisibility(pair.desktopImg, pair.mobileImg);
         });
       };
       if (mql.addEventListener) mql.addEventListener("change", onMq);

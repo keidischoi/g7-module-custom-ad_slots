@@ -14,6 +14,8 @@ use Modules\Custom\AdSlots\Services\AdSlotService;
  *
  * GET /api/modules/custom-ad_slots/placements
  * GET /api/modules/custom-ad_slots/placements?slot=home.top
+ *
+ * Each item includes resolved `size` (item override ?? slot default ?? built-in).
  */
 class PlacementController extends PublicBaseController
 {
@@ -39,14 +41,26 @@ class PlacementController extends PublicBaseController
                 ]);
             }
 
+            $placementMap = $this->adSlotService->getPlacementSizeMap();
             $result = $this->adSlotService->getPublicPlacements($slot ?: null);
 
+            $resolveItems = static function ($items) use ($placementMap): array {
+                $out = [];
+                foreach ($items as $item) {
+                    $out[] = (new AdSlotItemResource($item))->additional([
+                        'placement_map' => $placementMap,
+                    ])->resolve();
+                }
+
+                return $out;
+            };
+
             if ($slot !== null && $slot !== '') {
-                $payload = AdSlotItemResource::collection($result)->resolve();
+                $payload = $resolveItems($result);
             } else {
                 $payload = [];
                 foreach ($result as $slotKey => $items) {
-                    $payload[$slotKey] = AdSlotItemResource::collection($items)->resolve();
+                    $payload[$slotKey] = $resolveItems($items);
                 }
             }
 

@@ -2,6 +2,8 @@
 
 use Illuminate\Support\Facades\Route;
 use Modules\Custom\AdSlots\Http\Controllers\Admin\AdSlotItemController;
+use Modules\Custom\AdSlots\Http\Controllers\Admin\AdSlotPlacementController;
+use Modules\Custom\AdSlots\Http\Controllers\Admin\AdSlotUploadController;
 use Modules\Custom\AdSlots\Http\Controllers\Public\AssetController;
 use Modules\Custom\AdSlots\Http\Controllers\Public\PlacementController;
 
@@ -15,6 +17,11 @@ use Modules\Custom\AdSlots\Http\Controllers\Public\PlacementController;
 Route::get('placements', [PlacementController::class, 'index'])
     ->middleware(['throttle:600,1'])
     ->name('placements.index');
+
+
+Route::post('admin/uploads', [AdSlotUploadController::class, 'store'])
+    ->middleware(['auth:sanctum', 'throttle:60,1'])
+    ->name('admin.uploads.store');
 
 Route::prefix('admin/ads')
     ->middleware(['auth:sanctum', 'throttle:600,1'])
@@ -52,6 +59,25 @@ Route::prefix('admin/ads')
             ->whereNumber('id')
             ->middleware('permission:admin,custom-ad_slots.ads.delete')
             ->name('destroy');
+    });
+
+Route::prefix('admin/placements')
+    ->middleware(['auth:sanctum', 'throttle:600,1'])
+    ->name('admin.placements.')
+    ->group(function () {
+        Route::get('/', [AdSlotPlacementController::class, 'index'])
+            ->middleware('permission:admin,custom-ad_slots.ads.read')
+            ->name('index');
+
+        Route::get('/{slotKey}', [AdSlotPlacementController::class, 'show'])
+            ->where('slotKey', '[A-Za-z0-9._-]+')
+            ->middleware('permission:admin,custom-ad_slots.ads.read')
+            ->name('show');
+
+        Route::put('/{slotKey}', [AdSlotPlacementController::class, 'update'])
+            ->where('slotKey', '[A-Za-z0-9._-]+')
+            ->middleware('permission:admin,custom-ad_slots.ads.update')
+            ->name('update');
     });
 
 Route::get('assets/hero-carousel.js', [AssetController::class, 'show'])

@@ -13,7 +13,10 @@
                 "active": "Active",
                 "inactive": "Inactive",
                 "duplicate": "Duplicate",
-                "duplicate_success": "Ad duplicated (inactive)."
+                "duplicate_success": "Ad duplicated (inactive).",
+                "activate": "Activate",
+                "deactivate": "Deactivate",
+                "slot_defaults": "Slot size defaults"
             },
             "form": {
                 "title_create": "Create Ad",
@@ -46,7 +49,55 @@
                     "prevent_right_click": "Prevent right-click",
                     "prevent_right_click_hint": "Blocks the browser context menu only",
                     "open_in_new_tab": "Open in new window",
-                    "open_in_new_tab_hint": "When off, the ad link opens in the same window"
+                    "open_in_new_tab_hint": "When off, the ad link opens in the same window",
+                    "size_mode": "Size mode",
+                    "size_mode_inherit": "Use slot default",
+                    "size_mode_ratio": "Ratio",
+                    "size_mode_fixed": "Fixed width × height",
+                    "size_mode_hint": "Leave blank to inherit the slot default.",
+                    "aspect_desktop": "Desktop aspect ratio",
+                    "aspect_mobile": "Mobile aspect ratio",
+                    "aspect_placeholder": "e.g. 3/1",
+                    "aspect_hint": "Blank inherits slot default. e.g. 3/1 or 2/1",
+                    "width_px": "Width (px)",
+                    "height_px": "Height (px)",
+                    "max_width_px": "Max width (px)",
+                    "width_px_hint": "Blank = 100% of container",
+                    "height_px_hint": "Required when mode is fixed (blank inherits slot default)",
+                    "max_width_px_hint": "Optional. Blank = no max",
+                    "size_section": "Display size",
+                    "upload": "Upload image",
+                    "upload_hint": "Selecting a file uploads it and fills the URL. You can still paste a URL manually.",
+                    "upload_success": "Image uploaded."
+                }
+            }
+        },
+        "placements": {
+            "index": {
+                "title": "Slot size defaults",
+                "description": "Set default size mode and ratio/fixed dimensions per placement. Blank fields on an ad inherit these values.",
+                "edit": "Edit",
+                "empty": "No slot settings found."
+            },
+            "form": {
+                "title_edit": "Edit slot size defaults",
+                "description": "Configure the default display size for this slot.",
+                "update_success": "Slot size defaults saved.",
+                "validation_error": "Please check the form values.",
+                "fields": {
+                    "slot_key": "Slot",
+                    "size_mode": "Size mode",
+                    "size_mode_ratio": "Ratio",
+                    "size_mode_fixed": "Fixed width × height",
+                    "aspect_desktop": "Desktop aspect ratio",
+                    "aspect_mobile": "Mobile aspect ratio",
+                    "aspect_placeholder": "e.g. 3/1",
+                    "width_px": "Width (px)",
+                    "height_px": "Height (px)",
+                    "max_width_px": "Max width (px)",
+                    "width_px_hint": "Blank = 100% of container",
+                    "height_px_hint": "Required when mode is fixed",
+                    "max_width_px_hint": "Optional"
                 }
             }
         }
@@ -123,6 +174,24 @@
         "mypage": {
             "top": "My Page Top",
             "bottom": "My Page Bottom"
-        }
+        },
+        "maker_bids": {
+            "top": "Maker bids top",
+            "bottom": "Maker bids bottom"
+        },
+        "share": {
+            "top": "Share landing top",
+            "bottom": "Share landing bottom"
+        },
+        "page": {
+            "top": "Static page top",
+            "bottom": "Static page bottom"
+        },
+        "maker_bids.top": "Maker bids top",
+        "maker_bids.bottom": "Maker bids bottom",
+        "share.top": "Share landing top",
+        "share.bottom": "Share landing bottom",
+        "page.top": "Static page top",
+        "page.bottom": "Static page bottom"
     }
 }
