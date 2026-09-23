@@ -1,3 +1,32 @@
+## [1.4.24] - 2026-09-23
+
+### Fixed
+- **슬롯 기본크기 목록 빈 화면:** G7 레이아웃 표현식에서 `?.` / `??`가 `admin_ad_slot_placement_list` iteration을 깨뜨려 API가 행을 반환해도 목록이 비던 문제. `(placements && placements.data && placements.data.data) || []`로 정렬(광고 폼 hydrate와 동일 패턴).
+- **크롬 깨짐:** 목록 래퍼를 `admin-page-content` + `max-w-5xl mx-auto`에서 **`admin-page-content-responsive` only**로 변경 (너비 유틸이 어드민 크롬을 비우던 이력).
+- **배치 수정 폼:** `admin_ad_slot_placement_form`의 `?.` / `??`를 `&&` / `||`로 정리해 edit·save가 동작하도록 함.
+- **빈 목록 UX:** `admin.placements.index.empty` + migrate 안내 `empty_hint` 표시. 테이블 미생성 시 API는 기존처럼 `php artisan migrate` 메시지 반환(`ensurePlacementsSeeded` / `listPlacements`).
+
+### Changed
+- **카피:** 사용자 노출 「슬롯 기본 크기 일괄적용」→「**슬롯 기본크기**」(비율/크기 변형·저장 토스트·목록 버튼·API ko 메시지 포함). 「일괄적용」 문구 제거.
+
+### Unchanged
+- 광고 FileUploader / image upload 경로, `admin_ad_slot_form` 업로드 JS 동작(버전 문자열만 1.4.24).
+
+### Meta
+- Version **1.4.24**.
+
+### Deploy
+```
+php82 artisan module:update custom-ad_slots
+php82 artisan cache:clear
+php82 artisan view:clear
+```
+테이블이 비어 있거나 없으면(최초/미마이그레이션):
+```
+php82 artisan migrate
+```
+(또는 모듈 migrate 경로를 쓰는 환경이면 동일하게 placements 마이그레이션 `2026_09_23_000005_create_ad_slots_placements_table` 적용)
+
 ## [1.4.23] - 2026-09-23
 
 ### Fixed
