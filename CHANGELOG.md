@@ -1,3 +1,29 @@
+## [1.4.18] - 2026-09-23
+
+### Fixed
+- **DB image_url* 미반영 (업로드+저장 후에도 null):** `onFilesChange` emit 게이트가 로컬 FileUploader 파일의 사전 `path`를 "이미 업로드됨"으로 오인해 `emitEvent upload`가 스킵 → POST `/uploads` 미발생 → `rememberUrl`/`onUploadComplete` 미실행 → 저장 body URL 공백 → DB null. 칩만 로컬 선택으로 보여 사용자는 업로드 성공으로 착각.
+  - emit/setState 게이트: 서버 URL(`download_url` 또는 `url`이 `http`로 시작) 또는 `uploaded` 플래그가 있을 때만 재업로드 스킵. **bare `path`는 더 이상 스킵 조건이 아님.**
+  - `apiEndpoints.upload`에 `?field=image_url*` 쿼리 추가 + 컨트롤러 `resolveUploadField()`가 query/FormData/`uploadParams.field` 모두 수용 → `rememberUrl` 확실히 기록.
+  - `onUploadComplete` → form.image_url* / Input 바인딩, 저장 body의 uploader[0] URL 폴백 + `mergeRememberedUrls`는 유지(클라이언트 URL 우선).
+
+### Unchanged
+- `autoUpload: false` + `uploadTriggerEvent` (cold-load autoUpload 없음).
+- remembered GET 재동기화 없음 (1.4.16).
+- Save `disabled`는 `_local.saving`만 (1.4.17).
+- `files`/`value` two-way 바인딩 및 remount-key/`has`/`empty` 키 핵 없음.
+- 광고 store/update multipart 재도입 없음(JSON URL body + remember 병합으로 충분).
+
+### Meta
+- Version **1.4.18**. 광고 JS `hero-carousel.js?v=1.4.18`.
+
+### Deploy
+```
+php82 artisan module:update custom-ad_slots
+php82 artisan cache:clear
+php82 artisan view:clear
+```
+
+
 ## [1.4.17] - 2026-09-23
 
 ### Fixed

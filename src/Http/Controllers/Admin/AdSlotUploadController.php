@@ -50,7 +50,9 @@ class AdSlotUploadController extends AdminBaseController
 
             // Remember URL for this admin field so create/update can persist even if
             // the layout save body races ahead of onUploadComplete (DP temp_key pattern).
-            $field = (string) $request->input('field', $request->query('field', ''));
+            // FileUploader may send uploadParams as FormData `field`, nested keys, or only
+            // on the query string (apiEndpoints.upload?field=...); accept all variants.
+            $field = self::resolveUploadField($request);
             if ($field !== '' && $request->user()) {
                 AdSlotUploadService::rememberUrl($request->user()->id, $field, (string) ($payload['download_url'] ?? $payload['url'] ?? ''));
             }
@@ -85,7 +87,7 @@ class AdSlotUploadController extends AdminBaseController
                 return $this->error('custom-ad_slots::messages.upload.failed', 403, 'Forbidden');
             }
 
-            $field = (string) $request->input('field', $request->query('field', ''));
+            $field = self::resolveUploadField($request);
             if (! AdSlotUploadService::isUrlField($field)) {
                 return $this->error('custom-ad_slots::messages.upload.failed', 422, 'Invalid field');
             }
@@ -118,7 +120,7 @@ class AdSlotUploadController extends AdminBaseController
 
             $result = $this->uploadService->deleteByUploadId($uploadId);
 
-            $field = (string) $request->input('field', $request->query('field', ''));
+            $field = self::resolveUploadField($request);
             if ($field !== '' && $request->user()) {
                 AdSlotUploadService::forgetUrl($request->user()->id, $field);
             }
@@ -130,7 +132,7 @@ class AdSlotUploadController extends AdminBaseController
                 'path' => $result['path'],
             ]);
         } catch (\Exception $e) {
-            $field = (string) $request->input('field', $request->query('field', ''));
+            $field = self::resolveUploadField($request);
             if ($field !== '' && $request->user()) {
                 AdSlotUploadService::forgetUrl($request->user()->id, $field);
             }
@@ -142,6 +144,28 @@ class AdSlotUploadController extends AdminBaseController
                 'error' => $e->getMessage(),
             ]);
         }
+    }
+
+
+    /**
+     * Resolve FileUploader field name from query, FormData, or nested uploadParams.
+     */
+    private static function resolveUploadField(Request $request): string
+    {
+        $candidates = [
+            $request->query('field'),
+            $request->input('field'),
+            $request->input('uploadParams.field'),
+            $request->input('params.field'),
+            $request->input('upload_params.field'),
+        ];
+        foreach ($candidates as $candidate) {
+            if (is_string($candidate) && trim($candidate) !== '') {
+                return trim($candidate);
+            }
+        }
+
+        return '';
     }
 
     private function userCanUpload(Request $request): bool
