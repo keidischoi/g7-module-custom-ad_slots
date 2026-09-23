@@ -116,6 +116,8 @@ class AdSlotUploadService
         if ($url === '') {
             return;
         }
+        // New upload supersedes any prior intentional clear in this session.
+        Cache::forget(self::clearedKey($userId, $field));
         Cache::put(self::rememberKey($userId, $field), $url, self::REMEMBER_TTL);
     }
 
@@ -125,6 +127,18 @@ class AdSlotUploadService
             return;
         }
         Cache::forget(self::rememberKey($userId, $field));
+        // Mark intentional clear so mergeRememberedUrls will not resurrect the URL.
+        Cache::put(self::clearedKey($userId, $field), true, self::REMEMBER_TTL);
+    }
+
+    public static function peekRememberedUrl(int|string $userId, string $field): ?string
+    {
+        if (! self::isUrlField($field)) {
+            return null;
+        }
+        $url = Cache::get(self::rememberKey($userId, $field));
+
+        return is_string($url) && trim($url) !== '' ? trim($url) : null;
     }
 
     public static function forgetAllUrls(int|string $userId): void
@@ -145,15 +159,23 @@ class AdSlotUploadService
     {
         foreach (self::URL_FIELDS as $field) {
             $current = $data[$field] ?? null;
-            if (is_string($current) && trim($current) !== '') {
-                // Client already has a URL — drop remember so a later clear stays clear.
-                self::forgetUrl($userId, $field);
+
+            // Chip removed / explicit empty → forgetUrl set a cleared marker. Do not refill.
+            if (Cache::pull(self::clearedKey($userId, $field))) {
+                Cache::forget(self::rememberKey($userId, $field));
                 continue;
             }
+
+            if (is_string($current) && trim($current) !== '') {
+                // Client already has a URL — drop remember so a later clear stays clear.
+                Cache::forget(self::rememberKey($userId, $field));
+                continue;
+            }
+
             $remembered = Cache::get(self::rememberKey($userId, $field));
             if (is_string($remembered) && trim($remembered) !== '') {
                 $data[$field] = trim($remembered);
-                self::forgetUrl($userId, $field);
+                Cache::forget(self::rememberKey($userId, $field));
             }
         }
 
@@ -163,6 +185,11 @@ class AdSlotUploadService
     private static function rememberKey(int|string $userId, string $field): string
     {
         return 'custom-ad_slots:last_upload:'.(string) $userId.':'.$field;
+    }
+
+    private static function clearedKey(int|string $userId, string $field): string
+    {
+        return 'custom-ad_slots:upload_cleared:'.(string) $userId.':'.$field;
     }
 
     /**

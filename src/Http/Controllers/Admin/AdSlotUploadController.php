@@ -13,9 +13,13 @@ use Modules\Custom\AdSlots\Services\AdSlotUploadService;
  * POST /api/modules/custom-ad_slots/admin/uploads
  * multipart field: file (also accepts image)
  *
+ * GET /api/modules/custom-ad_slots/admin/uploads/remembered?field=image_url*
+ * Returns last remembered public URL + FileUploader files[] for the admin user.
+ *
  * DELETE /api/modules/custom-ad_slots/admin/uploads/{uploadId}
  * FileUploader expects Attachment at response.data.data.
  * Destroy deletes managed storage when id is base64url(path); soft-success otherwise.
+ * uploadId=noop with ?field= forgets remember without deleting a blob.
  */
 class AdSlotUploadController extends AdminBaseController
 {
@@ -66,6 +70,36 @@ class AdSlotUploadController extends AdminBaseController
             ], 201);
         } catch (\Illuminate\Validation\ValidationException $e) {
             throw $e;
+        } catch (\Exception $e) {
+            return $this->error('custom-ad_slots::messages.upload.failed', 500, $e->getMessage());
+        }
+    }
+
+    /**
+     * Return the last remembered upload URL for this admin + field (post-upload sync).
+     */
+    public function remembered(Request $request): JsonResponse
+    {
+        try {
+            if (! $this->userCanUpload($request)) {
+                return $this->error('custom-ad_slots::messages.upload.failed', 403, 'Forbidden');
+            }
+
+            $field = (string) $request->input('field', $request->query('field', ''));
+            if (! AdSlotUploadService::isUrlField($field)) {
+                return $this->error('custom-ad_slots::messages.upload.failed', 422, 'Invalid field');
+            }
+
+            $userId = (int) ($request->user()?->id ?? 0);
+            $url = AdSlotUploadService::peekRememberedUrl($userId, $field);
+            $files = AdSlotUploadService::uploaderFilesFromUrl($url);
+
+            return $this->success('custom-ad_slots::messages.upload.success', [
+                'field' => $field,
+                'url' => $url,
+                'files' => $files,
+                'file' => $files[0] ?? null,
+            ]);
         } catch (\Exception $e) {
             return $this->error('custom-ad_slots::messages.upload.failed', 500, $e->getMessage());
         }
