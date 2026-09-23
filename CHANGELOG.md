@@ -1,3 +1,29 @@
+## [1.4.17] - 2026-09-23
+
+### Fixed
+- **파일 선택 후 저장 버튼 영구 비활성화:** `onFilesChange`에서 `setState(uploading_*=true)`가 `emitEvent upload`보다 먼저 적용되면, emit의 `if (!_local.uploading_*)`가 이미 false가 되어 업로드가 스킵되고 플래그만 true로 남음 → `onUploadComplete`가 안 돌아 Save가 계속 disabled.
+  - 레거시/데스크톱/모바일 세 FileUploader 모두 **emitEvent 먼저 → 그다음 uploading_*=true**. 안티루프 게이트(이미 업로드 중이거나 `download_url`/`path` 있으면 재emit 안 함)는 유지.
+  - `onUploadComplete` / `onUploadError` / 빈 배열·삭제 경로의 `uploading_*=false` 클리어는 그대로.
+  - Save `disabled`를 `_local.saving`만으로 축소(업로드 플래그에 묶지 않음). 업로드 중 저장은 `mergeRememberedUrls`가 in-flight URL을 반영. 클릭 시 upload-in-progress 토스트/게이트 제거.
+
+### Unchanged
+- `autoUpload: false` + `uploadTriggerEvent` (cold-load autoUpload 없음).
+- 크롬 `admin-page-content-responsive` only.
+- `files`/`value` two-way 바인딩 및 1.4.1–1.4.7 shell hacks 없음.
+- FileUploader `key`는 form id 안정 identity만 사용 (1.4.14).
+- remembered GET 재동기화 없음 (1.4.16). create·edit 공통 레이아웃.
+
+### Meta
+- Version **1.4.17**. 광고 JS `hero-carousel.js?v=1.4.17`.
+
+### Deploy
+```
+php82 artisan module:update custom-ad_slots
+php82 artisan cache:clear
+php82 artisan view:clear
+```
+
+
 # Changelog
 
 ## [1.4.16] - 2026-09-23

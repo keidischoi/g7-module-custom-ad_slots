@@ -550,18 +550,18 @@
                                                                 ]
                                                             },
                                                             {
+                                                                "handler": "emitEvent",
+                                                                "if": "{{!!($args[0] && $args[0].length && !_local.uploading_image_url && !($args[0][0] && ($args[0][0].download_url || $args[0][0].path)))}}",
+                                                                "params": {
+                                                                    "event": "upload:ad_image_url"
+                                                                }
+                                                            },
+                                                            {
                                                                 "handler": "setState",
                                                                 "if": "{{!!($args[0] && $args[0].length && !_local.uploading_image_url && !($args[0][0] && ($args[0][0].download_url || $args[0][0].path)))}}",
                                                                 "params": {
                                                                     "target": "local",
                                                                     "uploading_image_url": true
-                                                                }
-                                                            },
-                                                            {
-                                                                "handler": "emitEvent",
-                                                                "if": "{{!!($args[0] && $args[0].length && !_local.uploading_image_url && !($args[0][0] && ($args[0][0].download_url || $args[0][0].path)))}}",
-                                                                "params": {
-                                                                    "event": "upload:ad_image_url"
                                                                 }
                                                             }
                                                         ]
@@ -824,18 +824,18 @@
                                                                 ]
                                                             },
                                                             {
+                                                                "handler": "emitEvent",
+                                                                "if": "{{!!($args[0] && $args[0].length && !_local.uploading_image_url_desktop && !($args[0][0] && ($args[0][0].download_url || $args[0][0].path)))}}",
+                                                                "params": {
+                                                                    "event": "upload:ad_image_url_desktop"
+                                                                }
+                                                            },
+                                                            {
                                                                 "handler": "setState",
                                                                 "if": "{{!!($args[0] && $args[0].length && !_local.uploading_image_url_desktop && !($args[0][0] && ($args[0][0].download_url || $args[0][0].path)))}}",
                                                                 "params": {
                                                                     "target": "local",
                                                                     "uploading_image_url_desktop": true
-                                                                }
-                                                            },
-                                                            {
-                                                                "handler": "emitEvent",
-                                                                "if": "{{!!($args[0] && $args[0].length && !_local.uploading_image_url_desktop && !($args[0][0] && ($args[0][0].download_url || $args[0][0].path)))}}",
-                                                                "params": {
-                                                                    "event": "upload:ad_image_url_desktop"
                                                                 }
                                                             }
                                                         ]
@@ -1098,18 +1098,18 @@
                                                                 ]
                                                             },
                                                             {
+                                                                "handler": "emitEvent",
+                                                                "if": "{{!!($args[0] && $args[0].length && !_local.uploading_image_url_mobile && !($args[0][0] && ($args[0][0].download_url || $args[0][0].path)))}}",
+                                                                "params": {
+                                                                    "event": "upload:ad_image_url_mobile"
+                                                                }
+                                                            },
+                                                            {
                                                                 "handler": "setState",
                                                                 "if": "{{!!($args[0] && $args[0].length && !_local.uploading_image_url_mobile && !($args[0][0] && ($args[0][0].download_url || $args[0][0].path)))}}",
                                                                 "params": {
                                                                     "target": "local",
                                                                     "uploading_image_url_mobile": true
-                                                                }
-                                                            },
-                                                            {
-                                                                "handler": "emitEvent",
-                                                                "if": "{{!!($args[0] && $args[0].length && !_local.uploading_image_url_mobile && !($args[0][0] && ($args[0][0].download_url || $args[0][0].path)))}}",
-                                                                "params": {
-                                                                    "event": "upload:ad_image_url_mobile"
                                                                 }
                                                             }
                                                         ]
@@ -2015,7 +2015,7 @@
                                 "name": "Button",
                                 "props": {
                                     "type": "button",
-                                    "disabled": "{{_local.saving || _local.uploading_image_url || _local.uploading_image_url_desktop || _local.uploading_image_url_mobile}}",
+                                    "disabled": "{{_local.saving}}",
                                     "className": "btn btn-primary flex-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed"
                                 },
                                 "actions": [
@@ -2024,16 +2024,7 @@
                                         "handler": "sequence",
                                         "actions": [
                                             {
-                                                "handler": "toast",
-                                                "if": "{{!!(_local.uploading_image_url || _local.uploading_image_url_desktop || _local.uploading_image_url_mobile)}}",
-                                                "params": {
-                                                    "type": "warning",
-                                                    "message": "$t:custom-ad_slots.admin.ads.form.fields.upload_in_progress"
-                                                }
-                                            },
-                                            {
                                                 "handler": "setState",
-                                                "if": "{{!(_local.uploading_image_url || _local.uploading_image_url_desktop || _local.uploading_image_url_mobile)}}",
                                                 "params": {
                                                     "target": "local",
                                                     "saving": true,
@@ -2042,7 +2033,6 @@
                                             },
                                             {
                                                 "handler": "apiCall",
-                                                "if": "{{!(_local.uploading_image_url || _local.uploading_image_url_desktop || _local.uploading_image_url_mobile)}}",
                                                 "auth_required": true,
                                                 "target": "{{route?.id ? '/api/modules/custom-ad_slots/admin/ads/' + route?.id : '/api/modules/custom-ad_slots/admin/ads'}}",
                                                 "params": {
