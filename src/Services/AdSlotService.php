@@ -5,6 +5,7 @@ namespace Modules\Custom\AdSlots\Services;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Collection as SupportCollection;
+use Illuminate\Support\Facades\Schema;
 use Modules\Custom\AdSlots\Models\AdSlotItem;
 use Modules\Custom\AdSlots\Models\AdSlotPlacement;
 use Modules\Custom\AdSlots\Support\AdSizeSettings;
@@ -219,6 +220,13 @@ class AdSlotService
             }
         }
 
+        // Pre-1.4.0 DBs (migrate not yet run): drop size columns so CRUD does not 500.
+        if (! Schema::hasColumn('ad_slots_items', 'size_mode')) {
+            foreach (['size_mode', 'aspect_desktop', 'aspect_mobile', 'width_px', 'height_px', 'max_width_px'] as $sizeKey) {
+                unset($data[$sizeKey]);
+            }
+        }
+
         return $data;
     }
 
@@ -227,6 +235,12 @@ class AdSlotService
      */
     public function listPlacements()
     {
+        if (! Schema::hasTable('ad_slots_placements')) {
+            throw new \RuntimeException(
+                'ad_slots_placements table missing — run: php artisan migrate'
+            );
+        }
+
         $this->ensurePlacementsSeeded();
 
         return AdSlotPlacement::query()->orderBy('slot_key')->get();
@@ -234,6 +248,12 @@ class AdSlotService
 
     public function findPlacementOrFail(string $slotKey): AdSlotPlacement
     {
+        if (! Schema::hasTable('ad_slots_placements')) {
+            throw new \RuntimeException(
+                'ad_slots_placements table missing — run: php artisan migrate'
+            );
+        }
+
         $this->ensurePlacementsSeeded();
 
         return AdSlotPlacement::query()->findOrFail($slotKey);
@@ -256,6 +276,15 @@ class AdSlotService
      */
     public function getPlacementSizeMap(): array
     {
+        if (! Schema::hasTable('ad_slots_placements')) {
+            $map = [];
+            foreach (AdSlotItem::SLOT_KEYS as $slotKey) {
+                $map[$slotKey] = AdSizeSettings::builtInFor($slotKey);
+            }
+
+            return $map;
+        }
+
         $this->ensurePlacementsSeeded();
         $map = [];
         foreach (AdSlotPlacement::query()->get() as $row) {
@@ -270,6 +299,10 @@ class AdSlotService
      */
     public function ensurePlacementsSeeded(): void
     {
+        if (! Schema::hasTable('ad_slots_placements')) {
+            return;
+        }
+
         $existing = AdSlotPlacement::query()->pluck('slot_key')->all();
         $missing = array_values(array_diff(AdSlotItem::SLOT_KEYS, $existing));
         if ($missing === []) {
