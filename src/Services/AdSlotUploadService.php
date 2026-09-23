@@ -104,12 +104,17 @@ class AdSlotUploadService
 
     private const REMEMBER_TTL = 1800;
 
+    public static function newUploadToken(): string
+    {
+        return bin2hex(random_bytes(16));
+    }
+
     public static function isUrlField(string $field): bool
     {
         return in_array($field, self::URL_FIELDS, true);
     }
 
-    public static function rememberUrl(int|string $userId, string $field, string $url): void
+    public static function rememberUrl(int|string $userId, string $field, string $url, ?string $token = null): void
     {
         if (! self::isUrlField($field)) {
             return;
@@ -118,39 +123,146 @@ class AdSlotUploadService
         if ($url === '') {
             return;
         }
-        // Prefer session (Synology Cache drivers are often broken / non-shared).
-        self::sessionForget(self::clearedKey($userId, $field));
-        self::sessionPut(self::rememberKey($userId, $field), $url);
+        $token = self::normalizeToken($token);
+
+        // Clear "cleared" markers for this field (token + legacy).
+        self::sessionForget(self::clearedKey($userId, $field, $token));
+        self::sessionForget(self::clearedKey($userId, $field, null));
         try {
-            Cache::forget(self::clearedKey($userId, $field));
-            Cache::put(self::rememberKey($userId, $field), $url, self::REMEMBER_TTL);
+            Cache::forget(self::clearedKey($userId, $field, $token));
+            Cache::forget(self::clearedKey($userId, $field, null));
+        } catch (\Throwable) {
+        }
+
+        // Token-scoped remember (maker_bids upload_token pattern) + legacy user+field.
+        if ($token !== null) {
+            self::sessionPut(self::rememberKey($userId, $field, $token), $url);
+            try {
+                Cache::put(self::rememberKey($userId, $field, $token), $url, self::REMEMBER_TTL);
+            } catch (\Throwable) {
+            }
+        }
+        self::sessionPut(self::rememberKey($userId, $field, null), $url);
+        try {
+            Cache::put(self::rememberKey($userId, $field, null), $url, self::REMEMBER_TTL);
         } catch (\Throwable) {
         }
     }
 
-    public static function forgetUrl(int|string $userId, string $field): void
+    public static function forgetUrl(int|string $userId, string $field, ?string $token = null): void
     {
         if (! self::isUrlField($field)) {
             return;
         }
-        self::sessionForget(self::rememberKey($userId, $field));
-        self::sessionPut(self::clearedKey($userId, $field), true);
+        $token = self::normalizeToken($token);
+
+        self::sessionForget(self::rememberKey($userId, $field, $token));
+        self::sessionForget(self::rememberKey($userId, $field, null));
+        self::sessionPut(self::clearedKey($userId, $field, $token), true);
+        self::sessionPut(self::clearedKey($userId, $field, null), true);
         try {
-            Cache::forget(self::rememberKey($userId, $field));
-            Cache::put(self::clearedKey($userId, $field), true, self::REMEMBER_TTL);
+            Cache::forget(self::rememberKey($userId, $field, $token));
+            Cache::forget(self::rememberKey($userId, $field, null));
+            Cache::put(self::clearedKey($userId, $field, $token), true, self::REMEMBER_TTL);
+            Cache::put(self::clearedKey($userId, $field, null), true, self::REMEMBER_TTL);
         } catch (\Throwable) {
         }
     }
 
-    public static function peekRememberedUrl(int|string $userId, string $field): ?string
+    public static function peekRememberedUrl(int|string $userId, string $field, ?string $token = null): ?string
     {
         if (! self::isUrlField($field)) {
             return null;
         }
-        $url = self::sessionGet(self::rememberKey($userId, $field));
+        $token = self::normalizeToken($token);
+
+        if ($token !== null) {
+            $url = self::readRemember($userId, $field, $token);
+            if ($url !== null) {
+                return $url;
+            }
+        }
+
+        return self::readRemember($userId, $field, null);
+    }
+
+    public static function forgetAllUrls(int|string $userId, ?string $token = null): void
+    {
+        foreach (self::URL_FIELDS as $field) {
+            self::forgetUrl($userId, $field, $token);
+        }
+    }
+
+    /**
+     * Fill empty image_url* from token-scoped (preferred) or legacy remembered uploads.
+     * maker_bids equivalent of claimToken → image_url* columns (no files table).
+     * Non-empty request values win. Cleared markers win over remember.
+     * Strips upload_token from the returned array so it is not persisted.
+     *
+     * @param  array<string, mixed>  $data
+     * @return array<string, mixed>
+     */
+    public static function mergeRememberedUrls(int|string $userId, array $data): array
+    {
+        $token = self::normalizeToken(
+            isset($data['upload_token']) && is_string($data['upload_token'])
+                ? $data['upload_token']
+                : (isset($data['token']) && is_string($data['token']) ? $data['token'] : null)
+        );
+        unset($data['upload_token'], $data['token']);
+
+        foreach (self::URL_FIELDS as $field) {
+            $current = $data[$field] ?? null;
+
+            $cleared = self::sessionPull(self::clearedKey($userId, $field, $token));
+            $cleared = $cleared || self::sessionPull(self::clearedKey($userId, $field, null));
+            try {
+                $cleared = $cleared || Cache::pull(self::clearedKey($userId, $field, $token));
+                $cleared = $cleared || Cache::pull(self::clearedKey($userId, $field, null));
+            } catch (\Throwable) {
+            }
+            if ($cleared) {
+                self::dropRemember($userId, $field, $token);
+                continue;
+            }
+
+            if (is_string($current) && trim($current) !== '') {
+                self::dropRemember($userId, $field, $token);
+                continue;
+            }
+
+            $remembered = self::peekRememberedUrl($userId, $field, $token);
+            if (is_string($remembered) && $remembered !== '') {
+                $data[$field] = $remembered;
+                self::dropRemember($userId, $field, $token);
+            }
+        }
+
+        return $data;
+    }
+
+    private static function normalizeToken(?string $token): ?string
+    {
+        if (! is_string($token)) {
+            return null;
+        }
+        $token = trim($token);
+        if ($token === '' || strlen($token) > 128) {
+            return null;
+        }
+        if (! preg_match('/^[A-Za-z0-9_-]+$/', $token)) {
+            return null;
+        }
+
+        return $token;
+    }
+
+    private static function readRemember(int|string $userId, string $field, ?string $token): ?string
+    {
+        $url = self::sessionGet(self::rememberKey($userId, $field, $token));
         if (! is_string($url) || trim($url) === '') {
             try {
-                $url = Cache::get(self::rememberKey($userId, $field));
+                $url = Cache::get(self::rememberKey($userId, $field, $token));
             } catch (\Throwable) {
                 $url = null;
             }
@@ -159,71 +271,32 @@ class AdSlotUploadService
         return is_string($url) && trim($url) !== '' ? trim($url) : null;
     }
 
-    public static function forgetAllUrls(int|string $userId): void
+    private static function dropRemember(int|string $userId, string $field, ?string $token): void
     {
-        foreach (self::URL_FIELDS as $field) {
-            self::forgetUrl($userId, $field);
+        self::sessionForget(self::rememberKey($userId, $field, $token));
+        self::sessionForget(self::rememberKey($userId, $field, null));
+        try {
+            Cache::forget(self::rememberKey($userId, $field, $token));
+            Cache::forget(self::rememberKey($userId, $field, null));
+        } catch (\Throwable) {
         }
     }
 
-    /**
-     * If request URL fields are empty, fill from remembered uploads (post-upload race).
-     * Non-empty request values win (manual URL text fields / successful client sync).
-     *
-     * @param  array<string, mixed>  $data
-     * @return array<string, mixed>
-     */
-    public static function mergeRememberedUrls(int|string $userId, array $data): array
+    private static function rememberKey(int|string $userId, string $field, ?string $token = null): string
     {
-        foreach (self::URL_FIELDS as $field) {
-            $current = $data[$field] ?? null;
-
-            // Chip removed / explicit empty → forgetUrl set a cleared marker. Do not refill.
-            $cleared = self::sessionPull(self::clearedKey($userId, $field));
-            try {
-                $cleared = $cleared || Cache::pull(self::clearedKey($userId, $field));
-            } catch (\Throwable) {
-            }
-            if ($cleared) {
-                self::sessionForget(self::rememberKey($userId, $field));
-                try {
-                    Cache::forget(self::rememberKey($userId, $field));
-                } catch (\Throwable) {
-                }
-                continue;
-            }
-
-            if (is_string($current) && trim($current) !== '') {
-                // Client already has a URL — drop remember so a later clear stays clear.
-                self::sessionForget(self::rememberKey($userId, $field));
-                try {
-                    Cache::forget(self::rememberKey($userId, $field));
-                } catch (\Throwable) {
-                }
-                continue;
-            }
-
-            $remembered = self::peekRememberedUrl($userId, $field);
-            if (is_string($remembered) && $remembered !== '') {
-                $data[$field] = $remembered;
-                self::sessionForget(self::rememberKey($userId, $field));
-                try {
-                    Cache::forget(self::rememberKey($userId, $field));
-                } catch (\Throwable) {
-                }
-            }
+        if ($token !== null) {
+            return 'custom-ad_slots:upload:'.(string) $userId.':'.$token.':'.$field;
         }
 
-        return $data;
-    }
-
-    private static function rememberKey(int|string $userId, string $field): string
-    {
         return 'custom-ad_slots:last_upload:'.(string) $userId.':'.$field;
     }
 
-    private static function clearedKey(int|string $userId, string $field): string
+    private static function clearedKey(int|string $userId, string $field, ?string $token = null): string
     {
+        if ($token !== null) {
+            return 'custom-ad_slots:upload_cleared:'.(string) $userId.':'.$token.':'.$field;
+        }
+
         return 'custom-ad_slots:upload_cleared:'.(string) $userId.':'.$field;
     }
 
