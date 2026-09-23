@@ -1,7 +1,7 @@
 {
-    "version": "1.1.4",
+    "version": "1.1.5",
     "meta": {
-        "title": "{{route?.id ? '$t:custom-ad_slots.admin.ads.form.title_edit' : '$t:custom-ad_slots.admin.ads.form.title_create'}}",
+        "title": "{{(route.id ?? route.params.id ?? params.id) ? '$t:custom-ad_slots.admin.ads.form.title_edit' : '$t:custom-ad_slots.admin.ads.form.title_create'}}",
         "description": "$t:custom-ad_slots.admin.ads.form.description"
     },
     "layout_name": "admin_ad_slot_form",
@@ -15,13 +15,14 @@
         {
             "id": "ad",
             "type": "api",
-            "endpoint": "/api/modules/custom-ad_slots/admin/ads/{{route.id}}",
+            "endpoint": "/api/modules/custom-ad_slots/admin/ads/{{route.id ?? route.params.id ?? params.id}}",
             "method": "GET",
             "auto_fetch": true,
             "auth_required": true,
-            "if": "{{route?.id}}",
+            "if": "{{!!(route.id ?? route.params.id ?? params.id)}}",
             "initLocal": "form",
             "refetchOnMount": false,
+            "loading_strategy": "progressive",
             "fallback": {
                 "data": null
             }
@@ -29,7 +30,7 @@
     ],
     "init_actions": [
         {
-            "if": "{{!route?.id}}",
+            "if": "{{String(route?.path || route?.pathname || route?.fullPath || '').includes('/create')}}",
             "handler": "setState",
             "params": {
                 "target": "local",
@@ -62,7 +63,7 @@
             }
         },
         {
-            "if": "{{!!route?.id}}",
+            "if": "{{!!(route.id ?? route.params.id ?? params.id) || String(route?.path || route?.pathname || route?.fullPath || '').includes('/edit')}}",
             "handler": "setState",
             "params": {
                 "target": "local",
@@ -97,7 +98,7 @@
                                 "props": {
                                     "className": "text-page-heading"
                                 },
-                                "text": "{{route?.id ? '$t:custom-ad_slots.admin.ads.form.title_edit' : '$t:custom-ad_slots.admin.ads.form.title_create'}}"
+                                "text": "{{(route.id ?? route.params.id ?? params.id) ? '$t:custom-ad_slots.admin.ads.form.title_edit' : '$t:custom-ad_slots.admin.ads.form.title_create'}}"
                             }
                         ]
                     },
@@ -485,7 +486,14 @@
                                                         "props": {
                                                             "src": "{{_local.form?.image_url}}",
                                                             "alt": "image_url",
-                                                            "className": "max-h-24 max-w-full rounded border border-gray-200 dark:border-gray-600 object-contain bg-gray-50 dark:bg-gray-800"
+                                                            "className": "mt-2 max-h-40 w-auto max-w-full object-contain rounded border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-900",
+                                                            "style": {
+                                                                "maxHeight": "10rem",
+                                                                "width": "auto",
+                                                                "maxWidth": "100%",
+                                                                "objectFit": "contain",
+                                                                "display": "block"
+                                                            }
                                                         }
                                                     }
                                                 ]
@@ -615,7 +623,14 @@
                                                         "props": {
                                                             "src": "{{_local.form?.image_url_desktop}}",
                                                             "alt": "image_url_desktop",
-                                                            "className": "max-h-24 max-w-full rounded border border-gray-200 dark:border-gray-600 object-contain bg-gray-50 dark:bg-gray-800"
+                                                            "className": "mt-2 max-h-40 w-auto max-w-full object-contain rounded border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-900",
+                                                            "style": {
+                                                                "maxHeight": "10rem",
+                                                                "width": "auto",
+                                                                "maxWidth": "100%",
+                                                                "objectFit": "contain",
+                                                                "display": "block"
+                                                            }
                                                         }
                                                     }
                                                 ]
@@ -745,7 +760,14 @@
                                                         "props": {
                                                             "src": "{{_local.form?.image_url_mobile}}",
                                                             "alt": "image_url_mobile",
-                                                            "className": "max-h-24 max-w-full rounded border border-gray-200 dark:border-gray-600 object-contain bg-gray-50 dark:bg-gray-800"
+                                                            "className": "mt-2 max-h-40 w-auto max-w-full object-contain rounded border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-900",
+                                                            "style": {
+                                                                "maxHeight": "10rem",
+                                                                "width": "auto",
+                                                                "maxWidth": "100%",
+                                                                "objectFit": "contain",
+                                                                "display": "block"
+                                                            }
                                                         }
                                                     }
                                                 ]
@@ -1703,9 +1725,9 @@
                                             {
                                                 "handler": "apiCall",
                                                 "auth_required": true,
-                                                "target": "{{route?.id ? '/api/modules/custom-ad_slots/admin/ads/' + route?.id : '/api/modules/custom-ad_slots/admin/ads'}}",
+                                                "target": "{{(route.id ?? route.params.id ?? params.id) ? '/api/modules/custom-ad_slots/admin/ads/' + (route.id ?? route.params.id ?? params.id) : '/api/modules/custom-ad_slots/admin/ads'}}",
                                                 "params": {
-                                                    "method": "{{route?.id ? 'PUT' : 'POST'}}",
+                                                    "method": "{{(route.id ?? route.params.id ?? params.id) ? 'PUT' : 'POST'}}",
                                                     "body": {
                                                         "slot_key": "{{_local.form?.slot_key}}",
                                                         "type": "{{_local.form?.type}}",
@@ -1744,7 +1766,7 @@
                                                         "handler": "toast",
                                                         "params": {
                                                             "type": "success",
-                                                            "message": "{{route?.id ? '$t:custom-ad_slots.admin.ads.form.update_success' : '$t:custom-ad_slots.admin.ads.form.create_success'}}"
+                                                            "message": "{{(route.id ?? route.params.id ?? params.id) ? '$t:custom-ad_slots.admin.ads.form.update_success' : '$t:custom-ad_slots.admin.ads.form.create_success'}}"
                                                         }
                                                     },
                                                     {
