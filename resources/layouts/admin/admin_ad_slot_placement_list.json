@@ -31,7 +31,7 @@
                 "type": "basic",
                 "name": "Div",
                 "props": {
-                    "className": "admin-page-content"
+                    "className": "admin-page-content w-full md:w-[70%] md:max-w-[70%] md:mx-auto"
                 },
                 "children": [
                     {
