@@ -507,17 +507,6 @@
                                                             "target": "local",
                                                             "form.image_url": "{{$event.target.value}}"
                                                         }
-                                                    },
-                                                    {
-                                                        "handler": "apiCall",
-                                                        "if": "{{!($event.target.value && ('' + $event.target.value).trim())}}",
-                                                        "auth_required": true,
-                                                        "target": "/api/modules/custom-ad_slots/admin/uploads/noop?field=image_url",
-                                                        "params": {
-                                                            "method": "DELETE"
-                                                        },
-                                                        "onSuccess": [],
-                                                        "onError": []
                                                     }
                                                 ]
                                             }
@@ -599,33 +588,6 @@
                                                                 "params": {
                                                                     "event": "upload:ad_image_url"
                                                                 }
-                                                            },
-                                                            {
-                                                                "handler": "sequence",
-                                                                "if": "{{!($args[0] && $args[0].length)}}",
-                                                                "actions": [
-                                                                    {
-                                                                        "handler": "setState",
-                                                                        "params": {
-                                                                            "target": "local",
-                                                                            "form.image_url": "",
-                                                                            "form.uploader_image_url": []
-                                                                        }
-                                                                    },
-                                                                    {
-                                                                        "handler": "apiCall",
-                                                                        "auth_required": true,
-                                                                        "target": "/api/modules/custom-ad_slots/admin/uploads/noop?field=image_url",
-                                                                        "params": {
-                                                                            "method": "DELETE",
-                                                                            "body": {
-                                                                                "upload_token": "{{_local.form.upload_token || defaults.data.upload_token || ''}}"
-                                                                            }
-                                                                        },
-                                                                        "onSuccess": [],
-                                                                        "onError": []
-                                                                    }
-                                                                ]
                                                             }
                                                         ]
                                                     },
@@ -680,6 +642,19 @@
                                                                     "form.uploader_image_url": [],
                                                                     "form.image_url_count": 0
                                                                 }
+                                                            },
+                                                            {
+                                                                "handler": "apiCall",
+                                                                "auth_required": true,
+                                                                "target": "/api/modules/custom-ad_slots/admin/uploads/noop?field=image_url",
+                                                                "params": {
+                                                                    "method": "DELETE",
+                                                                    "body": {
+                                                                        "upload_token": "{{_local.form.upload_token || defaults.data.upload_token || ''}}"
+                                                                    }
+                                                                },
+                                                                "onSuccess": [],
+                                                                "onError": []
                                                             }
                                                         ]
                                                     },
@@ -696,6 +671,19 @@
                                                                     "form.uploader_image_url": [],
                                                                     "form.image_url_count": 0
                                                                 }
+                                                            },
+                                                            {
+                                                                "handler": "apiCall",
+                                                                "auth_required": true,
+                                                                "target": "/api/modules/custom-ad_slots/admin/uploads/noop?field=image_url",
+                                                                "params": {
+                                                                    "method": "DELETE",
+                                                                    "body": {
+                                                                        "upload_token": "{{_local.form.upload_token || defaults.data.upload_token || ''}}"
+                                                                    }
+                                                                },
+                                                                "onSuccess": [],
+                                                                "onError": []
                                                             }
                                                         ]
                                                     }
@@ -749,17 +737,6 @@
                                                             "target": "local",
                                                             "form.image_url_desktop": "{{$event.target.value}}"
                                                         }
-                                                    },
-                                                    {
-                                                        "handler": "apiCall",
-                                                        "if": "{{!($event.target.value && ('' + $event.target.value).trim())}}",
-                                                        "auth_required": true,
-                                                        "target": "/api/modules/custom-ad_slots/admin/uploads/noop?field=image_url_desktop",
-                                                        "params": {
-                                                            "method": "DELETE"
-                                                        },
-                                                        "onSuccess": [],
-                                                        "onError": []
                                                     }
                                                 ]
                                             }
@@ -841,33 +818,6 @@
                                                                 "params": {
                                                                     "event": "upload:ad_image_url_desktop"
                                                                 }
-                                                            },
-                                                            {
-                                                                "handler": "sequence",
-                                                                "if": "{{!($args[0] && $args[0].length)}}",
-                                                                "actions": [
-                                                                    {
-                                                                        "handler": "setState",
-                                                                        "params": {
-                                                                            "target": "local",
-                                                                            "form.image_url_desktop": "",
-                                                                            "form.uploader_image_url_desktop": []
-                                                                        }
-                                                                    },
-                                                                    {
-                                                                        "handler": "apiCall",
-                                                                        "auth_required": true,
-                                                                        "target": "/api/modules/custom-ad_slots/admin/uploads/noop?field=image_url_desktop",
-                                                                        "params": {
-                                                                            "method": "DELETE",
-                                                                            "body": {
-                                                                                "upload_token": "{{_local.form.upload_token || defaults.data.upload_token || ''}}"
-                                                                            }
-                                                                        },
-                                                                        "onSuccess": [],
-                                                                        "onError": []
-                                                                    }
-                                                                ]
                                                             }
                                                         ]
                                                     },
@@ -922,6 +872,19 @@
                                                                     "form.uploader_image_url_desktop": [],
                                                                     "form.image_url_desktop_count": 0
                                                                 }
+                                                            },
+                                                            {
+                                                                "handler": "apiCall",
+                                                                "auth_required": true,
+                                                                "target": "/api/modules/custom-ad_slots/admin/uploads/noop?field=image_url_desktop",
+                                                                "params": {
+                                                                    "method": "DELETE",
+                                                                    "body": {
+                                                                        "upload_token": "{{_local.form.upload_token || defaults.data.upload_token || ''}}"
+                                                                    }
+                                                                },
+                                                                "onSuccess": [],
+                                                                "onError": []
                                                             }
                                                         ]
                                                     },
@@ -938,6 +901,19 @@
                                                                     "form.uploader_image_url_desktop": [],
                                                                     "form.image_url_desktop_count": 0
                                                                 }
+                                                            },
+                                                            {
+                                                                "handler": "apiCall",
+                                                                "auth_required": true,
+                                                                "target": "/api/modules/custom-ad_slots/admin/uploads/noop?field=image_url_desktop",
+                                                                "params": {
+                                                                    "method": "DELETE",
+                                                                    "body": {
+                                                                        "upload_token": "{{_local.form.upload_token || defaults.data.upload_token || ''}}"
+                                                                    }
+                                                                },
+                                                                "onSuccess": [],
+                                                                "onError": []
                                                             }
                                                         ]
                                                     }
@@ -991,17 +967,6 @@
                                                             "target": "local",
                                                             "form.image_url_mobile": "{{$event.target.value}}"
                                                         }
-                                                    },
-                                                    {
-                                                        "handler": "apiCall",
-                                                        "if": "{{!($event.target.value && ('' + $event.target.value).trim())}}",
-                                                        "auth_required": true,
-                                                        "target": "/api/modules/custom-ad_slots/admin/uploads/noop?field=image_url_mobile",
-                                                        "params": {
-                                                            "method": "DELETE"
-                                                        },
-                                                        "onSuccess": [],
-                                                        "onError": []
                                                     }
                                                 ]
                                             }
@@ -1083,33 +1048,6 @@
                                                                 "params": {
                                                                     "event": "upload:ad_image_url_mobile"
                                                                 }
-                                                            },
-                                                            {
-                                                                "handler": "sequence",
-                                                                "if": "{{!($args[0] && $args[0].length)}}",
-                                                                "actions": [
-                                                                    {
-                                                                        "handler": "setState",
-                                                                        "params": {
-                                                                            "target": "local",
-                                                                            "form.image_url_mobile": "",
-                                                                            "form.uploader_image_url_mobile": []
-                                                                        }
-                                                                    },
-                                                                    {
-                                                                        "handler": "apiCall",
-                                                                        "auth_required": true,
-                                                                        "target": "/api/modules/custom-ad_slots/admin/uploads/noop?field=image_url_mobile",
-                                                                        "params": {
-                                                                            "method": "DELETE",
-                                                                            "body": {
-                                                                                "upload_token": "{{_local.form.upload_token || defaults.data.upload_token || ''}}"
-                                                                            }
-                                                                        },
-                                                                        "onSuccess": [],
-                                                                        "onError": []
-                                                                    }
-                                                                ]
                                                             }
                                                         ]
                                                     },
@@ -1164,6 +1102,19 @@
                                                                     "form.uploader_image_url_mobile": [],
                                                                     "form.image_url_mobile_count": 0
                                                                 }
+                                                            },
+                                                            {
+                                                                "handler": "apiCall",
+                                                                "auth_required": true,
+                                                                "target": "/api/modules/custom-ad_slots/admin/uploads/noop?field=image_url_mobile",
+                                                                "params": {
+                                                                    "method": "DELETE",
+                                                                    "body": {
+                                                                        "upload_token": "{{_local.form.upload_token || defaults.data.upload_token || ''}}"
+                                                                    }
+                                                                },
+                                                                "onSuccess": [],
+                                                                "onError": []
                                                             }
                                                         ]
                                                     },
@@ -1180,6 +1131,19 @@
                                                                     "form.uploader_image_url_mobile": [],
                                                                     "form.image_url_mobile_count": 0
                                                                 }
+                                                            },
+                                                            {
+                                                                "handler": "apiCall",
+                                                                "auth_required": true,
+                                                                "target": "/api/modules/custom-ad_slots/admin/uploads/noop?field=image_url_mobile",
+                                                                "params": {
+                                                                    "method": "DELETE",
+                                                                    "body": {
+                                                                        "upload_token": "{{_local.form.upload_token || defaults.data.upload_token || ''}}"
+                                                                    }
+                                                                },
+                                                                "onSuccess": [],
+                                                                "onError": []
                                                             }
                                                         ]
                                                     }

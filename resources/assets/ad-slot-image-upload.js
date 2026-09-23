@@ -1,4 +1,4 @@
-/*! custom-ad_slots — admin FileUploader assist (upload_token + hydrate + URL sync), v1.4.22
+/*! custom-ad_slots — admin FileUploader assist (upload_token + hydrate + URL sync), v1.4.23
  * Visible control is layout FileUploader (maker_bids pattern). This script:
  *  - ensures form.upload_token exists (fallback if form-defaults slow)
  *  - hydrates image_url* Inputs + _local.form from GET /admin/ads/:id (edit load)
@@ -7,7 +7,7 @@
  * Collections are per-field (ad_slot_image_url*); do not write one URL into sibling fields.
  */
 (function () {
-  var CAS_UPLOAD_VERSION = "1.4.22";
+  var CAS_UPLOAD_VERSION = "1.4.23";
   if (window.__casAdUploadVersion === CAS_UPLOAD_VERSION) return;
   window.__casAdUploadVersion = CAS_UPLOAD_VERSION;
 
@@ -174,15 +174,17 @@
     var patch = {};
     if (payload.id != null) patch["form.id"] = payload.id;
     FIELDS.forEach(function (field) {
-      var url = payload[field];
-      if (url == null) url = "";
-      url = String(url);
+      var raw = payload[field];
+      var url = raw == null ? "" : String(raw).trim();
+      // Only hydrate non-empty DB URLs. Empty/null must NOT overwrite a staged
+      // upload already in the Input / _local.form (GET refetch after mobile upload).
+      if (!url) return;
       setUrlField(field, url, { silent: true });
       var upKey = "uploader_" + field;
       if (payload[upKey] && payload[upKey].length) {
         patch["form." + upKey] = payload[upKey];
         patch["form." + field + "_count"] = 1;
-      } else if (url) {
+      } else {
         patch["form." + field + "_count"] = 1;
       }
     });
