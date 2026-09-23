@@ -7,7 +7,7 @@
 | identifier | `custom-ad_slots` |
 | Namespace | `Modules\Custom\AdSlots` |
 | Composer | `modules/custom-ad_slots` |
-| 버전 | `1.4.20` |
+| 버전 | `1.4.21` |
 
 ## 슬롯 키
 
@@ -271,4 +271,4 @@ src/lang/{ko,en}/messages.php
 ### 이미지 업로드
 
 `POST /api/modules/custom-ad_slots/admin/uploads` (auth, multipart `file`) → `download_url` 반환.
-관리자 폼은 네이티브 파일 선택(`ad-slot-image-upload.js`)으로 업로드 후 URL 필드·미리보기를 채웁니다. 저장 시 `image_url*`가 DB에 기록됩니다.
+관리자 폼은 FileUploader 박스(필드별 collection, maxFiles:1)로 이미지를 올리며, 업로드 직후 URL 필드가 채워집니다. 저장 시 `image_url*`가 DB에 기록됩니다. Assist JS: `ad-slot-image-upload.js`.
