@@ -5,6 +5,7 @@ return [
         'file_required' => 'An image file is required.',
         'success' => 'Image uploaded.',
         'failed' => 'Image upload failed.',
+        'delete_success' => 'Image reference removed.',
     ],
     'placement' => [
         'fetch_success' => 'Placements fetched successfully.',
