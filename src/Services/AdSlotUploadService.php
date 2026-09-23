@@ -4,6 +4,7 @@ namespace Modules\Custom\AdSlots\Services;
 
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
@@ -12,8 +13,9 @@ use Illuminate\Support\Str;
  *
  * Prefers G7 StorageInterface (images category); falls back to public disk.
  * File ids are base64url(relative path) so destroy can remove the blob.
- * Also remembers last upload URL per admin user + field (digital_product temp_key
- * equivalent) so create/update can persist URLs even if the form body races.
+ * Also remembers last upload URL per admin user + field (session primary, cache
+ * fallback — digital_product temp_key equivalent) so create/update can persist
+ * URLs even if the form body races.
  */
 class AdSlotUploadService
 {
@@ -116,9 +118,14 @@ class AdSlotUploadService
         if ($url === '') {
             return;
         }
-        // New upload supersedes any prior intentional clear in this session.
-        Cache::forget(self::clearedKey($userId, $field));
-        Cache::put(self::rememberKey($userId, $field), $url, self::REMEMBER_TTL);
+        // Prefer session (Synology Cache drivers are often broken / non-shared).
+        self::sessionForget(self::clearedKey($userId, $field));
+        self::sessionPut(self::rememberKey($userId, $field), $url);
+        try {
+            Cache::forget(self::clearedKey($userId, $field));
+            Cache::put(self::rememberKey($userId, $field), $url, self::REMEMBER_TTL);
+        } catch (\Throwable) {
+        }
     }
 
     public static function forgetUrl(int|string $userId, string $field): void
@@ -126,9 +133,13 @@ class AdSlotUploadService
         if (! self::isUrlField($field)) {
             return;
         }
-        Cache::forget(self::rememberKey($userId, $field));
-        // Mark intentional clear so mergeRememberedUrls will not resurrect the URL.
-        Cache::put(self::clearedKey($userId, $field), true, self::REMEMBER_TTL);
+        self::sessionForget(self::rememberKey($userId, $field));
+        self::sessionPut(self::clearedKey($userId, $field), true);
+        try {
+            Cache::forget(self::rememberKey($userId, $field));
+            Cache::put(self::clearedKey($userId, $field), true, self::REMEMBER_TTL);
+        } catch (\Throwable) {
+        }
     }
 
     public static function peekRememberedUrl(int|string $userId, string $field): ?string
@@ -136,7 +147,14 @@ class AdSlotUploadService
         if (! self::isUrlField($field)) {
             return null;
         }
-        $url = Cache::get(self::rememberKey($userId, $field));
+        $url = self::sessionGet(self::rememberKey($userId, $field));
+        if (! is_string($url) || trim($url) === '') {
+            try {
+                $url = Cache::get(self::rememberKey($userId, $field));
+            } catch (\Throwable) {
+                $url = null;
+            }
+        }
 
         return is_string($url) && trim($url) !== '' ? trim($url) : null;
     }
@@ -150,7 +168,7 @@ class AdSlotUploadService
 
     /**
      * If request URL fields are empty, fill from remembered uploads (post-upload race).
-     * Non-empty request values win (manual URL text fields / successful onUploadComplete).
+     * Non-empty request values win (manual URL text fields / successful client sync).
      *
      * @param  array<string, mixed>  $data
      * @return array<string, mixed>
@@ -161,21 +179,38 @@ class AdSlotUploadService
             $current = $data[$field] ?? null;
 
             // Chip removed / explicit empty → forgetUrl set a cleared marker. Do not refill.
-            if (Cache::pull(self::clearedKey($userId, $field))) {
-                Cache::forget(self::rememberKey($userId, $field));
+            $cleared = self::sessionPull(self::clearedKey($userId, $field));
+            try {
+                $cleared = $cleared || Cache::pull(self::clearedKey($userId, $field));
+            } catch (\Throwable) {
+            }
+            if ($cleared) {
+                self::sessionForget(self::rememberKey($userId, $field));
+                try {
+                    Cache::forget(self::rememberKey($userId, $field));
+                } catch (\Throwable) {
+                }
                 continue;
             }
 
             if (is_string($current) && trim($current) !== '') {
                 // Client already has a URL — drop remember so a later clear stays clear.
-                Cache::forget(self::rememberKey($userId, $field));
+                self::sessionForget(self::rememberKey($userId, $field));
+                try {
+                    Cache::forget(self::rememberKey($userId, $field));
+                } catch (\Throwable) {
+                }
                 continue;
             }
 
-            $remembered = Cache::get(self::rememberKey($userId, $field));
-            if (is_string($remembered) && trim($remembered) !== '') {
-                $data[$field] = trim($remembered);
-                Cache::forget(self::rememberKey($userId, $field));
+            $remembered = self::peekRememberedUrl($userId, $field);
+            if (is_string($remembered) && $remembered !== '') {
+                $data[$field] = $remembered;
+                self::sessionForget(self::rememberKey($userId, $field));
+                try {
+                    Cache::forget(self::rememberKey($userId, $field));
+                } catch (\Throwable) {
+                }
             }
         }
 
@@ -190,6 +225,40 @@ class AdSlotUploadService
     private static function clearedKey(int|string $userId, string $field): string
     {
         return 'custom-ad_slots:upload_cleared:'.(string) $userId.':'.$field;
+    }
+
+    private static function sessionPut(string $key, mixed $value): void
+    {
+        try {
+            Session::put($key, $value);
+        } catch (\Throwable) {
+        }
+    }
+
+    private static function sessionGet(string $key): mixed
+    {
+        try {
+            return Session::get($key);
+        } catch (\Throwable) {
+            return null;
+        }
+    }
+
+    private static function sessionForget(string $key): void
+    {
+        try {
+            Session::forget($key);
+        } catch (\Throwable) {
+        }
+    }
+
+    private static function sessionPull(string $key): mixed
+    {
+        try {
+            return Session::pull($key);
+        } catch (\Throwable) {
+            return null;
+        }
     }
 
     /**

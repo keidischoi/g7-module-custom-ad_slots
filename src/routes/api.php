@@ -88,6 +88,7 @@ Route::prefix('admin/placements')
             ->name('update');
     });
 
-Route::get('assets/hero-carousel.js', [AssetController::class, 'show'])
+Route::get('assets/{file}', [AssetController::class, 'show'])
+    ->where('file', 'hero-carousel\.js|ad-slot-image-upload\.js')
     ->middleware(['throttle:600,1'])
     ->name('assets.show');

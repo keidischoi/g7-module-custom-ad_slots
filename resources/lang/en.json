@@ -67,9 +67,10 @@
                     "max_width_px_hint": "Optional. Blank = no max",
                     "size_section": "Display size",
                     "upload": "Upload image",
-                    "upload_hint": "Selecting a file uploads it and fills the URL. On edit, existing images appear in the upload box. Removing deletes the stored file when possible.",
+                    "upload_hint": "Choose a file to upload immediately; the URL field and preview fill in. Save writes the URL to the DB. Clear then save nulls the DB column.",
                     "upload_success": "Image uploaded.",
-                    "upload_in_progress": "Please wait until the image upload finishes."
+                    "upload_in_progress": "Uploading image…",
+                    "clear_image": "Clear image"
                 }
             }
         },
