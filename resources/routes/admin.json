@@ -18,14 +18,6 @@
             }
         },
         {
-            "path": "*/admin/ad-slots/:id/edit",
-            "layout": "admin_ad_slot_form",
-            "auth_required": true,
-            "meta": {
-                "title": "$t:custom-ad_slots.admin.ads.form.title_edit"
-            }
-        },
-        {
             "path": "*/admin/ad-slots/placements",
             "layout": "admin_ad_slot_placement_list",
             "auth_required": true,
@@ -39,6 +31,14 @@
             "auth_required": true,
             "meta": {
                 "title": "$t:custom-ad_slots.admin.placements.form.title_edit"
+            }
+        },
+        {
+            "path": "*/admin/ad-slots/:id/edit",
+            "layout": "admin_ad_slot_form",
+            "auth_required": true,
+            "meta": {
+                "title": "$t:custom-ad_slots.admin.ads.form.title_edit"
             }
         }
     ]

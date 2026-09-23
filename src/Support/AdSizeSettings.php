@@ -2,6 +2,7 @@
 
 namespace Modules\Custom\AdSlots\Support;
 
+use Illuminate\Support\Facades\Schema;
 use Modules\Custom\AdSlots\Models\AdSlotItem;
 use Modules\Custom\AdSlots\Models\AdSlotPlacement;
 
@@ -131,7 +132,9 @@ final class AdSizeSettings
      */
     public static function resolveForItem(AdSlotItem $item, ?AdSlotPlacement $placement = null): array
     {
-        $placement ??= AdSlotPlacement::query()->find($item->slot_key);
+        if ($placement === null && Schema::hasTable('ad_slots_placements')) {
+            $placement = AdSlotPlacement::query()->find($item->slot_key);
+        }
 
         return self::resolve(
             [

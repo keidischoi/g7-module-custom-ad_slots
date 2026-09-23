@@ -1,5 +1,5 @@
 {
-    "version": "1.1.1",
+    "version": "1.1.3",
     "meta": {
         "title": "{{route?.id ? '$t:custom-ad_slots.admin.ads.form.title_edit' : '$t:custom-ad_slots.admin.ads.form.title_create'}}",
         "description": "$t:custom-ad_slots.admin.ads.form.description"
@@ -28,14 +28,6 @@
         }
     ],
     "init_actions": [
-        {
-            "if": "{{!route?.id}}",
-            "handler": "setState",
-            "params": {
-                "target": "local",
-                "form": null
-            }
-        },
         {
             "if": "{{!route?.id}}",
             "handler": "setState",
@@ -86,9 +78,9 @@
                 "type": "basic",
                 "name": "Div",
                 "dataKey": "form",
-                "trackChanges": true,
+                "trackChanges": false,
                 "props": {
-                    "className": "admin-page-content w-full max-w-none"
+                    "className": "admin-page-content w-full max-w-none md:w-[70%] md:max-w-[70%] md:mx-auto"
                 },
                 "children": [
                     {
@@ -403,8 +395,19 @@
                                             "type": "text",
                                             "name": "title",
                                             "className": "input w-full",
-                                            "placeholder": "$t:custom-ad_slots.admin.ads.form.fields.title_placeholder"
-                                        }
+                                            "placeholder": "$t:custom-ad_slots.admin.ads.form.fields.title_placeholder",
+                                            "value": "{{_local.form?.title ?? ''}}"
+                                        },
+                                        "actions": [
+                                            {
+                                                "type": "change",
+                                                "handler": "setState",
+                                                "params": {
+                                                    "target": "local",
+                                                    "form.title": "{{$event.target.value}}"
+                                                }
+                                            }
+                                        ]
                                     }
                                 ]
                             },
@@ -437,8 +440,19 @@
                                             "type": "text",
                                             "name": "image_url",
                                             "className": "input w-full",
-                                            "placeholder": "https://"
-                                        }
+                                            "placeholder": "https://",
+                                            "value": "{{_local.form?.image_url ?? ''}}"
+                                        },
+                                        "actions": [
+                                            {
+                                                "type": "change",
+                                                "handler": "setState",
+                                                "params": {
+                                                    "target": "local",
+                                                    "form.image_url": "{{$event.target.value}}"
+                                                }
+                                            }
+                                        ]
                                     },
                                     {
                                         "id": "upload_image_url",
@@ -457,6 +471,26 @@
                                                 "text": "$t:custom-ad_slots.admin.ads.form.fields.upload_hint"
                                             },
                                             {
+                                                "id": "preview_image_url",
+                                                "type": "basic",
+                                                "name": "Div",
+                                                "if": "{{_local.form?.image_url}}",
+                                                "props": {
+                                                    "className": "mb-2"
+                                                },
+                                                "children": [
+                                                    {
+                                                        "type": "basic",
+                                                        "name": "Img",
+                                                        "props": {
+                                                            "src": "{{_local.form?.image_url}}",
+                                                            "alt": "image_url",
+                                                            "className": "max-h-24 max-w-full rounded border border-gray-200 dark:border-gray-600 object-contain bg-gray-50 dark:bg-gray-800"
+                                                        }
+                                                    }
+                                                ]
+                                            },
+                                            {
                                                 "type": "composite",
                                                 "name": "FileUploader",
                                                 "props": {
@@ -465,12 +499,14 @@
                                                     "maxSize": 5,
                                                     "accept": ".jpg,.jpeg,.png,.gif,.webp,image/*",
                                                     "collection": "ad_slot_images",
-                                                    "className": "w-full",
+                                                    "className": "w-full min-h-[96px]",
                                                     "apiEndpoints": {
                                                         "upload": "/api/modules/custom-ad_slots/admin/uploads",
                                                         "delete": "/api/modules/custom-ad_slots/admin/uploads/:id",
                                                         "reorder": "/api/modules/custom-ad_slots/admin/uploads/reorder"
-                                                    }
+                                                    },
+                                                    "files": "{{_local.form?.image_url_files ?? []}}",
+                                                    "value": "{{_local.form?.image_url_files ?? []}}"
                                                 },
                                                 "actions": [
                                                     {
@@ -538,8 +574,19 @@
                                             "type": "text",
                                             "name": "image_url_desktop",
                                             "className": "input w-full",
-                                            "placeholder": "https://"
-                                        }
+                                            "placeholder": "https://",
+                                            "value": "{{_local.form?.image_url_desktop ?? ''}}"
+                                        },
+                                        "actions": [
+                                            {
+                                                "type": "change",
+                                                "handler": "setState",
+                                                "params": {
+                                                    "target": "local",
+                                                    "form.image_url_desktop": "{{$event.target.value}}"
+                                                }
+                                            }
+                                        ]
                                     },
                                     {
                                         "id": "upload_image_url_desktop",
@@ -558,6 +605,26 @@
                                                 "text": "$t:custom-ad_slots.admin.ads.form.fields.upload_hint"
                                             },
                                             {
+                                                "id": "preview_image_url_desktop",
+                                                "type": "basic",
+                                                "name": "Div",
+                                                "if": "{{_local.form?.image_url_desktop}}",
+                                                "props": {
+                                                    "className": "mb-2"
+                                                },
+                                                "children": [
+                                                    {
+                                                        "type": "basic",
+                                                        "name": "Img",
+                                                        "props": {
+                                                            "src": "{{_local.form?.image_url_desktop}}",
+                                                            "alt": "image_url_desktop",
+                                                            "className": "max-h-24 max-w-full rounded border border-gray-200 dark:border-gray-600 object-contain bg-gray-50 dark:bg-gray-800"
+                                                        }
+                                                    }
+                                                ]
+                                            },
+                                            {
                                                 "type": "composite",
                                                 "name": "FileUploader",
                                                 "props": {
@@ -566,12 +633,14 @@
                                                     "maxSize": 5,
                                                     "accept": ".jpg,.jpeg,.png,.gif,.webp,image/*",
                                                     "collection": "ad_slot_images",
-                                                    "className": "w-full",
+                                                    "className": "w-full min-h-[96px]",
                                                     "apiEndpoints": {
                                                         "upload": "/api/modules/custom-ad_slots/admin/uploads",
                                                         "delete": "/api/modules/custom-ad_slots/admin/uploads/:id",
                                                         "reorder": "/api/modules/custom-ad_slots/admin/uploads/reorder"
-                                                    }
+                                                    },
+                                                    "files": "{{_local.form?.image_url_desktop_files ?? []}}",
+                                                    "value": "{{_local.form?.image_url_desktop_files ?? []}}"
                                                 },
                                                 "actions": [
                                                     {
@@ -639,8 +708,19 @@
                                             "type": "text",
                                             "name": "image_url_mobile",
                                             "className": "input w-full",
-                                            "placeholder": "https://"
-                                        }
+                                            "placeholder": "https://",
+                                            "value": "{{_local.form?.image_url_mobile ?? ''}}"
+                                        },
+                                        "actions": [
+                                            {
+                                                "type": "change",
+                                                "handler": "setState",
+                                                "params": {
+                                                    "target": "local",
+                                                    "form.image_url_mobile": "{{$event.target.value}}"
+                                                }
+                                            }
+                                        ]
                                     },
                                     {
                                         "id": "upload_image_url_mobile",
@@ -659,6 +739,26 @@
                                                 "text": "$t:custom-ad_slots.admin.ads.form.fields.upload_hint"
                                             },
                                             {
+                                                "id": "preview_image_url_mobile",
+                                                "type": "basic",
+                                                "name": "Div",
+                                                "if": "{{_local.form?.image_url_mobile}}",
+                                                "props": {
+                                                    "className": "mb-2"
+                                                },
+                                                "children": [
+                                                    {
+                                                        "type": "basic",
+                                                        "name": "Img",
+                                                        "props": {
+                                                            "src": "{{_local.form?.image_url_mobile}}",
+                                                            "alt": "image_url_mobile",
+                                                            "className": "max-h-24 max-w-full rounded border border-gray-200 dark:border-gray-600 object-contain bg-gray-50 dark:bg-gray-800"
+                                                        }
+                                                    }
+                                                ]
+                                            },
+                                            {
                                                 "type": "composite",
                                                 "name": "FileUploader",
                                                 "props": {
@@ -667,12 +767,14 @@
                                                     "maxSize": 5,
                                                     "accept": ".jpg,.jpeg,.png,.gif,.webp,image/*",
                                                     "collection": "ad_slot_images",
-                                                    "className": "w-full",
+                                                    "className": "w-full min-h-[96px]",
                                                     "apiEndpoints": {
                                                         "upload": "/api/modules/custom-ad_slots/admin/uploads",
                                                         "delete": "/api/modules/custom-ad_slots/admin/uploads/:id",
                                                         "reorder": "/api/modules/custom-ad_slots/admin/uploads/reorder"
-                                                    }
+                                                    },
+                                                    "files": "{{_local.form?.image_url_mobile_files ?? []}}",
+                                                    "value": "{{_local.form?.image_url_mobile_files ?? []}}"
                                                 },
                                                 "actions": [
                                                     {
@@ -740,8 +842,19 @@
                                             "type": "text",
                                             "name": "bg_color",
                                             "className": "input w-full",
-                                            "placeholder": "#f5f5f5"
-                                        }
+                                            "placeholder": "#f5f5f5",
+                                            "value": "{{_local.form?.bg_color ?? ''}}"
+                                        },
+                                        "actions": [
+                                            {
+                                                "type": "change",
+                                                "handler": "setState",
+                                                "params": {
+                                                    "target": "local",
+                                                    "form.bg_color": "{{$event.target.value}}"
+                                                }
+                                            }
+                                        ]
                                     }
                                 ]
                             },
@@ -774,8 +887,19 @@
                                             "type": "text",
                                             "name": "link_url",
                                             "className": "input w-full",
-                                            "placeholder": "https://"
-                                        }
+                                            "placeholder": "https://",
+                                            "value": "{{_local.form?.link_url ?? ''}}"
+                                        },
+                                        "actions": [
+                                            {
+                                                "type": "change",
+                                                "handler": "setState",
+                                                "params": {
+                                                    "target": "local",
+                                                    "form.link_url": "{{$event.target.value}}"
+                                                }
+                                            }
+                                        ]
                                     }
                                 ]
                             },
@@ -808,8 +932,19 @@
                                             "name": "html_content",
                                             "className": "input w-full",
                                             "rows": 6,
-                                            "placeholder": "$t:custom-ad_slots.admin.ads.form.fields.html_content_placeholder"
-                                        }
+                                            "placeholder": "$t:custom-ad_slots.admin.ads.form.fields.html_content_placeholder",
+                                            "value": "{{_local.form?.html_content ?? ''}}"
+                                        },
+                                        "actions": [
+                                            {
+                                                "type": "change",
+                                                "handler": "setState",
+                                                "params": {
+                                                    "target": "local",
+                                                    "form.html_content": "{{$event.target.value}}"
+                                                }
+                                            }
+                                        ]
                                     }
                                 ]
                             },
@@ -843,8 +978,19 @@
                                             "type": "text",
                                             "name": "script_src",
                                             "className": "input w-full",
-                                            "placeholder": "https://"
-                                        }
+                                            "placeholder": "https://",
+                                            "value": "{{_local.form?.script_src ?? ''}}"
+                                        },
+                                        "actions": [
+                                            {
+                                                "type": "change",
+                                                "handler": "setState",
+                                                "params": {
+                                                    "target": "local",
+                                                    "form.script_src": "{{$event.target.value}}"
+                                                }
+                                            }
+                                        ]
                                     }
                                 ]
                             },
@@ -877,8 +1023,19 @@
                                             "type": "number",
                                             "name": "sort_order",
                                             "className": "input w-full",
-                                            "min": 0
-                                        }
+                                            "min": 0,
+                                            "value": "{{_local.form?.sort_order ?? 0}}"
+                                        },
+                                        "actions": [
+                                            {
+                                                "type": "change",
+                                                "handler": "setState",
+                                                "params": {
+                                                    "target": "local",
+                                                    "form.sort_order": "{{$event.target.value}}"
+                                                }
+                                            }
+                                        ]
                                     }
                                 ]
                             },
@@ -995,8 +1152,19 @@
                                             "type": "text",
                                             "name": "aspect_desktop",
                                             "className": "input w-full",
-                                            "placeholder": "$t:custom-ad_slots.admin.ads.form.fields.aspect_placeholder"
-                                        }
+                                            "placeholder": "$t:custom-ad_slots.admin.ads.form.fields.aspect_placeholder",
+                                            "value": "{{_local.form?.aspect_desktop ?? ''}}"
+                                        },
+                                        "actions": [
+                                            {
+                                                "type": "change",
+                                                "handler": "setState",
+                                                "params": {
+                                                    "target": "local",
+                                                    "form.aspect_desktop": "{{$event.target.value}}"
+                                                }
+                                            }
+                                        ]
                                     },
                                     {
                                         "type": "basic",
@@ -1038,8 +1206,19 @@
                                             "type": "text",
                                             "name": "aspect_mobile",
                                             "className": "input w-full",
-                                            "placeholder": "$t:custom-ad_slots.admin.ads.form.fields.aspect_placeholder"
-                                        }
+                                            "placeholder": "$t:custom-ad_slots.admin.ads.form.fields.aspect_placeholder",
+                                            "value": "{{_local.form?.aspect_mobile ?? ''}}"
+                                        },
+                                        "actions": [
+                                            {
+                                                "type": "change",
+                                                "handler": "setState",
+                                                "params": {
+                                                    "target": "local",
+                                                    "form.aspect_mobile": "{{$event.target.value}}"
+                                                }
+                                            }
+                                        ]
                                     },
                                     {
                                         "type": "basic",
@@ -1081,8 +1260,19 @@
                                             "type": "number",
                                             "name": "width_px",
                                             "className": "input w-full",
-                                            "min": 1
-                                        }
+                                            "min": 1,
+                                            "value": "{{_local.form?.width_px ?? ''}}"
+                                        },
+                                        "actions": [
+                                            {
+                                                "type": "change",
+                                                "handler": "setState",
+                                                "params": {
+                                                    "target": "local",
+                                                    "form.width_px": "{{$event.target.value}}"
+                                                }
+                                            }
+                                        ]
                                     },
                                     {
                                         "type": "basic",
@@ -1132,8 +1322,19 @@
                                             "type": "number",
                                             "name": "height_px",
                                             "className": "input w-full",
-                                            "min": 1
-                                        }
+                                            "min": 1,
+                                            "value": "{{_local.form?.height_px ?? ''}}"
+                                        },
+                                        "actions": [
+                                            {
+                                                "type": "change",
+                                                "handler": "setState",
+                                                "params": {
+                                                    "target": "local",
+                                                    "form.height_px": "{{$event.target.value}}"
+                                                }
+                                            }
+                                        ]
                                     },
                                     {
                                         "type": "basic",
@@ -1175,8 +1376,19 @@
                                             "type": "number",
                                             "name": "max_width_px",
                                             "className": "input w-full",
-                                            "min": 1
-                                        }
+                                            "min": 1,
+                                            "value": "{{_local.form?.max_width_px ?? ''}}"
+                                        },
+                                        "actions": [
+                                            {
+                                                "type": "change",
+                                                "handler": "setState",
+                                                "params": {
+                                                    "target": "local",
+                                                    "form.max_width_px": "{{$event.target.value}}"
+                                                }
+                                            }
+                                        ]
                                     },
                                     {
                                         "type": "basic",

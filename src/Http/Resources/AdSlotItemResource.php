@@ -88,6 +88,10 @@ class AdSlotItemResource extends JsonResource
             'image_url' => $this->image_url,
             'image_url_desktop' => $this->image_url_desktop,
             'image_url_mobile' => $this->image_url_mobile,
+            // Attachment-shaped lists for admin FileUploader preview on edit
+            'image_url_files' => $this->filesFromUrl($this->image_url, 'image_url'),
+            'image_url_desktop_files' => $this->filesFromUrl($this->image_url_desktop, 'image_url_desktop'),
+            'image_url_mobile_files' => $this->filesFromUrl($this->image_url_mobile, 'image_url_mobile'),
             'bg_color' => $this->bg_color,
             'image_desktop' => $desktop,
             'image_mobile' => $mobile,
@@ -113,6 +117,43 @@ class AdSlotItemResource extends JsonResource
             'created_at' => optional($this->created_at)?->toIso8601String(),
             'updated_at' => optional($this->updated_at)?->toIso8601String(),
         ];
+    }
+
+
+    /**
+     * Build a G7 FileUploader Attachment list from a stored public URL.
+     *
+     * @return list<array<string, mixed>>
+     */
+    private function filesFromUrl(mixed $url, string $key): array
+    {
+        if (! is_string($url)) {
+            return [];
+        }
+        $url = trim($url);
+        if ($url === '') {
+            return [];
+        }
+
+        $path = parse_url($url, PHP_URL_PATH);
+        $name = is_string($path) ? basename($path) : '';
+        if ($name === '' || $name === '/' || $name === '.') {
+            $name = $key;
+        }
+
+        return [[
+            'id' => 0,
+            'hash' => 'existing-'.$key,
+            'original_filename' => $name,
+            'mime_type' => 'image/*',
+            'size' => 0,
+            'size_formatted' => '',
+            'download_url' => $url,
+            'url' => $url,
+            'order' => 0,
+            'is_image' => true,
+            'path' => $url,
+        ]];
     }
 
     /**

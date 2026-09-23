@@ -1,5 +1,32 @@
 # Changelog
 
+## [1.4.1] - 2026-09-23
+
+### Fixed
+
+- **관리자 수정 폼 전체 필드 미표시:** v1.4.0에서 추가한 FileUploader가 `trackChanges` 폼을 리마운트하며 hydrate된 `_local.form`을 빈 값으로 덮어쓰던 문제를 수정. URL/제목/링크 등 모든 Input을 controlled value로 바인딩하고 `trackChanges`를 끔.
+- **이미지 URL 미로드:** `image_url` / `image_url_desktop` / `image_url_mobile`이 수정 화면에서 비어 보이던 문제 수정. API에 FileUploader용 Attachment 목록(`*_files`)을 내려주고 미리보기 이미지를 표시.
+- **마이그레이션 미적용 시 placements 500:** `ad_slots_placements` 테이블이 없으면 공개 placements가 내장 크기 폴백으로 동작. 아이템 size 컬럼 없으면 CRUD에서 size 필드를 제외해 500 방지.
+
+### Changed
+
+- Version **1.4.1**. 광고 JS `hero-carousel.js?v=1.4.1`. 관리자 라우트에서 `placements`를 `:id`보다 앞에 배치.
+- **관리자 폼 폭:** 수정/등록·슬롯 크기 설정 화면을 데스크톱에서 약 70% 폭·가운데 정렬 (모바일은 100%).
+
+### Deploy
+
+```
+php82 artisan module:update custom-ad_slots
+php82 artisan cache:clear
+php82 artisan view:clear
+# size/placements 기능을 쓰려면(미실행 시):
+php82 artisan migrate
+```
+
+이 프로젝트의 모든 주요 변경사항을 기록합니다.
+형식은 [Keep a Changelog](https://keepachangelog.com/ko/1.1.0/)를 따르며,
+[Semantic Versioning](https://semver.org/lang/ko/)을 준수합니다.
+
 ## [1.4.0] - 2026-09-23
 
 ### Added
