@@ -1,5 +1,25 @@
 # Changelog
 
+## [1.4.4] - 2026-09-23
+
+### Fixed
+
+- **업로더 삭제 버튼 무반응:** v1.4.2에서 FileUploader `delete` 엔드포인트를 제거한 뒤 삭제 클릭이 실패하거나 URL이 남던 문제를 수정. `DELETE /admin/uploads/{id}` soft-success(실제 파일 삭제 불필요)를 복구하고, `onDelete`/`onRemove`/`onFileRemove`/`onFilesChange`(빈 목록) 시 `_local.form.image_url`·`image_url_desktop`·`image_url_mobile`을 비움. URL 필드가 단일 소스. `files`/`value` 바인딩은 재도입하지 않음(1.4.2 무한로딩 회귀 방지).
+- **수정 페이지 하드 리프레시 빈 폼 + 좌측 메뉴 소실:** v1.4.3의 `route.id ?? route.params.id ?? params.id`는 `route.params`가 아직 없을 때 속성 접근으로 표현식 예외를 유발할 수 있음. 전부 `route?.params?.id ?? route?.id ?? params?.id`로 바꾸고, 경로 `/ad-slots/{id}/edit` 세그먼트 파싱 폴백을 추가해 콜드 로드에서도 숫자 id로 show API를 호출. `refetchOnMount: true`로 파라미터 지연에도 재시도.
+- **중복 URL `<Img>` 미리보기 제거:** FileUploader 썸네일만 사용(업로드 직후 거대 미리보기 재발 방지). URL 텍스트 입력은 유지.
+
+### Changed
+
+- Version **1.4.4**. 광고 JS `hero-carousel.js?v=1.4.4`.
+
+### Deploy
+
+```
+php82 artisan module:update custom-ad_slots
+php82 artisan cache:clear
+php82 artisan view:clear
+```
+
 ## [1.4.3] - 2026-09-23
 
 ### Fixed

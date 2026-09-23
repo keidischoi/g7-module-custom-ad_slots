@@ -12,6 +12,10 @@ use Modules\Custom\AdSlots\Services\AdSlotUploadService;
  *
  * POST /api/modules/custom-ad_slots/admin/uploads
  * multipart field: file (also accepts image)
+ *
+ * DELETE /api/modules/custom-ad_slots/admin/uploads/{id}
+ * Soft-success no-op: ad slot images are URL-field sourced; clearing the
+ * form URL on the client is enough. FileUploader still expects delete to 2xx.
  */
 class AdSlotUploadController extends AdminBaseController
 {
@@ -77,6 +81,55 @@ class AdSlotUploadController extends AdminBaseController
             );
         } catch (\Illuminate\Validation\ValidationException $e) {
             throw $e;
+        } catch (\Exception $e) {
+            return $this->error('custom-ad_slots::messages.upload.failed', 500, $e->getMessage());
+        }
+    }
+
+    /**
+     * Soft-delete for FileUploader. Ad images are referenced by URL fields on the
+     * ad item; the form clears image_url* locally on remove. Always succeed so the
+     * uploader UI unblocks without reintroducing files/value binding hangs.
+     */
+    public function destroy(Request $request, int|string $id): JsonResponse
+    {
+        try {
+            $user = $request->user();
+            $allowed = false;
+            if ($user) {
+                foreach (['custom-ad_slots.ads.create', 'custom-ad_slots.ads.update'] as $perm) {
+                    try {
+                        if (method_exists($user, 'can') && $user->can($perm)) {
+                            $allowed = true;
+                            break;
+                        }
+                    } catch (\Throwable) {
+                    }
+                    try {
+                        if (class_exists('\App\Helpers\PermissionHelper')
+                            && method_exists('\App\Helpers\PermissionHelper', 'check')
+                            && \App\Helpers\PermissionHelper::check($perm)) {
+                            $allowed = true;
+                            break;
+                        }
+                    } catch (\Throwable) {
+                    }
+                }
+                if (! $allowed && method_exists($user, 'hasRole')) {
+                    try {
+                        $allowed = (bool) ($user->hasRole('admin') || $user->hasRole('manager'));
+                    } catch (\Throwable) {
+                    }
+                }
+            }
+            if (! $allowed) {
+                return $this->error('custom-ad_slots::messages.upload.failed', 403, 'Forbidden');
+            }
+
+            return $this->success('custom-ad_slots::messages.upload.delete_success', [
+                'id' => $id,
+                'deleted' => true,
+            ]);
         } catch (\Exception $e) {
             return $this->error('custom-ad_slots::messages.upload.failed', 500, $e->getMessage());
         }
