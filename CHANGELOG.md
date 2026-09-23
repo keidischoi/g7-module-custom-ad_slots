@@ -1,3 +1,26 @@
+## [1.4.21] - 2026-09-23
+
+### Fixed
+- **3개 이미지 슬롯 상호 삭제 (공유 collection):** FileUploader 세 박스가 모두 `collection: "ad_slot_images"` + `maxFiles:1`을 공유해, 다음 필드 업로드 시 같은 collection 스토어가 형제 칩을 교체/삭제함 → 마지막만 남음.
+  - 필드별 독립 collection: `ad_slot_image_url` / `ad_slot_image_url_desktop` / `ad_slot_image_url_mobile` (maker_bids `images` vs `archives` 분리와 동일 패턴).
+  - 각 박스 `maxFiles: 1` 유지. 한 박스에서 교체는 그 필드만; 다른 박스 칩/URL은 유지.
+- **업로드 직후 URL 미반영:** 선택 시 해당 필드만 `emitEvent upload:ad_image_url*` → 즉시 POST `/uploads`. `onUploadComplete` + assist JS(XHR/fetch)가 **해당 필드만** `image_url*` input/`_local.form`에 즉시 채움 (Save 대기 없음). 형제 필드 setState 금지.
+- **수정 화면 URL/칩 미표시:** `ad` dataSource `onSuccess`에서 `image_url*` + `uploader_image_url*`를 form에 명시 hydrate. `initialFiles`는 필드별 uploader 배열 유지.
+
+### Unchanged
+- FileUploader UI, `upload_token` 스테이징(backup merge), `autoUpload:false`, Save 시 emit 후 apiCall, has/empty remount 없음, remembered GET 루프 없음, path emit gate 없음, Save `disabled`는 `_local.saving`만, `admin-page-content-responsive`.
+- 서버 remember 키는 `(user, token, field)` — 단일 필드 업로드 시 `forgetAllUrls` 호출 없음; clear는 해당 필드만.
+
+### Meta
+- Version **1.4.21**. 관리자 업로드 JS `ad-slot-image-upload.js?v=1.4.21`. 광고 JS `hero-carousel.js` CAS_AD_VERSION 1.4.21.
+
+### Deploy
+```
+php82 artisan module:update custom-ad_slots
+php82 artisan cache:clear
+php82 artisan view:clear
+```
+
 ## [1.4.20] - 2026-09-23
 
 ### Fixed
