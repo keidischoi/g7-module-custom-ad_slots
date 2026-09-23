@@ -1,5 +1,25 @@
 # Changelog
 
+## [1.4.3] - 2026-09-23
+
+### Fixed
+
+- **관리자 수정 폼 DB 미표시 (하드 리프레시):** `init_actions`가 `route?.id` 부재 시 빈 create 폼을 먼저 써서 hydrate를 덮어쓰던 경쟁 조건을 제거. 빈 폼 초기화는 `/create` 경로에서만 수행. 데이터 소스·제출·메타는 `route.id ?? route.params.id ?? params.id`로 통일 (digital_product 수정 폼과 동일).
+- **하드 리프레시 시 좌측 관리 메뉴 소실:** 수정 URL에서 잘못된 create 초기화/미 fetch로 어드민 페이지 상태가 깨지던 경로를 수정. show 데이터 소스는 `loading_strategy: progressive`로 셸(사이드바) 마운트를 막지 않음.
+- **이미지 URL 미리보기 과다 확대:** 레거시/데스크톱/모바일 URL `<Img>` 미리보기에 `max-h-40` + 인라인 `maxHeight:10rem`/`object-fit:contain` 제약을 적용 (Tailwind purge에도 안전). FileUploader 썸네일과 별도. 업로드→URL 채우기는 유지.
+
+### Changed
+
+- Version **1.4.3**. 광고 JS `hero-carousel.js?v=1.4.3`.
+
+### Deploy
+
+```
+php82 artisan module:update custom-ad_slots
+php82 artisan cache:clear
+php82 artisan view:clear
+```
+
 ## [1.4.2] - 2026-09-23
 
 ### Fixed

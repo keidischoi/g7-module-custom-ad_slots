@@ -91,6 +91,7 @@ class AdSlotItemController extends AdminBaseController
                 ];
             }
 
+            // initLocal:"form" expects the item at response.data (not nested under data.data).
             return $this->success(
                 'custom-ad_slots::messages.ad.fetch_success',
                 $payload
