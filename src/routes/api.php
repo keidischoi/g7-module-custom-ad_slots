@@ -19,6 +19,10 @@ Route::get('placements', [PlacementController::class, 'index'])
     ->name('placements.index');
 
 
+Route::get('admin/uploads/remembered', [AdSlotUploadController::class, 'remembered'])
+    ->middleware(['auth:sanctum', 'throttle:60,1'])
+    ->name('admin.uploads.remembered');
+
 Route::post('admin/uploads', [AdSlotUploadController::class, 'store'])
     ->middleware(['auth:sanctum', 'throttle:60,1'])
     ->name('admin.uploads.store');

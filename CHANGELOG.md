@@ -1,5 +1,29 @@
 # Changelog
 
+## [1.4.15] - 2026-09-23
+
+### Fixed
+- **업로드 후 URL 입력칸 비어 있음:** `image_url*` Input에 `value`/`onChange` 바인딩이 없어 `onUploadComplete` setState가 화면에 반영되지 않음. `value: {{_local.form.image_url*}}` + change→setState 추가.
+- **`$args?.` 추출 실패:** 복잡한 optional-chaining 표현을 명시 가드로 단순화. 업로드 직후 `GET .../uploads/remembered?field=`로 서버 remember URL을 form에 재동기화(칩↔URL 일치).
+- **삭제 후 저장 시 DB URL 부활:** 칩 제거 시 `DELETE .../uploads/noop?field=`로 remember forget + cleared 마커. `mergeRememberedUrls`는 cleared면 빈 요청을 다시 채우지 않음 → 저장 시 해당 컬럼 null.
+- 레거시/데스크톱/모바일 세 필드 모두 동일 동작. create·edit 공통 레이아웃.
+
+### Unchanged
+- `autoUpload: false` + `uploadTriggerEvent` (cold-load autoUpload 없음).
+- 크롬 `admin-page-content-responsive` only.
+- `files`/`value` two-way 바인딩 및 1.4.1–1.4.7 shell hacks 없음.
+- FileUploader `key`는 form id 안정 identity만 사용 (1.4.14).
+
+### Meta
+- Version **1.4.15**. 광고 JS `hero-carousel.js?v=1.4.15`.
+
+### Deploy
+```
+php82 artisan module:update custom-ad_slots
+php82 artisan cache:clear
+php82 artisan view:clear
+```
+
 ## [1.4.14] - 2026-09-23
 
 ### Fixed

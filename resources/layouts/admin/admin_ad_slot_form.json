@@ -449,8 +449,35 @@
                                             "type": "text",
                                             "name": "image_url",
                                             "className": "input w-full",
-                                            "placeholder": "https://"
-                                        }
+                                            "placeholder": "https://",
+                                            "value": "{{_local.form?.image_url ?? ''}}"
+                                        },
+                                        "actions": [
+                                            {
+                                                "type": "change",
+                                                "handler": "sequence",
+                                                "actions": [
+                                                    {
+                                                        "handler": "setState",
+                                                        "params": {
+                                                            "target": "local",
+                                                            "form.image_url": "{{$event.target.value}}"
+                                                        }
+                                                    },
+                                                    {
+                                                        "handler": "apiCall",
+                                                        "if": "{{!($event.target.value && ('' + $event.target.value).trim())}}",
+                                                        "auth_required": true,
+                                                        "target": "/api/modules/custom-ad_slots/admin/uploads/noop?field=image_url",
+                                                        "params": {
+                                                            "method": "DELETE"
+                                                        },
+                                                        "onSuccess": [],
+                                                        "onError": []
+                                                    }
+                                                ]
+                                            }
+                                        ]
                                     },
                                     {
                                         "id": "upload_image_url",
@@ -498,14 +525,29 @@
                                                         "handler": "sequence",
                                                         "actions": [
                                                             {
-                                                                "handler": "setState",
+                                                                "handler": "sequence",
                                                                 "if": "{{!($args[0] && $args[0].length)}}",
-                                                                "params": {
-                                                                    "target": "local",
-                                                                    "form.image_url": "",
-                                                                    "form.uploader_image_url": [],
-                                                                    "uploading_image_url": false
-                                                                }
+                                                                "actions": [
+                                                                    {
+                                                                        "handler": "setState",
+                                                                        "params": {
+                                                                            "target": "local",
+                                                                            "form.image_url": "",
+                                                                            "form.uploader_image_url": [],
+                                                                            "uploading_image_url": false
+                                                                        }
+                                                                    },
+                                                                    {
+                                                                        "handler": "apiCall",
+                                                                        "auth_required": true,
+                                                                        "target": "/api/modules/custom-ad_slots/admin/uploads/noop?field=image_url",
+                                                                        "params": {
+                                                                            "method": "DELETE"
+                                                                        },
+                                                                        "onSuccess": [],
+                                                                        "onError": []
+                                                                    }
+                                                                ]
                                                             },
                                                             {
                                                                 "handler": "setState",
@@ -533,10 +575,30 @@
                                                                 "handler": "setState",
                                                                 "params": {
                                                                     "target": "local",
-                                                                    "form.image_url": "{{$args?.[0]?.[0]?.download_url || $args?.[0]?.[0]?.url || $args?.[0]?.download_url || $args?.[0]?.url || $args?.[0]?.data?.download_url || $args?.[0]?.data?.url || $args?.[0]?.data?.data?.download_url || $args?.[0]?.data?.data?.url || $args?.download_url || $args?.url || $args?.data?.download_url || $args?.data?.url || $args?.data?.data?.download_url || $args?.data?.data?.url || ''}}",
-                                                                    "form.uploader_image_url": "{{$args?.[0]?.[0] ? [$args[0][0]] : (($args?.[0]?.download_url || $args?.[0]?.url || $args?.[0]?.data?.download_url || $args?.[0]?.data?.url || $args?.[0]?.data?.data?.download_url || $args?.[0]?.data?.data?.url) ? [($args[0]?.data?.data && ($args[0].data.data.download_url || $args[0].data.data.url) ? $args[0].data.data : ($args[0]?.data && ($args[0].data.download_url || $args[0].data.url) ? $args[0].data : $args[0]))] : (($args?.download_url || $args?.url || $args?.data?.download_url || $args?.data?.data?.download_url) ? [($args?.data?.data || $args?.data || $args)] : []))}}",
+                                                                    "form.image_url": "{{($args[0] && $args[0][0] && ($args[0][0].download_url || $args[0][0].url)) || ($args[0] && ($args[0].download_url || $args[0].url)) || ($args[0] && $args[0].data && $args[0].data.data && ($args[0].data.data.download_url || $args[0].data.data.url)) || ($args[0] && $args[0].data && ($args[0].data.download_url || $args[0].data.url)) || ($args.download_url || $args.url) || ''}}",
+                                                                    "form.uploader_image_url": "{{($args[0] && $args[0][0]) ? [$args[0][0]] : (($args[0] && ($args[0].download_url || $args[0].url)) ? [$args[0]] : (($args[0] && $args[0].data && $args[0].data.data && ($args[0].data.data.download_url || $args[0].data.data.url)) ? [$args[0].data.data] : (($args[0] && $args[0].data && ($args[0].data.download_url || $args[0].data.url)) ? [$args[0].data] : [])))}}",
                                                                     "uploading_image_url": false
                                                                 }
+                                                            },
+                                                            {
+                                                                "handler": "apiCall",
+                                                                "auth_required": true,
+                                                                "target": "/api/modules/custom-ad_slots/admin/uploads/remembered?field=image_url",
+                                                                "params": {
+                                                                    "method": "GET"
+                                                                },
+                                                                "onSuccess": [
+                                                                    {
+                                                                        "handler": "setState",
+                                                                        "if": "{{!!(($args[0] && $args[0].url) || ($args[0] && $args[0].data && $args[0].data.url) || $args.url || ($args.data && $args.data.url))}}",
+                                                                        "params": {
+                                                                            "target": "local",
+                                                                            "form.image_url": "{{($args[0] && $args[0].url) || ($args[0] && $args[0].data && $args[0].data.url) || $args.url || ($args.data && $args.data.url) || ''}}",
+                                                                            "form.uploader_image_url": "{{(($args[0] && $args[0].files) || ($args[0] && $args[0].data && $args[0].data.files) || $args.files || ($args.data && $args.data.files) || [])}}"
+                                                                        }
+                                                                    }
+                                                                ],
+                                                                "onError": []
                                                             },
                                                             {
                                                                 "handler": "toast",
@@ -571,35 +633,80 @@
                                                     {
                                                         "event": "onDelete",
                                                         "type": "change",
-                                                        "handler": "setState",
-                                                        "params": {
-                                                            "target": "local",
-                                                            "form.image_url": "",
-                                                            "form.uploader_image_url": [],
-                                                            "uploading_image_url": false
-                                                        }
+                                                        "handler": "sequence",
+                                                        "actions": [
+                                                            {
+                                                                "handler": "setState",
+                                                                "params": {
+                                                                    "target": "local",
+                                                                    "form.image_url": "",
+                                                                    "form.uploader_image_url": [],
+                                                                    "uploading_image_url": false
+                                                                }
+                                                            },
+                                                            {
+                                                                "handler": "apiCall",
+                                                                "auth_required": true,
+                                                                "target": "/api/modules/custom-ad_slots/admin/uploads/noop?field=image_url",
+                                                                "params": {
+                                                                    "method": "DELETE"
+                                                                },
+                                                                "onSuccess": [],
+                                                                "onError": []
+                                                            }
+                                                        ]
                                                     },
                                                     {
                                                         "event": "onRemove",
                                                         "type": "change",
-                                                        "handler": "setState",
-                                                        "params": {
-                                                            "target": "local",
-                                                            "form.image_url": "",
-                                                            "form.uploader_image_url": [],
-                                                            "uploading_image_url": false
-                                                        }
+                                                        "handler": "sequence",
+                                                        "actions": [
+                                                            {
+                                                                "handler": "setState",
+                                                                "params": {
+                                                                    "target": "local",
+                                                                    "form.image_url": "",
+                                                                    "form.uploader_image_url": [],
+                                                                    "uploading_image_url": false
+                                                                }
+                                                            },
+                                                            {
+                                                                "handler": "apiCall",
+                                                                "auth_required": true,
+                                                                "target": "/api/modules/custom-ad_slots/admin/uploads/noop?field=image_url",
+                                                                "params": {
+                                                                    "method": "DELETE"
+                                                                },
+                                                                "onSuccess": [],
+                                                                "onError": []
+                                                            }
+                                                        ]
                                                     },
                                                     {
                                                         "event": "onFileRemove",
                                                         "type": "change",
-                                                        "handler": "setState",
-                                                        "params": {
-                                                            "target": "local",
-                                                            "form.image_url": "",
-                                                            "form.uploader_image_url": [],
-                                                            "uploading_image_url": false
-                                                        }
+                                                        "handler": "sequence",
+                                                        "actions": [
+                                                            {
+                                                                "handler": "setState",
+                                                                "params": {
+                                                                    "target": "local",
+                                                                    "form.image_url": "",
+                                                                    "form.uploader_image_url": [],
+                                                                    "uploading_image_url": false
+                                                                }
+                                                            },
+                                                            {
+                                                                "handler": "apiCall",
+                                                                "auth_required": true,
+                                                                "target": "/api/modules/custom-ad_slots/admin/uploads/noop?field=image_url",
+                                                                "params": {
+                                                                    "method": "DELETE"
+                                                                },
+                                                                "onSuccess": [],
+                                                                "onError": []
+                                                            }
+                                                        ]
                                                     }
                                                 ]
                                             }
@@ -636,8 +743,35 @@
                                             "type": "text",
                                             "name": "image_url_desktop",
                                             "className": "input w-full",
-                                            "placeholder": "https://"
-                                        }
+                                            "placeholder": "https://",
+                                            "value": "{{_local.form?.image_url_desktop ?? ''}}"
+                                        },
+                                        "actions": [
+                                            {
+                                                "type": "change",
+                                                "handler": "sequence",
+                                                "actions": [
+                                                    {
+                                                        "handler": "setState",
+                                                        "params": {
+                                                            "target": "local",
+                                                            "form.image_url_desktop": "{{$event.target.value}}"
+                                                        }
+                                                    },
+                                                    {
+                                                        "handler": "apiCall",
+                                                        "if": "{{!($event.target.value && ('' + $event.target.value).trim())}}",
+                                                        "auth_required": true,
+                                                        "target": "/api/modules/custom-ad_slots/admin/uploads/noop?field=image_url_desktop",
+                                                        "params": {
+                                                            "method": "DELETE"
+                                                        },
+                                                        "onSuccess": [],
+                                                        "onError": []
+                                                    }
+                                                ]
+                                            }
+                                        ]
                                     },
                                     {
                                         "id": "upload_image_url_desktop",
@@ -685,14 +819,29 @@
                                                         "handler": "sequence",
                                                         "actions": [
                                                             {
-                                                                "handler": "setState",
+                                                                "handler": "sequence",
                                                                 "if": "{{!($args[0] && $args[0].length)}}",
-                                                                "params": {
-                                                                    "target": "local",
-                                                                    "form.image_url_desktop": "",
-                                                                    "form.uploader_image_url_desktop": [],
-                                                                    "uploading_image_url_desktop": false
-                                                                }
+                                                                "actions": [
+                                                                    {
+                                                                        "handler": "setState",
+                                                                        "params": {
+                                                                            "target": "local",
+                                                                            "form.image_url_desktop": "",
+                                                                            "form.uploader_image_url_desktop": [],
+                                                                            "uploading_image_url_desktop": false
+                                                                        }
+                                                                    },
+                                                                    {
+                                                                        "handler": "apiCall",
+                                                                        "auth_required": true,
+                                                                        "target": "/api/modules/custom-ad_slots/admin/uploads/noop?field=image_url_desktop",
+                                                                        "params": {
+                                                                            "method": "DELETE"
+                                                                        },
+                                                                        "onSuccess": [],
+                                                                        "onError": []
+                                                                    }
+                                                                ]
                                                             },
                                                             {
                                                                 "handler": "setState",
@@ -720,10 +869,30 @@
                                                                 "handler": "setState",
                                                                 "params": {
                                                                     "target": "local",
-                                                                    "form.image_url_desktop": "{{$args?.[0]?.[0]?.download_url || $args?.[0]?.[0]?.url || $args?.[0]?.download_url || $args?.[0]?.url || $args?.[0]?.data?.download_url || $args?.[0]?.data?.url || $args?.[0]?.data?.data?.download_url || $args?.[0]?.data?.data?.url || $args?.download_url || $args?.url || $args?.data?.download_url || $args?.data?.url || $args?.data?.data?.download_url || $args?.data?.data?.url || ''}}",
-                                                                    "form.uploader_image_url_desktop": "{{$args?.[0]?.[0] ? [$args[0][0]] : (($args?.[0]?.download_url || $args?.[0]?.url || $args?.[0]?.data?.download_url || $args?.[0]?.data?.url || $args?.[0]?.data?.data?.download_url || $args?.[0]?.data?.data?.url) ? [($args[0]?.data?.data && ($args[0].data.data.download_url || $args[0].data.data.url) ? $args[0].data.data : ($args[0]?.data && ($args[0].data.download_url || $args[0].data.url) ? $args[0].data : $args[0]))] : (($args?.download_url || $args?.url || $args?.data?.download_url || $args?.data?.data?.download_url) ? [($args?.data?.data || $args?.data || $args)] : []))}}",
+                                                                    "form.image_url_desktop": "{{($args[0] && $args[0][0] && ($args[0][0].download_url || $args[0][0].url)) || ($args[0] && ($args[0].download_url || $args[0].url)) || ($args[0] && $args[0].data && $args[0].data.data && ($args[0].data.data.download_url || $args[0].data.data.url)) || ($args[0] && $args[0].data && ($args[0].data.download_url || $args[0].data.url)) || ($args.download_url || $args.url) || ''}}",
+                                                                    "form.uploader_image_url_desktop": "{{($args[0] && $args[0][0]) ? [$args[0][0]] : (($args[0] && ($args[0].download_url || $args[0].url)) ? [$args[0]] : (($args[0] && $args[0].data && $args[0].data.data && ($args[0].data.data.download_url || $args[0].data.data.url)) ? [$args[0].data.data] : (($args[0] && $args[0].data && ($args[0].data.download_url || $args[0].data.url)) ? [$args[0].data] : [])))}}",
                                                                     "uploading_image_url_desktop": false
                                                                 }
+                                                            },
+                                                            {
+                                                                "handler": "apiCall",
+                                                                "auth_required": true,
+                                                                "target": "/api/modules/custom-ad_slots/admin/uploads/remembered?field=image_url_desktop",
+                                                                "params": {
+                                                                    "method": "GET"
+                                                                },
+                                                                "onSuccess": [
+                                                                    {
+                                                                        "handler": "setState",
+                                                                        "if": "{{!!(($args[0] && $args[0].url) || ($args[0] && $args[0].data && $args[0].data.url) || $args.url || ($args.data && $args.data.url))}}",
+                                                                        "params": {
+                                                                            "target": "local",
+                                                                            "form.image_url_desktop": "{{($args[0] && $args[0].url) || ($args[0] && $args[0].data && $args[0].data.url) || $args.url || ($args.data && $args.data.url) || ''}}",
+                                                                            "form.uploader_image_url_desktop": "{{(($args[0] && $args[0].files) || ($args[0] && $args[0].data && $args[0].data.files) || $args.files || ($args.data && $args.data.files) || [])}}"
+                                                                        }
+                                                                    }
+                                                                ],
+                                                                "onError": []
                                                             },
                                                             {
                                                                 "handler": "toast",
@@ -758,35 +927,80 @@
                                                     {
                                                         "event": "onDelete",
                                                         "type": "change",
-                                                        "handler": "setState",
-                                                        "params": {
-                                                            "target": "local",
-                                                            "form.image_url_desktop": "",
-                                                            "form.uploader_image_url_desktop": [],
-                                                            "uploading_image_url_desktop": false
-                                                        }
+                                                        "handler": "sequence",
+                                                        "actions": [
+                                                            {
+                                                                "handler": "setState",
+                                                                "params": {
+                                                                    "target": "local",
+                                                                    "form.image_url_desktop": "",
+                                                                    "form.uploader_image_url_desktop": [],
+                                                                    "uploading_image_url_desktop": false
+                                                                }
+                                                            },
+                                                            {
+                                                                "handler": "apiCall",
+                                                                "auth_required": true,
+                                                                "target": "/api/modules/custom-ad_slots/admin/uploads/noop?field=image_url_desktop",
+                                                                "params": {
+                                                                    "method": "DELETE"
+                                                                },
+                                                                "onSuccess": [],
+                                                                "onError": []
+                                                            }
+                                                        ]
                                                     },
                                                     {
                                                         "event": "onRemove",
                                                         "type": "change",
-                                                        "handler": "setState",
-                                                        "params": {
-                                                            "target": "local",
-                                                            "form.image_url_desktop": "",
-                                                            "form.uploader_image_url_desktop": [],
-                                                            "uploading_image_url_desktop": false
-                                                        }
+                                                        "handler": "sequence",
+                                                        "actions": [
+                                                            {
+                                                                "handler": "setState",
+                                                                "params": {
+                                                                    "target": "local",
+                                                                    "form.image_url_desktop": "",
+                                                                    "form.uploader_image_url_desktop": [],
+                                                                    "uploading_image_url_desktop": false
+                                                                }
+                                                            },
+                                                            {
+                                                                "handler": "apiCall",
+                                                                "auth_required": true,
+                                                                "target": "/api/modules/custom-ad_slots/admin/uploads/noop?field=image_url_desktop",
+                                                                "params": {
+                                                                    "method": "DELETE"
+                                                                },
+                                                                "onSuccess": [],
+                                                                "onError": []
+                                                            }
+                                                        ]
                                                     },
                                                     {
                                                         "event": "onFileRemove",
                                                         "type": "change",
-                                                        "handler": "setState",
-                                                        "params": {
-                                                            "target": "local",
-                                                            "form.image_url_desktop": "",
-                                                            "form.uploader_image_url_desktop": [],
-                                                            "uploading_image_url_desktop": false
-                                                        }
+                                                        "handler": "sequence",
+                                                        "actions": [
+                                                            {
+                                                                "handler": "setState",
+                                                                "params": {
+                                                                    "target": "local",
+                                                                    "form.image_url_desktop": "",
+                                                                    "form.uploader_image_url_desktop": [],
+                                                                    "uploading_image_url_desktop": false
+                                                                }
+                                                            },
+                                                            {
+                                                                "handler": "apiCall",
+                                                                "auth_required": true,
+                                                                "target": "/api/modules/custom-ad_slots/admin/uploads/noop?field=image_url_desktop",
+                                                                "params": {
+                                                                    "method": "DELETE"
+                                                                },
+                                                                "onSuccess": [],
+                                                                "onError": []
+                                                            }
+                                                        ]
                                                     }
                                                 ]
                                             }
@@ -823,8 +1037,35 @@
                                             "type": "text",
                                             "name": "image_url_mobile",
                                             "className": "input w-full",
-                                            "placeholder": "https://"
-                                        }
+                                            "placeholder": "https://",
+                                            "value": "{{_local.form?.image_url_mobile ?? ''}}"
+                                        },
+                                        "actions": [
+                                            {
+                                                "type": "change",
+                                                "handler": "sequence",
+                                                "actions": [
+                                                    {
+                                                        "handler": "setState",
+                                                        "params": {
+                                                            "target": "local",
+                                                            "form.image_url_mobile": "{{$event.target.value}}"
+                                                        }
+                                                    },
+                                                    {
+                                                        "handler": "apiCall",
+                                                        "if": "{{!($event.target.value && ('' + $event.target.value).trim())}}",
+                                                        "auth_required": true,
+                                                        "target": "/api/modules/custom-ad_slots/admin/uploads/noop?field=image_url_mobile",
+                                                        "params": {
+                                                            "method": "DELETE"
+                                                        },
+                                                        "onSuccess": [],
+                                                        "onError": []
+                                                    }
+                                                ]
+                                            }
+                                        ]
                                     },
                                     {
                                         "id": "upload_image_url_mobile",
@@ -872,14 +1113,29 @@
                                                         "handler": "sequence",
                                                         "actions": [
                                                             {
-                                                                "handler": "setState",
+                                                                "handler": "sequence",
                                                                 "if": "{{!($args[0] && $args[0].length)}}",
-                                                                "params": {
-                                                                    "target": "local",
-                                                                    "form.image_url_mobile": "",
-                                                                    "form.uploader_image_url_mobile": [],
-                                                                    "uploading_image_url_mobile": false
-                                                                }
+                                                                "actions": [
+                                                                    {
+                                                                        "handler": "setState",
+                                                                        "params": {
+                                                                            "target": "local",
+                                                                            "form.image_url_mobile": "",
+                                                                            "form.uploader_image_url_mobile": [],
+                                                                            "uploading_image_url_mobile": false
+                                                                        }
+                                                                    },
+                                                                    {
+                                                                        "handler": "apiCall",
+                                                                        "auth_required": true,
+                                                                        "target": "/api/modules/custom-ad_slots/admin/uploads/noop?field=image_url_mobile",
+                                                                        "params": {
+                                                                            "method": "DELETE"
+                                                                        },
+                                                                        "onSuccess": [],
+                                                                        "onError": []
+                                                                    }
+                                                                ]
                                                             },
                                                             {
                                                                 "handler": "setState",
@@ -907,10 +1163,30 @@
                                                                 "handler": "setState",
                                                                 "params": {
                                                                     "target": "local",
-                                                                    "form.image_url_mobile": "{{$args?.[0]?.[0]?.download_url || $args?.[0]?.[0]?.url || $args?.[0]?.download_url || $args?.[0]?.url || $args?.[0]?.data?.download_url || $args?.[0]?.data?.url || $args?.[0]?.data?.data?.download_url || $args?.[0]?.data?.data?.url || $args?.download_url || $args?.url || $args?.data?.download_url || $args?.data?.url || $args?.data?.data?.download_url || $args?.data?.data?.url || ''}}",
-                                                                    "form.uploader_image_url_mobile": "{{$args?.[0]?.[0] ? [$args[0][0]] : (($args?.[0]?.download_url || $args?.[0]?.url || $args?.[0]?.data?.download_url || $args?.[0]?.data?.url || $args?.[0]?.data?.data?.download_url || $args?.[0]?.data?.data?.url) ? [($args[0]?.data?.data && ($args[0].data.data.download_url || $args[0].data.data.url) ? $args[0].data.data : ($args[0]?.data && ($args[0].data.download_url || $args[0].data.url) ? $args[0].data : $args[0]))] : (($args?.download_url || $args?.url || $args?.data?.download_url || $args?.data?.data?.download_url) ? [($args?.data?.data || $args?.data || $args)] : []))}}",
+                                                                    "form.image_url_mobile": "{{($args[0] && $args[0][0] && ($args[0][0].download_url || $args[0][0].url)) || ($args[0] && ($args[0].download_url || $args[0].url)) || ($args[0] && $args[0].data && $args[0].data.data && ($args[0].data.data.download_url || $args[0].data.data.url)) || ($args[0] && $args[0].data && ($args[0].data.download_url || $args[0].data.url)) || ($args.download_url || $args.url) || ''}}",
+                                                                    "form.uploader_image_url_mobile": "{{($args[0] && $args[0][0]) ? [$args[0][0]] : (($args[0] && ($args[0].download_url || $args[0].url)) ? [$args[0]] : (($args[0] && $args[0].data && $args[0].data.data && ($args[0].data.data.download_url || $args[0].data.data.url)) ? [$args[0].data.data] : (($args[0] && $args[0].data && ($args[0].data.download_url || $args[0].data.url)) ? [$args[0].data] : [])))}}",
                                                                     "uploading_image_url_mobile": false
                                                                 }
+                                                            },
+                                                            {
+                                                                "handler": "apiCall",
+                                                                "auth_required": true,
+                                                                "target": "/api/modules/custom-ad_slots/admin/uploads/remembered?field=image_url_mobile",
+                                                                "params": {
+                                                                    "method": "GET"
+                                                                },
+                                                                "onSuccess": [
+                                                                    {
+                                                                        "handler": "setState",
+                                                                        "if": "{{!!(($args[0] && $args[0].url) || ($args[0] && $args[0].data && $args[0].data.url) || $args.url || ($args.data && $args.data.url))}}",
+                                                                        "params": {
+                                                                            "target": "local",
+                                                                            "form.image_url_mobile": "{{($args[0] && $args[0].url) || ($args[0] && $args[0].data && $args[0].data.url) || $args.url || ($args.data && $args.data.url) || ''}}",
+                                                                            "form.uploader_image_url_mobile": "{{(($args[0] && $args[0].files) || ($args[0] && $args[0].data && $args[0].data.files) || $args.files || ($args.data && $args.data.files) || [])}}"
+                                                                        }
+                                                                    }
+                                                                ],
+                                                                "onError": []
                                                             },
                                                             {
                                                                 "handler": "toast",
@@ -945,35 +1221,80 @@
                                                     {
                                                         "event": "onDelete",
                                                         "type": "change",
-                                                        "handler": "setState",
-                                                        "params": {
-                                                            "target": "local",
-                                                            "form.image_url_mobile": "",
-                                                            "form.uploader_image_url_mobile": [],
-                                                            "uploading_image_url_mobile": false
-                                                        }
+                                                        "handler": "sequence",
+                                                        "actions": [
+                                                            {
+                                                                "handler": "setState",
+                                                                "params": {
+                                                                    "target": "local",
+                                                                    "form.image_url_mobile": "",
+                                                                    "form.uploader_image_url_mobile": [],
+                                                                    "uploading_image_url_mobile": false
+                                                                }
+                                                            },
+                                                            {
+                                                                "handler": "apiCall",
+                                                                "auth_required": true,
+                                                                "target": "/api/modules/custom-ad_slots/admin/uploads/noop?field=image_url_mobile",
+                                                                "params": {
+                                                                    "method": "DELETE"
+                                                                },
+                                                                "onSuccess": [],
+                                                                "onError": []
+                                                            }
+                                                        ]
                                                     },
                                                     {
                                                         "event": "onRemove",
                                                         "type": "change",
-                                                        "handler": "setState",
-                                                        "params": {
-                                                            "target": "local",
-                                                            "form.image_url_mobile": "",
-                                                            "form.uploader_image_url_mobile": [],
-                                                            "uploading_image_url_mobile": false
-                                                        }
+                                                        "handler": "sequence",
+                                                        "actions": [
+                                                            {
+                                                                "handler": "setState",
+                                                                "params": {
+                                                                    "target": "local",
+                                                                    "form.image_url_mobile": "",
+                                                                    "form.uploader_image_url_mobile": [],
+                                                                    "uploading_image_url_mobile": false
+                                                                }
+                                                            },
+                                                            {
+                                                                "handler": "apiCall",
+                                                                "auth_required": true,
+                                                                "target": "/api/modules/custom-ad_slots/admin/uploads/noop?field=image_url_mobile",
+                                                                "params": {
+                                                                    "method": "DELETE"
+                                                                },
+                                                                "onSuccess": [],
+                                                                "onError": []
+                                                            }
+                                                        ]
                                                     },
                                                     {
                                                         "event": "onFileRemove",
                                                         "type": "change",
-                                                        "handler": "setState",
-                                                        "params": {
-                                                            "target": "local",
-                                                            "form.image_url_mobile": "",
-                                                            "form.uploader_image_url_mobile": [],
-                                                            "uploading_image_url_mobile": false
-                                                        }
+                                                        "handler": "sequence",
+                                                        "actions": [
+                                                            {
+                                                                "handler": "setState",
+                                                                "params": {
+                                                                    "target": "local",
+                                                                    "form.image_url_mobile": "",
+                                                                    "form.uploader_image_url_mobile": [],
+                                                                    "uploading_image_url_mobile": false
+                                                                }
+                                                            },
+                                                            {
+                                                                "handler": "apiCall",
+                                                                "auth_required": true,
+                                                                "target": "/api/modules/custom-ad_slots/admin/uploads/noop?field=image_url_mobile",
+                                                                "params": {
+                                                                    "method": "DELETE"
+                                                                },
+                                                                "onSuccess": [],
+                                                                "onError": []
+                                                            }
+                                                        ]
                                                     }
                                                 ]
                                             }
