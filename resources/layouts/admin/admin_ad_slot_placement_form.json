@@ -44,7 +44,7 @@
                 "dataKey": "form",
                 "trackChanges": true,
                 "props": {
-                    "className": "admin-page-content w-full max-w-none"
+                    "className": "admin-page-content-responsive-fluid"
                 },
                 "children": [
                     {

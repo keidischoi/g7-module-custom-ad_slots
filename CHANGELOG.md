@@ -1,5 +1,31 @@
 # Changelog
 
+## [1.4.6] - 2026-09-23
+
+### Fixed
+
+- **수정 하드 리프레시 시 좌측 관리 메뉴(`_admin_base`) 소실 (우선, 원인 좁힘):** 공식 `sirsoft-page` `admin_page_form`과 달리 광고 폼 크롬 래퍼가 `admin-page-content w-full max-w-none`이었다. `admin-page-content`에 폭 유틸(`md:w-[70%]` 등)을 붙이면 사이드바가 깨진 이력이 있어, **폭 유틸이 붙은 크롬 class를 1순위 용의**로 보고 래퍼를 공식과 동일한 `admin-page-content-responsive-fluid`만 쓰도록 교체(create/edit/placement). `w-full`/`max-w-none`/`md:w-*`를 크롬 래퍼에 두지 않음. 카드는 기존 `max-w-5xl mx-auto` 유지.
+- **create+edit 공유 레이아웃이 edit 콜드로드를 create로 취급:** 공유 `init_actions`의 `if: {{!route?.id}}`가 `form: null`을 넣는데, 콜드로드에서 `route.id` 바인딩이 늦으면 show fetch/`initLocal` hydrate 전에 create 기본값이 선점한다. **레이아웃 분리:** `admin_ad_slot_form`(create 전용, show data_source 없음·기본값 init만) / `admin_ad_slot_form_edit`(edit 전용, create init **제로**, `if/endpoint: {{route?.id}}`로 show+`initLocal: form`만). 라우트 `*/admin/ad-slots/:id/edit` → edit 레이아웃.
+- **렌더 시 깨질 수 있는 표현식 정리:** 에러 박스 `Object.keys(_local.errors)` → `{{!!_local.errors}}`. 저장 apiCall의 create/edit 삼항을 레이아웃별로 POST/PUT 고정.
+- **FileUploader delete `:id`와 라우트 `:id` 충돌 여지:** FileUploader는 클라이언트에서 `:id`만 치환하지만, 일부 엔진이 레이아웃 문자열의 `:id`를 라우트 파라미터로 선치환할 수 있음. delete URL을 리터럴 `.../admin/uploads/noop`으로 바꿔 라우트 id를 빼앗지 않음(soft-success 유지). 서버 라우트 파라미터명 `{uploadId}`.
+
+### Unchanged
+
+- 이미지 업로드 POST + 삭제 시 URL 필드 비우기(onDelete/onRemove/…) 동작 유지. `files`/`value` 바인딩 재도입 없음.
+
+### Changed
+
+- Version **1.4.6**. 광고 JS `hero-carousel.js?v=1.4.6`.
+
+### Deploy
+
+```
+php82 artisan module:update custom-ad_slots
+php82 artisan cache:clear
+php82 artisan view:clear
+```
+
+
 ## [1.4.5] - 2026-09-23
 
 ### Fixed
