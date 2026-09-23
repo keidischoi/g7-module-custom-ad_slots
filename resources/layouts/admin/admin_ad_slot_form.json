@@ -63,7 +63,10 @@
                     "aspect_mobile": "",
                     "width_px": "",
                     "height_px": "",
-                    "max_width_px": ""
+                    "max_width_px": "",
+                    "uploader_image_url": [],
+                    "uploader_image_url_desktop": [],
+                    "uploader_image_url_mobile": []
                 },
                 "errors": null,
                 "saving": false
@@ -509,7 +512,8 @@
                                                                 "handler": "setState",
                                                                 "params": {
                                                                     "target": "local",
-                                                                    "form.image_url": "{{$args[0]?.[0]?.download_url || $args[0]?.[0]?.url || $args[0]?.download_url || $args[0]?.url || $args[0]?.data?.download_url || $args[0]?.data?.url || ''}}"
+                                                                    "form.image_url": "{{$args[0]?.[0]?.download_url || $args[0]?.[0]?.url || $args[0]?.download_url || $args[0]?.url || $args[0]?.data?.download_url || $args[0]?.data?.url || ''}}",
+                                                                    "form.uploader_image_url": "{{$args[0]?.[0] ? [$args[0][0]] : (($args[0]?.download_url || $args[0]?.url || $args[0]?.data?.download_url || $args[0]?.data?.url) ? [($args[0]?.data && ($args[0].data.download_url || $args[0].data.url) ? $args[0].data : $args[0])] : [])}}"
                                                                 }
                                                             },
                                                             {
@@ -667,7 +671,8 @@
                                                                 "handler": "setState",
                                                                 "params": {
                                                                     "target": "local",
-                                                                    "form.image_url_desktop": "{{$args[0]?.[0]?.download_url || $args[0]?.[0]?.url || $args[0]?.download_url || $args[0]?.url || $args[0]?.data?.download_url || $args[0]?.data?.url || ''}}"
+                                                                    "form.image_url_desktop": "{{$args[0]?.[0]?.download_url || $args[0]?.[0]?.url || $args[0]?.download_url || $args[0]?.url || $args[0]?.data?.download_url || $args[0]?.data?.url || ''}}",
+                                                                    "form.uploader_image_url_desktop": "{{$args[0]?.[0] ? [$args[0][0]] : (($args[0]?.download_url || $args[0]?.url || $args[0]?.data?.download_url || $args[0]?.data?.url) ? [($args[0]?.data && ($args[0].data.download_url || $args[0].data.url) ? $args[0].data : $args[0])] : [])}}"
                                                                 }
                                                             },
                                                             {
@@ -825,7 +830,8 @@
                                                                 "handler": "setState",
                                                                 "params": {
                                                                     "target": "local",
-                                                                    "form.image_url_mobile": "{{$args[0]?.[0]?.download_url || $args[0]?.[0]?.url || $args[0]?.download_url || $args[0]?.url || $args[0]?.data?.download_url || $args[0]?.data?.url || ''}}"
+                                                                    "form.image_url_mobile": "{{$args[0]?.[0]?.download_url || $args[0]?.[0]?.url || $args[0]?.download_url || $args[0]?.url || $args[0]?.data?.download_url || $args[0]?.data?.url || ''}}",
+                                                                    "form.uploader_image_url_mobile": "{{$args[0]?.[0] ? [$args[0][0]] : (($args[0]?.download_url || $args[0]?.url || $args[0]?.data?.download_url || $args[0]?.data?.url) ? [($args[0]?.data && ($args[0].data.download_url || $args[0].data.url) ? $args[0].data : $args[0])] : [])}}"
                                                                 }
                                                             },
                                                             {
