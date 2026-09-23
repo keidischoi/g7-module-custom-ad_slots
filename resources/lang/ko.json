@@ -67,9 +67,10 @@
                     "max_width_px_hint": "선택. 비우면 제한 없음",
                     "size_section": "표시 크기",
                     "upload": "이미지 업로드",
-                    "upload_hint": "파일을 선택하면 업로드되어 URL이 채워집니다. 수정 시 기존 이미지가 업로드 박스에 표시됩니다. 삭제 시 저장소 파일도 제거됩니다.",
+                    "upload_hint": "파일을 선택하면 바로 업로드되고 위 URL 칸과 미리보기가 채워집니다. 저장 시 DB에 URL이 기록됩니다. 지우기 후 저장하면 DB에서 제거됩니다.",
                     "upload_success": "이미지를 업로드했습니다.",
-                    "upload_in_progress": "이미지 업로드가 끝날 때까지 기다려 주세요."
+                    "upload_in_progress": "이미지 업로드 중…",
+                    "clear_image": "이미지 지우기"
                 }
             }
         },

@@ -1,3 +1,28 @@
+## [1.4.19] - 2026-09-23
+
+### Fixed
+- **이미지 DB 미반영 + 업로드 박스 미표시 (1.4.12–1.4.18 FileUploader 루프 종료):** G7 admin FileUploader의 emit/gate/`onUploadComplete`/remount 조합이 live에서 URL을 `_local.form`에 안정적으로 못 넣어 저장 body·DB가 비고, 칩도 안 보임. digital_product는 서버 `temp_key`로 첨부하므로 동일 증상을 피함.
+  - **Option A (native file + preview + JS):** FileUploader 복합 컴포넌트 제거. URL 텍스트 입력 유지 + `data-cas-ad-upload-field` 마운트에 네이티브 `<input type=file>` 주입 + `<Img>` 미리보기 + 지우기 버튼.
+  - `resources/assets/ad-slot-image-upload.js`: 파일 선택 → `POST /admin/uploads?field=…` (credentials/CSRF/Bearer) → 응답 `download_url`/`url`로 URL input 값·`setState(form.image_url*)`·미리보기 동기화. 저장은 일반 JSON body의 `image_url*`만 전송(업로드 emit 레이스 없음).
+  - 지우기: URL/미리보기 비움 + `DELETE /admin/uploads/{id|noop}?field=…` (저장 시 DB null).
+  - 수정 로드: `initLocal form`의 `image_url*`로 input·미리보기 표시.
+- Remember 백업: `mergeRememberedUrls` 유지하되 **Session 우선 + Cache 폴백**(Synology Cache 깨짐 대비).
+
+### Unchanged
+- 크롬 `admin-page-content-responsive` only. `autoUpload:true` / shell hacks / `files`·`value` two-way 바인딩 없음.
+- create/edit 하드 리프레시 좌측 메뉴(`_admin_base`) 유지.
+- 광고 store/update는 JSON URL body (multipart 상품폼 아님).
+
+### Meta
+- Version **1.4.19**. 관리자 업로드 JS `ad-slot-image-upload.js?v=1.4.19`. 광고 JS `hero-carousel.js?v=1.4.19`.
+
+### Deploy
+```
+php82 artisan module:update custom-ad_slots
+php82 artisan cache:clear
+php82 artisan view:clear
+```
+
 ## [1.4.18] - 2026-09-23
 
 ### Fixed

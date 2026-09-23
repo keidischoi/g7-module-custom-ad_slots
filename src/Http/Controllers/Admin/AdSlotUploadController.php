@@ -8,7 +8,7 @@ use Illuminate\Http\Request;
 use Modules\Custom\AdSlots\Services\AdSlotUploadService;
 
 /**
- * Admin image upload for ad URL fields (FileUploader-compatible).
+ * Admin image upload for ad URL fields (admin image upload (native JS + legacy FileUploader-compatible)).
  *
  * POST /api/modules/custom-ad_slots/admin/uploads
  * multipart field: file (also accepts image)
