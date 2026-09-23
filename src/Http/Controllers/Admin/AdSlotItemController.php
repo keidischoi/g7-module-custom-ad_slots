@@ -11,6 +11,7 @@ use Modules\Custom\AdSlots\Http\Requests\Admin\UpdateAdSlotItemRequest;
 use Modules\Custom\AdSlots\Http\Resources\AdSlotItemResource;
 use Modules\Custom\AdSlots\Models\AdSlotItem;
 use Modules\Custom\AdSlots\Services\AdSlotService;
+use Modules\Custom\AdSlots\Services\AdSlotUploadService;
 
 /**
  * 관리자 광고 슬롯 CRUD + toggle
@@ -69,6 +70,9 @@ class AdSlotItemController extends AdminBaseController
                     'image_url' => $item->image_url,
                     'image_url_desktop' => $item->image_url_desktop,
                     'image_url_mobile' => $item->image_url_mobile,
+                    'uploader_image_url' => AdSlotUploadService::uploaderFilesFromUrl($item->image_url),
+                    'uploader_image_url_desktop' => AdSlotUploadService::uploaderFilesFromUrl($item->image_url_desktop),
+                    'uploader_image_url_mobile' => AdSlotUploadService::uploaderFilesFromUrl($item->image_url_mobile),
                     'bg_color' => $item->bg_color,
                     'link_url' => $item->link_url,
                     'html_content' => $item->html_content,

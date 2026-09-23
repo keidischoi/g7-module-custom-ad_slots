@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Carbon;
 use Modules\Custom\AdSlots\Models\AdSlotPlacement;
+use Modules\Custom\AdSlots\Services\AdSlotUploadService;
 use Modules\Custom\AdSlots\Support\AdSizeSettings;
 
 /**
@@ -107,6 +108,10 @@ class AdSlotItemResource extends JsonResource
             'image_url' => $this->image_url,
             'image_url_desktop' => $this->image_url_desktop,
             'image_url_mobile' => $this->image_url_mobile,
+            // One-way FileUploader hydrate only (initialFiles). Do NOT bind as files/value.
+            'uploader_image_url' => AdSlotUploadService::uploaderFilesFromUrl($this->image_url),
+            'uploader_image_url_desktop' => AdSlotUploadService::uploaderFilesFromUrl($this->image_url_desktop),
+            'uploader_image_url_mobile' => AdSlotUploadService::uploaderFilesFromUrl($this->image_url_mobile),
             'bg_color' => $this->bg_color,
             'image_desktop' => $desktop,
             'image_mobile' => $mobile,
