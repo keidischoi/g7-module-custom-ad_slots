@@ -1,3 +1,20 @@
+## [1.4.23] - 2026-09-23
+
+### Fixed
+- **모바일 업로드 후 edit에서 URL/칩이 비는 문제:** `hydrateFromAdPayload`가 GET `/admin/ads/:id`의 빈 `image_url_mobile`(null)로 Input·`_local.form`을 항상 덮어쓰던 클obber 제거 — payload에 **비어 있지 않은** URL만 hydrate.
+- **빈 Input `change` → DELETE `/uploads/noop` → `forgetUrl`:** image_url* Input의 빈 값 change에서 remember 무효화 제거. forget은 FileUploader 명시적 삭제(`onDelete` / `onRemove` / `onFileRemove`)에서만 수행.
+- **`onFilesChange` 빈 배열 flash wipe:** 업로드 직후 잠시 empty로 뜨며 URL·remember를 지우는 clear+DELETE 분기 제거(카운트/`emitEvent` 게이트는 유지).
+
+### Unchanged
+- FileUploader UI, `autoUpload: false`, unique collections (`ad_slot_image_url` / `_desktop` / `_mobile`), `upload_token` staging, Save disabled only `_local.saving`, no has/empty remount, no remembered-GET loop, emit gate not treating bare path as uploaded.
+
+### Deploy
+```
+php82 artisan module:update custom-ad_slots
+php82 artisan cache:clear
+php82 artisan view:clear
+```
+
 ## [1.4.22] - 2026-09-23
 
 ### Fixed
