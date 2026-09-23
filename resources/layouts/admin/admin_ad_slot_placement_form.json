@@ -50,10 +50,20 @@
                     {
                         "type": "basic",
                         "name": "H1",
+                        "if": "{{(_local.form?.size_mode ?? 'ratio') !== 'fixed'}}",
                         "props": {
                             "className": "text-page-heading mb-6"
                         },
-                        "text": "$t:custom-ad_slots.admin.placements.form.title_edit"
+                        "text": "$t:custom-ad_slots.admin.placements.form.title_edit_ratio"
+                    },
+                    {
+                        "type": "basic",
+                        "name": "H1",
+                        "if": "{{(_local.form?.size_mode ?? 'ratio') === 'fixed'}}",
+                        "props": {
+                            "className": "text-page-heading mb-6"
+                        },
+                        "text": "$t:custom-ad_slots.admin.placements.form.title_edit_fixed"
                     },
                     {
                         "type": "basic",
@@ -415,7 +425,7 @@
                                                         "handler": "toast",
                                                         "params": {
                                                             "type": "success",
-                                                            "message": "$t:custom-ad_slots.admin.placements.form.update_success"
+                                                            "message": "{{(_local.form?.size_mode ?? 'ratio') === 'fixed' ? '$t:custom-ad_slots.admin.placements.form.update_success_fixed' : '$t:custom-ad_slots.admin.placements.form.update_success_ratio'}}"
                                                         }
                                                     },
                                                     {

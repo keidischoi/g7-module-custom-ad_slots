@@ -1,5 +1,25 @@
 # Changelog
 
+## [1.4.11] - 2026-09-23
+
+### Changed
+- **슬롯 기본 크기 라벨(동적):** size_mode가 `ratio`이면 「슬롯 기본 크기(비율) 일괄적용」, `fixed`이면 「슬롯 기본 크기(크기) 일괄적용」. 배치 수정 폼 H1·저장 토스트가 `_local.form.size_mode`에 연동. 목록 행에도 동일 구분. 목록/광고목록 상단 버튼은 중립 「슬롯 기본 크기 일괄적용」.
+- **광고 목록 썸네일:** 고정 `h-16`+`object-cover` 제거. `thumb_aspect`(슬롯/아이템 비율 또는 fixed w/h)로 `aspect-ratio` 적용, `object-contain`으로 찌그러짐 방지.
+- **활성/비활성 버튼:** 녹/빨 채움 제거 → 회색 아웃라인 컴팩트 버튼. 토글 동작·라벨 유지.
+
+### Unchanged
+- FileUploader `autoUpload: false` / 크롬 `admin-page-content-responsive` / 내부 카드 `max-w-5xl md:w-[70%]` (1.4.9–1.4.10 셸 유지).
+
+### Meta
+- Version **1.4.11**. 광고 JS `hero-carousel.js?v=1.4.11`.
+
+### Deploy
+```
+php82 artisan module:update custom-ad_slots
+php82 artisan cache:clear
+php82 artisan view:clear
+```
+
 ## [1.4.10] - 2026-09-23
 
 ### Added / Restored

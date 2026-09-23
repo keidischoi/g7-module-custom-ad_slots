@@ -16,7 +16,7 @@
                 "duplicate_success": "Ad duplicated (inactive).",
                 "activate": "Activate",
                 "deactivate": "Deactivate",
-                "slot_defaults": "Slot size defaults"
+                "slot_defaults": "Batch apply slot default size"
             },
             "form": {
                 "title_create": "Create Ad",
@@ -74,15 +74,17 @@
         },
         "placements": {
             "index": {
-                "title": "Slot size defaults",
-                "description": "Set default size mode and ratio/fixed dimensions per placement. Blank fields on an ad inherit these values.",
+                "title": "Batch apply slot default size",
+                "description": "Batch-apply default size mode and ratio/fixed dimensions per placement. Blank fields on an ad inherit these values.",
                 "edit": "Edit",
-                "empty": "No slot settings found."
+                "empty": "No slot settings found.",
+                "row_label_ratio": "Batch apply slot default size (ratio)",
+                "row_label_fixed": "Batch apply slot default size (fixed)"
             },
             "form": {
-                "title_edit": "Edit slot size defaults",
-                "description": "Configure the default display size for this slot.",
-                "update_success": "Slot size defaults saved.",
+                "title_edit": "Batch apply slot default size",
+                "description": "Batch-apply the default display size (ratio or fixed) for this slot.",
+                "update_success": "Slot default size batch-applied.",
                 "validation_error": "Please check the form values.",
                 "fields": {
                     "slot_key": "Slot",
@@ -98,7 +100,11 @@
                     "width_px_hint": "Blank = 100% of container",
                     "height_px_hint": "Required when mode is fixed",
                     "max_width_px_hint": "Optional"
-                }
+                },
+                "title_edit_ratio": "Batch apply slot default size (ratio)",
+                "title_edit_fixed": "Batch apply slot default size (fixed)",
+                "update_success_ratio": "Slot default size (ratio) batch-applied.",
+                "update_success_fixed": "Slot default size (fixed) batch-applied."
             }
         }
     },
