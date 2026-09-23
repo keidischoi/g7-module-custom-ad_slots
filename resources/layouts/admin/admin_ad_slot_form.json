@@ -1,7 +1,7 @@
 {
     "version": "1.0.9",
     "meta": {
-        "title": "{{route?.id ? '$t:custom-ad_slots.admin.ads.form.title_edit' : '$t:custom-ad_slots.admin.ads.form.title_create'}}",
+        "title": "{{(route && route.id) ? '$t:custom-ad_slots.admin.ads.form.title_edit' : '$t:custom-ad_slots.admin.ads.form.title_create'}}",
         "description": "$t:custom-ad_slots.admin.ads.form.description"
     },
     "layout_name": "admin_ad_slot_form",
@@ -19,7 +19,7 @@
             "method": "GET",
             "auto_fetch": true,
             "auth_required": true,
-            "if": "{{route?.id}}",
+            "if": "{{route && route.id}}",
             "initLocal": "form",
             "refetchOnMount": true,
             "fallback": {
@@ -31,15 +31,15 @@
                     "params": {
                         "target": "local",
                         "form.upload_token": "{{_local.form.upload_token || defaults.data.upload_token || ''}}",
-                        "form.image_url": "{{response.data.image_url ?? response.data.data?.image_url ?? _local.form.image_url ?? ''}}",
-                        "form.image_url_desktop": "{{response.data.image_url_desktop ?? response.data.data?.image_url_desktop ?? _local.form.image_url_desktop ?? ''}}",
-                        "form.image_url_mobile": "{{response.data.image_url_mobile ?? response.data.data?.image_url_mobile ?? _local.form.image_url_mobile ?? ''}}",
-                        "form.uploader_image_url": "{{(response.data.uploader_image_url?.length ? response.data.uploader_image_url : null) || (response.data.data?.uploader_image_url?.length ? response.data.data.uploader_image_url : null) || _local.form.uploader_image_url || []}}",
-                        "form.uploader_image_url_desktop": "{{(response.data.uploader_image_url_desktop?.length ? response.data.uploader_image_url_desktop : null) || (response.data.data?.uploader_image_url_desktop?.length ? response.data.data.uploader_image_url_desktop : null) || _local.form.uploader_image_url_desktop || []}}",
-                        "form.uploader_image_url_mobile": "{{(response.data.uploader_image_url_mobile?.length ? response.data.uploader_image_url_mobile : null) || (response.data.data?.uploader_image_url_mobile?.length ? response.data.data.uploader_image_url_mobile : null) || _local.form.uploader_image_url_mobile || []}}",
-                        "form.image_url_count": "{{((response.data.uploader_image_url || response.data.data?.uploader_image_url || []).length) || (_local.form.image_url || response.data.image_url ? 1 : 0)}}",
-                        "form.image_url_desktop_count": "{{((response.data.uploader_image_url_desktop || response.data.data?.uploader_image_url_desktop || []).length) || (_local.form.image_url_desktop || response.data.image_url_desktop ? 1 : 0)}}",
-                        "form.image_url_mobile_count": "{{((response.data.uploader_image_url_mobile || response.data.data?.uploader_image_url_mobile || []).length) || (_local.form.image_url_mobile || response.data.image_url_mobile ? 1 : 0)}}"
+                        "form.image_url": "{{(response.data && response.data.image_url) || (response.data && response.data.data && response.data.data.image_url) || (_local.form && _local.form.image_url) || ''}}",
+                        "form.image_url_desktop": "{{(response.data && response.data.image_url_desktop) || (response.data && response.data.data && response.data.data.image_url_desktop) || (_local.form && _local.form.image_url_desktop) || ''}}",
+                        "form.image_url_mobile": "{{(response.data && response.data.image_url_mobile) || (response.data && response.data.data && response.data.data.image_url_mobile) || (_local.form && _local.form.image_url_mobile) || ''}}",
+                        "form.uploader_image_url": "{{(response.data && response.data.uploader_image_url && response.data.uploader_image_url.length ? response.data.uploader_image_url : null) || (response.data && response.data.data && response.data.data.uploader_image_url && response.data.data.uploader_image_url.length ? response.data.data.uploader_image_url : null) || (_local.form && _local.form.uploader_image_url) || []}}",
+                        "form.uploader_image_url_desktop": "{{(response.data && response.data.uploader_image_url_desktop && response.data.uploader_image_url_desktop.length ? response.data.uploader_image_url_desktop : null) || (response.data && response.data.data && response.data.data.uploader_image_url_desktop && response.data.data.uploader_image_url_desktop.length ? response.data.data.uploader_image_url_desktop : null) || (_local.form && _local.form.uploader_image_url_desktop) || []}}",
+                        "form.uploader_image_url_mobile": "{{(response.data && response.data.uploader_image_url_mobile && response.data.uploader_image_url_mobile.length ? response.data.uploader_image_url_mobile : null) || (response.data && response.data.data && response.data.data.uploader_image_url_mobile && response.data.data.uploader_image_url_mobile.length ? response.data.data.uploader_image_url_mobile : null) || (_local.form && _local.form.uploader_image_url_mobile) || []}}",
+                        "form.image_url_count": "{{((response.data && response.data.uploader_image_url) || (response.data && response.data.data && response.data.data.uploader_image_url) || []).length || ((_local.form && _local.form.image_url) || (response.data && response.data.image_url) ? 1 : 0)}}",
+                        "form.image_url_desktop_count": "{{((response.data && response.data.uploader_image_url_desktop) || (response.data && response.data.data && response.data.data.uploader_image_url_desktop) || []).length || ((_local.form && _local.form.image_url_desktop) || (response.data && response.data.image_url_desktop) ? 1 : 0)}}",
+                        "form.image_url_mobile_count": "{{((response.data && response.data.uploader_image_url_mobile) || (response.data && response.data.data && response.data.data.uploader_image_url_mobile) || []).length || ((_local.form && _local.form.image_url_mobile) || (response.data && response.data.image_url_mobile) ? 1 : 0)}}"
                     }
                 }
             ]
@@ -70,7 +70,7 @@
     ],
     "init_actions": [
         {
-            "if": "{{!route?.id}}",
+            "if": "{{!(route && route.id)}}",
             "handler": "setState",
             "params": {
                 "target": "local",
@@ -78,7 +78,7 @@
             }
         },
         {
-            "if": "{{!route?.id}}",
+            "if": "{{!(route && route.id)}}",
             "handler": "setState",
             "params": {
                 "target": "local",
@@ -118,7 +118,7 @@
             }
         },
         {
-            "if": "{{!!route?.id}}",
+            "if": "{{!!(route && route.id)}}",
             "handler": "setState",
             "params": {
                 "target": "local",
@@ -160,7 +160,7 @@
                                 "props": {
                                     "className": "text-page-heading"
                                 },
-                                "text": "{{route?.id ? '$t:custom-ad_slots.admin.ads.form.title_edit' : '$t:custom-ad_slots.admin.ads.form.title_create'}}"
+                                "text": "{{(route && route.id) ? '$t:custom-ad_slots.admin.ads.form.title_edit' : '$t:custom-ad_slots.admin.ads.form.title_create'}}"
                             }
                         ]
                     },
@@ -187,7 +187,7 @@
                                 "props": {
                                     "className": "block text-sm"
                                 },
-                                "text": "{{_local.errors?.slot_key?.[0] ?? _local.errors?.type?.[0] ?? _local.errors?.title?.[0] ?? _local.errors?.message ?? ''}}"
+                                "text": "{{(_local.errors && _local.errors.slot_key && _local.errors.slot_key[0]) || (_local.errors && _local.errors.type && _local.errors.type[0]) || (_local.errors && _local.errors.title && _local.errors.title[0]) || (_local.errors && _local.errors.message) || ''}}"
                             }
                         ]
                     },
@@ -234,7 +234,7 @@
                                         "name": "Select",
                                         "props": {
                                             "name": "slot_key",
-                                            "value": "{{_local.form?.slot_key ?? 'home.top'}}",
+                                            "value": "{{(_local.form && _local.form.slot_key) || 'home.top'}}",
                                             "className": "input w-full",
                                             "options": [
                                                 {
@@ -403,7 +403,7 @@
                                         "name": "Select",
                                         "props": {
                                             "name": "type",
-                                            "value": "{{_local.form?.type ?? 'static'}}",
+                                            "value": "{{(_local.form && _local.form.type) || 'static'}}",
                                             "className": "input w-full",
                                             "options": [
                                                 {
@@ -493,7 +493,8 @@
                                             "name": "image_url",
                                             "className": "input w-full",
                                             "placeholder": "https://",
-                                            "value": "{{_local.form?.image_url ?? ''}}"
+                                            "value": "{{(_local.form && _local.form.image_url) || ''}}",
+                                            "key": "input_image_url-{{(_local.form && _local.form.id) || (route && route.id ? 'loading' : 'new')}}"
                                         },
                                         "actions": [
                                             {
@@ -552,11 +553,11 @@
                                                     "className": "cas-ad-uploader w-full",
                                                     "collection": "ad_slot_image_url",
                                                     "confirmBeforeRemove": true,
-                                                    "initialFiles": "{{(_local.form?.uploader_image_url?.length ? _local.form.uploader_image_url : null) || (ad?.data?.uploader_image_url?.length ? ad.data.uploader_image_url : null) || (ad?.data?.data?.uploader_image_url?.length ? ad.data.data.uploader_image_url : null) || []}}",
+                                                    "initialFiles": "{{(_local.form && _local.form.uploader_image_url && _local.form.uploader_image_url.length ? _local.form.uploader_image_url : null) || (ad && ad.data && ad.data.uploader_image_url && ad.data.uploader_image_url.length ? ad.data.uploader_image_url : null) || (ad && ad.data && ad.data.data && ad.data.data.uploader_image_url && ad.data.data.uploader_image_url.length ? ad.data.data.uploader_image_url : null) || []}}",
                                                     "maxFiles": 1,
                                                     "maxSize": 5,
                                                     "uploadTriggerEvent": "upload:ad_image_url",
-                                                    "key": "fu_image_url-{{_local.form?.id || (route?.id ? 'loading' : 'new')}}",
+                                                    "key": "fu_image_url-{{(_local.form && _local.form.id) || (route && route.id ? 'loading' : 'new')}}",
                                                     "uploadParams": {
                                                         "field": "image_url",
                                                         "token": "{{_local.form.upload_token || defaults.data.upload_token}}",
@@ -573,8 +574,8 @@
                                                                 "handler": "setState",
                                                                 "params": {
                                                                     "target": "local",
-                                                                    "form.image_url": "{{$args[0]?.[0]?.download_url || $args[0]?.[0]?.url || $args[0]?.download_url || $args[0]?.url || $args?.data?.data?.download_url || $args?.data?.data?.url || $args?.data?.download_url || $args?.data?.url || ''}}",
-                                                                    "form.uploader_image_url": "{{($args[0] && $args[0].length) ? $args[0] : ($args[0] ? [$args[0]] : (_local.form.uploader_image_url || []))}}",
+                                                                    "form.image_url": "{{($args[0] && $args[0][0] && ($args[0][0].download_url || $args[0][0].url)) || ($args[0] && ($args[0].download_url || $args[0].url)) || ($args[0] && $args[0].data && $args[0].data.data && ($args[0].data.data.download_url || $args[0].data.data.url)) || ($args[0] && $args[0].data && ($args[0].data.download_url || $args[0].data.url)) || ($args.download_url || $args.url) || ($args.data && $args.data.download_url) || ($args.data && $args.data.url) || ($args.data && $args.data.data && ($args.data.data.download_url || $args.data.data.url)) || ''}}",
+                                                                    "form.uploader_image_url": "{{($args[0] && $args[0].length) ? $args[0] : ($args[0] ? [$args[0]] : ((_local.form && _local.form.uploader_image_url) || []))}}",
                                                                     "form.image_url_count": 1
                                                                 }
                                                             }
@@ -734,7 +735,8 @@
                                             "name": "image_url_desktop",
                                             "className": "input w-full",
                                             "placeholder": "https://",
-                                            "value": "{{_local.form?.image_url_desktop ?? ''}}"
+                                            "value": "{{(_local.form && _local.form.image_url_desktop) || ''}}",
+                                            "key": "input_image_url_desktop-{{(_local.form && _local.form.id) || (route && route.id ? 'loading' : 'new')}}"
                                         },
                                         "actions": [
                                             {
@@ -793,11 +795,11 @@
                                                     "className": "cas-ad-uploader w-full",
                                                     "collection": "ad_slot_image_url_desktop",
                                                     "confirmBeforeRemove": true,
-                                                    "initialFiles": "{{(_local.form?.uploader_image_url_desktop?.length ? _local.form.uploader_image_url_desktop : null) || (ad?.data?.uploader_image_url_desktop?.length ? ad.data.uploader_image_url_desktop : null) || (ad?.data?.data?.uploader_image_url_desktop?.length ? ad.data.data.uploader_image_url_desktop : null) || []}}",
+                                                    "initialFiles": "{{(_local.form && _local.form.uploader_image_url_desktop && _local.form.uploader_image_url_desktop.length ? _local.form.uploader_image_url_desktop : null) || (ad && ad.data && ad.data.uploader_image_url_desktop && ad.data.uploader_image_url_desktop.length ? ad.data.uploader_image_url_desktop : null) || (ad && ad.data && ad.data.data && ad.data.data.uploader_image_url_desktop && ad.data.data.uploader_image_url_desktop.length ? ad.data.data.uploader_image_url_desktop : null) || []}}",
                                                     "maxFiles": 1,
                                                     "maxSize": 5,
                                                     "uploadTriggerEvent": "upload:ad_image_url_desktop",
-                                                    "key": "fu_image_url_desktop-{{_local.form?.id || (route?.id ? 'loading' : 'new')}}",
+                                                    "key": "fu_image_url_desktop-{{(_local.form && _local.form.id) || (route && route.id ? 'loading' : 'new')}}",
                                                     "uploadParams": {
                                                         "field": "image_url_desktop",
                                                         "token": "{{_local.form.upload_token || defaults.data.upload_token}}",
@@ -814,8 +816,8 @@
                                                                 "handler": "setState",
                                                                 "params": {
                                                                     "target": "local",
-                                                                    "form.image_url_desktop": "{{$args[0]?.[0]?.download_url || $args[0]?.[0]?.url || $args[0]?.download_url || $args[0]?.url || $args?.data?.data?.download_url || $args?.data?.data?.url || $args?.data?.download_url || $args?.data?.url || ''}}",
-                                                                    "form.uploader_image_url_desktop": "{{($args[0] && $args[0].length) ? $args[0] : ($args[0] ? [$args[0]] : (_local.form.uploader_image_url_desktop || []))}}",
+                                                                    "form.image_url_desktop": "{{($args[0] && $args[0][0] && ($args[0][0].download_url || $args[0][0].url)) || ($args[0] && ($args[0].download_url || $args[0].url)) || ($args[0] && $args[0].data && $args[0].data.data && ($args[0].data.data.download_url || $args[0].data.data.url)) || ($args[0] && $args[0].data && ($args[0].data.download_url || $args[0].data.url)) || ($args.download_url || $args.url) || ($args.data && $args.data.download_url) || ($args.data && $args.data.url) || ($args.data && $args.data.data && ($args.data.data.download_url || $args.data.data.url)) || ''}}",
+                                                                    "form.uploader_image_url_desktop": "{{($args[0] && $args[0].length) ? $args[0] : ($args[0] ? [$args[0]] : ((_local.form && _local.form.uploader_image_url_desktop) || []))}}",
                                                                     "form.image_url_desktop_count": 1
                                                                 }
                                                             }
@@ -975,7 +977,8 @@
                                             "name": "image_url_mobile",
                                             "className": "input w-full",
                                             "placeholder": "https://",
-                                            "value": "{{_local.form?.image_url_mobile ?? ''}}"
+                                            "value": "{{(_local.form && _local.form.image_url_mobile) || ''}}",
+                                            "key": "input_image_url_mobile-{{(_local.form && _local.form.id) || (route && route.id ? 'loading' : 'new')}}"
                                         },
                                         "actions": [
                                             {
@@ -1034,11 +1037,11 @@
                                                     "className": "cas-ad-uploader w-full",
                                                     "collection": "ad_slot_image_url_mobile",
                                                     "confirmBeforeRemove": true,
-                                                    "initialFiles": "{{(_local.form?.uploader_image_url_mobile?.length ? _local.form.uploader_image_url_mobile : null) || (ad?.data?.uploader_image_url_mobile?.length ? ad.data.uploader_image_url_mobile : null) || (ad?.data?.data?.uploader_image_url_mobile?.length ? ad.data.data.uploader_image_url_mobile : null) || []}}",
+                                                    "initialFiles": "{{(_local.form && _local.form.uploader_image_url_mobile && _local.form.uploader_image_url_mobile.length ? _local.form.uploader_image_url_mobile : null) || (ad && ad.data && ad.data.uploader_image_url_mobile && ad.data.uploader_image_url_mobile.length ? ad.data.uploader_image_url_mobile : null) || (ad && ad.data && ad.data.data && ad.data.data.uploader_image_url_mobile && ad.data.data.uploader_image_url_mobile.length ? ad.data.data.uploader_image_url_mobile : null) || []}}",
                                                     "maxFiles": 1,
                                                     "maxSize": 5,
                                                     "uploadTriggerEvent": "upload:ad_image_url_mobile",
-                                                    "key": "fu_image_url_mobile-{{_local.form?.id || (route?.id ? 'loading' : 'new')}}",
+                                                    "key": "fu_image_url_mobile-{{(_local.form && _local.form.id) || (route && route.id ? 'loading' : 'new')}}",
                                                     "uploadParams": {
                                                         "field": "image_url_mobile",
                                                         "token": "{{_local.form.upload_token || defaults.data.upload_token}}",
@@ -1055,8 +1058,8 @@
                                                                 "handler": "setState",
                                                                 "params": {
                                                                     "target": "local",
-                                                                    "form.image_url_mobile": "{{$args[0]?.[0]?.download_url || $args[0]?.[0]?.url || $args[0]?.download_url || $args[0]?.url || $args?.data?.data?.download_url || $args?.data?.data?.url || $args?.data?.download_url || $args?.data?.url || ''}}",
-                                                                    "form.uploader_image_url_mobile": "{{($args[0] && $args[0].length) ? $args[0] : ($args[0] ? [$args[0]] : (_local.form.uploader_image_url_mobile || []))}}",
+                                                                    "form.image_url_mobile": "{{($args[0] && $args[0][0] && ($args[0][0].download_url || $args[0][0].url)) || ($args[0] && ($args[0].download_url || $args[0].url)) || ($args[0] && $args[0].data && $args[0].data.data && ($args[0].data.data.download_url || $args[0].data.data.url)) || ($args[0] && $args[0].data && ($args[0].data.download_url || $args[0].data.url)) || ($args.download_url || $args.url) || ($args.data && $args.data.download_url) || ($args.data && $args.data.url) || ($args.data && $args.data.data && ($args.data.data.download_url || $args.data.data.url)) || ''}}",
+                                                                    "form.uploader_image_url_mobile": "{{($args[0] && $args[0].length) ? $args[0] : ($args[0] ? [$args[0]] : ((_local.form && _local.form.uploader_image_url_mobile) || []))}}",
                                                                     "form.image_url_mobile_count": 1
                                                                 }
                                                             }
@@ -1292,7 +1295,7 @@
                                 "id": "field_script_src",
                                 "type": "basic",
                                 "name": "Div",
-                                "if": "{{_local.form?.type === 'dynamic'}}",
+                                "if": "{{_local.form && _local.form.type === 'dynamic'}}",
                                 "props": {
                                     "className": "form-group w-full"
                                 },
@@ -1410,7 +1413,7 @@
                                         "name": "Select",
                                         "props": {
                                             "name": "size_mode",
-                                            "value": "{{_local.form?.size_mode ?? ''}}",
+                                            "value": "{{(_local.form && _local.form.size_mode) || ''}}",
                                             "className": "input w-full",
                                             "options": [
                                                 {
@@ -1444,7 +1447,7 @@
                                 "id": "field_aspect_desktop",
                                 "type": "basic",
                                 "name": "Div",
-                                "if": "{{_local.form?.size_mode === 'ratio'}}",
+                                "if": "{{_local.form && _local.form.size_mode === 'ratio'}}",
                                 "props": {
                                     "className": "form-group w-full"
                                 },
@@ -1487,7 +1490,7 @@
                                 "id": "field_aspect_mobile",
                                 "type": "basic",
                                 "name": "Div",
-                                "if": "{{_local.form?.size_mode === 'ratio'}}",
+                                "if": "{{_local.form && _local.form.size_mode === 'ratio'}}",
                                 "props": {
                                     "className": "form-group w-full"
                                 },
@@ -1530,7 +1533,7 @@
                                 "id": "field_width_px",
                                 "type": "basic",
                                 "name": "Div",
-                                "if": "{{_local.form?.size_mode === 'fixed'}}",
+                                "if": "{{_local.form && _local.form.size_mode === 'fixed'}}",
                                 "props": {
                                     "className": "form-group w-full"
                                 },
@@ -1573,7 +1576,7 @@
                                 "id": "field_height_px",
                                 "type": "basic",
                                 "name": "Div",
-                                "if": "{{_local.form?.size_mode === 'fixed'}}",
+                                "if": "{{_local.form && _local.form.size_mode === 'fixed'}}",
                                 "props": {
                                     "className": "form-group w-full"
                                 },
@@ -1624,7 +1627,7 @@
                                 "id": "field_max_width_px",
                                 "type": "basic",
                                 "name": "Div",
-                                "if": "{{_local.form?.size_mode === 'fixed'}}",
+                                "if": "{{_local.form && _local.form.size_mode === 'fixed'}}",
                                 "props": {
                                     "className": "form-group w-full"
                                 },
@@ -1684,7 +1687,7 @@
                                                 "props": {
                                                     "name": "is_active",
                                                     "autoBinding": false,
-                                                    "checked": "{{!!_local.form?.is_active}}"
+                                                    "checked": "{{!!(_local.form && _local.form.is_active)}}"
                                                 },
                                                 "actions": [
                                                     {
@@ -1727,7 +1730,7 @@
                                                 "props": {
                                                     "name": "prevent_right_click",
                                                     "autoBinding": false,
-                                                    "checked": "{{!!_local.form?.prevent_right_click}}"
+                                                    "checked": "{{!!(_local.form && _local.form.prevent_right_click)}}"
                                                 },
                                                 "actions": [
                                                     {
@@ -1778,7 +1781,7 @@
                                                 "props": {
                                                     "name": "open_in_new_tab",
                                                     "autoBinding": false,
-                                                    "checked": "{{!!_local.form?.open_in_new_tab}}"
+                                                    "checked": "{{!!(_local.form && _local.form.open_in_new_tab)}}"
                                                 },
                                                 "actions": [
                                                     {
@@ -1836,7 +1839,7 @@
                                         "props": {
                                             "type": "datetime-local",
                                             "name": "starts_at",
-                                            "value": "{{_local.form?.starts_at_local ?? _local.form?.starts_at ?? ''}}",
+                                            "value": "{{(_local.form && (_local.form.starts_at_local || _local.form.starts_at)) || ''}}",
                                             "className": "input w-full",
                                             "step": "60"
                                         },
@@ -1890,7 +1893,7 @@
                                         "props": {
                                             "type": "datetime-local",
                                             "name": "ends_at",
-                                            "value": "{{_local.form?.ends_at_local ?? _local.form?.ends_at ?? ''}}",
+                                            "value": "{{(_local.form && (_local.form.ends_at_local || _local.form.ends_at)) || ''}}",
                                             "className": "input w-full",
                                             "step": "60"
                                         },
@@ -1996,32 +1999,32 @@
                                             {
                                                 "handler": "apiCall",
                                                 "auth_required": true,
-                                                "target": "{{route?.id ? '/api/modules/custom-ad_slots/admin/ads/' + route?.id : '/api/modules/custom-ad_slots/admin/ads'}}",
+                                                "target": "{{(route && route.id) ? ('/api/modules/custom-ad_slots/admin/ads/' + route.id) : '/api/modules/custom-ad_slots/admin/ads'}}",
                                                 "params": {
-                                                    "method": "{{route?.id ? 'PUT' : 'POST'}}",
+                                                    "method": "{{(route && route.id) ? 'PUT' : 'POST'}}",
                                                     "body": {
-                                                        "slot_key": "{{_local.form?.slot_key}}",
-                                                        "type": "{{_local.form?.type}}",
-                                                        "title": "{{_local.form?.title ?? ''}}",
-                                                        "image_url": "{{_local.form?.image_url || _local.form?.uploader_image_url?.[0]?.download_url || _local.form?.uploader_image_url?.[0]?.url || ''}}",
-                                                        "image_url_desktop": "{{_local.form?.image_url_desktop || _local.form?.uploader_image_url_desktop?.[0]?.download_url || _local.form?.uploader_image_url_desktop?.[0]?.url || ''}}",
-                                                        "image_url_mobile": "{{_local.form?.image_url_mobile || _local.form?.uploader_image_url_mobile?.[0]?.download_url || _local.form?.uploader_image_url_mobile?.[0]?.url || ''}}",
-                                                        "bg_color": "{{_local.form?.bg_color ?? ''}}",
-                                                        "link_url": "{{_local.form?.link_url ?? ''}}",
-                                                        "html_content": "{{_local.form?.html_content ?? ''}}",
-                                                        "script_src": "{{_local.form?.script_src ?? ''}}",
-                                                        "sort_order": "{{_local.form?.sort_order ?? 0}}",
-                                                        "size_mode": "{{_local.form?.size_mode || null}}",
-                                                        "aspect_desktop": "{{_local.form?.aspect_desktop ?? ''}}",
-                                                        "aspect_mobile": "{{_local.form?.aspect_mobile ?? ''}}",
-                                                        "width_px": "{{_local.form?.width_px || null}}",
-                                                        "height_px": "{{_local.form?.height_px || null}}",
-                                                        "max_width_px": "{{_local.form?.max_width_px || null}}",
-                                                        "is_active": "{{!!_local.form?.is_active}}",
-                                                        "prevent_right_click": "{{!!_local.form?.prevent_right_click}}",
-                                                        "open_in_new_tab": "{{!!_local.form?.open_in_new_tab}}",
-                                                        "starts_at": "{{_local.form?.starts_at || null}}",
-                                                        "ends_at": "{{_local.form?.ends_at || null}}",
+                                                        "slot_key": "{{_local.form && _local.form.slot_key}}",
+                                                        "type": "{{_local.form && _local.form.type}}",
+                                                        "title": "{{(_local.form && _local.form.title) || ''}}",
+                                                        "image_url": "{{(_local.form && _local.form.image_url) || (_local.form && _local.form.uploader_image_url && _local.form.uploader_image_url[0] && (_local.form.uploader_image_url[0].download_url || _local.form.uploader_image_url[0].url)) || ''}}",
+                                                        "image_url_desktop": "{{(_local.form && _local.form.image_url_desktop) || (_local.form && _local.form.uploader_image_url_desktop && _local.form.uploader_image_url_desktop[0] && (_local.form.uploader_image_url_desktop[0].download_url || _local.form.uploader_image_url_desktop[0].url)) || ''}}",
+                                                        "image_url_mobile": "{{(_local.form && _local.form.image_url_mobile) || (_local.form && _local.form.uploader_image_url_mobile && _local.form.uploader_image_url_mobile[0] && (_local.form.uploader_image_url_mobile[0].download_url || _local.form.uploader_image_url_mobile[0].url)) || ''}}",
+                                                        "bg_color": "{{(_local.form && _local.form.bg_color) || ''}}",
+                                                        "link_url": "{{(_local.form && _local.form.link_url) || ''}}",
+                                                        "html_content": "{{(_local.form && _local.form.html_content) || ''}}",
+                                                        "script_src": "{{(_local.form && _local.form.script_src) || ''}}",
+                                                        "sort_order": "{{(_local.form && _local.form.sort_order) || 0}}",
+                                                        "size_mode": "{{(_local.form && _local.form.size_mode) || null}}",
+                                                        "aspect_desktop": "{{(_local.form && _local.form.aspect_desktop) || ''}}",
+                                                        "aspect_mobile": "{{(_local.form && _local.form.aspect_mobile) || ''}}",
+                                                        "width_px": "{{(_local.form && _local.form.width_px) || null}}",
+                                                        "height_px": "{{(_local.form && _local.form.height_px) || null}}",
+                                                        "max_width_px": "{{(_local.form && _local.form.max_width_px) || null}}",
+                                                        "is_active": "{{!!(_local.form && _local.form.is_active)}}",
+                                                        "prevent_right_click": "{{!!(_local.form && _local.form.prevent_right_click)}}",
+                                                        "open_in_new_tab": "{{!!(_local.form && _local.form.open_in_new_tab)}}",
+                                                        "starts_at": "{{(_local.form && _local.form.starts_at) || null}}",
+                                                        "ends_at": "{{(_local.form && _local.form.ends_at) || null}}",
                                                         "upload_token": "{{_local.form.upload_token || defaults.data.upload_token || ''}}"
                                                     }
                                                 },
@@ -2038,7 +2041,7 @@
                                                         "handler": "toast",
                                                         "params": {
                                                             "type": "success",
-                                                            "message": "{{route?.id ? '$t:custom-ad_slots.admin.ads.form.update_success' : '$t:custom-ad_slots.admin.ads.form.create_success'}}"
+                                                            "message": "{{(route && route.id) ? '$t:custom-ad_slots.admin.ads.form.update_success' : '$t:custom-ad_slots.admin.ads.form.create_success'}}"
                                                         }
                                                     },
                                                     {
@@ -2056,14 +2059,14 @@
                                                         "params": {
                                                             "target": "local",
                                                             "saving": false,
-                                                            "errors": "{{error.errors ?? { message: [error.message] }}}"
+                                                            "errors": "{{(error && error.errors) || { message: [(error && error.message)] }}}"
                                                         }
                                                     },
                                                     {
                                                         "handler": "toast",
                                                         "params": {
                                                             "type": "error",
-                                                            "message": "{{error.message ?? '$t:custom-ad_slots.admin.ads.form.validation_error'}}"
+                                                            "message": "{{(error && error.message) || '$t:custom-ad_slots.admin.ads.form.validation_error'}}"
                                                         }
                                                     }
                                                 ]
@@ -2095,7 +2098,7 @@
     "scripts": [
         {
             "id": "cas_ad_slot_image_upload",
-            "src": "/api/modules/custom-ad_slots/assets/ad-slot-image-upload.js?v=1.4.21",
+            "src": "/api/modules/custom-ad_slots/assets/ad-slot-image-upload.js?v=1.4.22",
             "async": true,
             "failOnError": false
         }
