@@ -43,6 +43,7 @@
                         "condition": "{{ad.type === 'static'}}",
                         "props": {
                             "href": "{{ad.link_url ?? '#'}}",
+                            "data-cas-ad-id": "{{ad.id}}",
                             "className": "ad-slot__static block",
                             "target": "_blank",
                             "rel": "noopener noreferrer"

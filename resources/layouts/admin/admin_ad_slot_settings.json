@@ -1,0 +1,312 @@
+{
+    "version": "1.0.0",
+    "layout_name": "admin_ad_slot_settings",
+    "permissions": [
+        "custom-ad_slots.settings.manage"
+    ],
+    "extends": "_admin_base",
+    "meta": {
+        "title": "$t:custom-ad_slots.admin.settings.title",
+        "description": "$t:custom-ad_slots.admin.settings.description"
+    },
+    "data_sources": [
+        {
+            "id": "settings",
+            "type": "api",
+            "endpoint": "/api/modules/custom-ad_slots/admin/settings",
+            "method": "GET",
+            "auto_fetch": true,
+            "auth_required": true,
+            "fallback": {
+                "data": {}
+            },
+            "initLocal": "form",
+            "refetchOnMount": true
+        }
+    ],
+    "initLocal": {
+        "isSaving": false,
+        "form": {}
+    },
+    "slots": {
+        "content": [
+            {
+                "id": "cas_settings_wrap",
+                "type": "basic",
+                "name": "Div",
+                "props": {
+                    "className": "admin-page-content-responsive"
+                },
+                "children": [
+                    {
+                        "type": "basic",
+                        "name": "H1",
+                        "props": {
+                            "className": "text-page-heading mb-2"
+                        },
+                        "text": "$t:custom-ad_slots.admin.settings.title"
+                    },
+                    {
+                        "type": "basic",
+                        "name": "P",
+                        "props": {
+                            "className": "text-sm text-gray-500 dark:text-gray-400 mb-6"
+                        },
+                        "text": "$t:custom-ad_slots.admin.settings.description"
+                    },
+                    {
+                        "id": "cas_settings_mileage",
+                        "type": "basic",
+                        "name": "Div",
+                        "props": {
+                            "className": "p-5 bg-white dark:bg-gray-800 rounded-lg shadow border border-gray-200 dark:border-gray-700 mb-4 w-full max-w-3xl"
+                        },
+                        "children": [
+                            {
+                                "type": "basic",
+                                "name": "H2",
+                                "props": {
+                                    "className": "text-base font-semibold text-gray-900 dark:text-white mb-3"
+                                },
+                                "text": "$t:custom-ad_slots.admin.settings.sections.mileage"
+                            },
+                            {
+                                "type": "basic",
+                                "name": "P",
+                                "if": "{{!(_local.form && _local.form._status && _local.form._status.mileage_available)}}",
+                                "props": {
+                                    "className": "mb-3 px-3 py-2 rounded-lg text-xs bg-amber-50 dark:bg-amber-900/30 text-amber-800 dark:text-amber-200"
+                                },
+                                "text": "$t:custom-ad_slots.admin.settings.mileage.unavailable"
+                            },
+                            {
+                                "type": "basic",
+                                "name": "Div",
+                                "props": {
+                                    "className": "mb-4"
+                                },
+                                "children": [
+                                    {
+                                        "type": "composite",
+                                        "name": "Toggle",
+                                        "props": {
+                                            "checked": "{{!!(_local.form && _local.form.mileage && _local.form.mileage.click_reward_enabled === true)}}",
+                                            "label": "$t:custom-ad_slots.admin.settings.mileage.click_reward_enabled",
+                                            "size": "sm"
+                                        },
+                                        "actions": [
+                                            {
+                                                "type": "change",
+                                                "handler": "setState",
+                                                "params": {
+                                                    "target": "local",
+                                                    "form.mileage.click_reward_enabled": "{{!(_local.form && _local.form.mileage && _local.form.mileage.click_reward_enabled === true)}}"
+                                                }
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "type": "basic",
+                                        "name": "P",
+                                        "props": {
+                                            "className": "mt-1 text-xs text-gray-500 dark:text-gray-400"
+                                        },
+                                        "text": "$t:custom-ad_slots.admin.settings.mileage.click_reward_enabled_help"
+                                    }
+                                ]
+                            },
+                            {
+                                "type": "basic",
+                                "name": "Div",
+                                "props": {
+                                    "className": "grid grid-cols-1 md:grid-cols-2 gap-x-6"
+                                },
+                                "children": [
+                                    {
+                                        "type": "basic",
+                                        "name": "Div",
+                                        "props": {
+                                            "className": "mb-4"
+                                        },
+                                        "children": [
+                                            {
+                                                "type": "basic",
+                                                "name": "Label",
+                                                "props": {
+                                                    "className": "block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+                                                },
+                                                "text": "$t:custom-ad_slots.admin.settings.mileage.click_reward_amount"
+                                            },
+                                            {
+                                                "type": "basic",
+                                                "name": "Input",
+                                                "props": {
+                                                    "type": "number",
+                                                    "min": 0,
+                                                    "value": "{{(_local.form && _local.form.mileage && _local.form.mileage.click_reward_amount != null) ? _local.form.mileage.click_reward_amount : 5}}",
+                                                    "className": "w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
+                                                },
+                                                "actions": [
+                                                    {
+                                                        "type": "change",
+                                                        "handler": "setState",
+                                                        "params": {
+                                                            "target": "local",
+                                                            "form.mileage.click_reward_amount": "{{Number($event.target.value)}}"
+                                                        }
+                                                    }
+                                                ]
+                                            },
+                                            {
+                                                "type": "basic",
+                                                "name": "P",
+                                                "props": {
+                                                    "className": "mt-1 text-xs text-gray-500 dark:text-gray-400"
+                                                },
+                                                "text": "$t:custom-ad_slots.admin.settings.mileage.click_reward_amount_help"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "type": "basic",
+                                        "name": "Div",
+                                        "props": {
+                                            "className": "mb-4"
+                                        },
+                                        "children": [
+                                            {
+                                                "type": "basic",
+                                                "name": "Label",
+                                                "props": {
+                                                    "className": "block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+                                                },
+                                                "text": "$t:custom-ad_slots.admin.settings.mileage.click_reward_daily_limit"
+                                            },
+                                            {
+                                                "type": "basic",
+                                                "name": "Input",
+                                                "props": {
+                                                    "type": "number",
+                                                    "min": 0,
+                                                    "value": "{{(_local.form && _local.form.mileage && _local.form.mileage.click_reward_daily_limit != null) ? _local.form.mileage.click_reward_daily_limit : 5}}",
+                                                    "className": "w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
+                                                },
+                                                "actions": [
+                                                    {
+                                                        "type": "change",
+                                                        "handler": "setState",
+                                                        "params": {
+                                                            "target": "local",
+                                                            "form.mileage.click_reward_daily_limit": "{{Number($event.target.value)}}"
+                                                        }
+                                                    }
+                                                ]
+                                            },
+                                            {
+                                                "type": "basic",
+                                                "name": "P",
+                                                "props": {
+                                                    "className": "mt-1 text-xs text-gray-500 dark:text-gray-400"
+                                                },
+                                                "text": "$t:custom-ad_slots.admin.settings.mileage.click_reward_daily_limit_help"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "type": "basic",
+                        "name": "Div",
+                        "props": {
+                            "className": "flex justify-end w-full max-w-3xl"
+                        },
+                        "children": [
+                            {
+                                "type": "basic",
+                                "name": "Button",
+                                "props": {
+                                    "type": "button",
+                                    "disabled": "{{_local.isSaving}}",
+                                    "className": "btn btn-primary disabled:opacity-50"
+                                },
+                                "actions": [
+                                    {
+                                        "type": "click",
+                                        "handler": "sequence",
+                                        "actions": [
+                                            {
+                                                "handler": "setState",
+                                                "params": {
+                                                    "target": "local",
+                                                    "isSaving": true
+                                                }
+                                            },
+                                            {
+                                                "handler": "apiCall",
+                                                "auth_required": true,
+                                                "target": "/api/modules/custom-ad_slots/admin/settings",
+                                                "params": {
+                                                    "method": "PUT",
+                                                    "body": {
+                                                        "mileage": "{{(_local.form && _local.form.mileage) || {}}}"
+                                                    }
+                                                },
+                                                "onSuccess": [
+                                                    {
+                                                        "handler": "setState",
+                                                        "params": {
+                                                            "target": "local",
+                                                            "isSaving": false
+                                                        }
+                                                    },
+                                                    {
+                                                        "handler": "toast",
+                                                        "params": {
+                                                            "type": "success",
+                                                            "message": "$t:custom-ad_slots.admin.settings.saved"
+                                                        }
+                                                    },
+                                                    {
+                                                        "handler": "refetchDataSource",
+                                                        "params": {
+                                                            "dataSourceId": "settings"
+                                                        }
+                                                    }
+                                                ],
+                                                "onError": [
+                                                    {
+                                                        "handler": "setState",
+                                                        "params": {
+                                                            "target": "local",
+                                                            "isSaving": false
+                                                        }
+                                                    },
+                                                    {
+                                                        "handler": "toast",
+                                                        "params": {
+                                                            "type": "error",
+                                                            "message": "{{(error && error.message) || 'error'}}"
+                                                        }
+                                                    }
+                                                ]
+                                            }
+                                        ]
+                                    }
+                                ],
+                                "children": [
+                                    {
+                                        "type": "basic",
+                                        "name": "Span",
+                                        "text": "$t:common.save"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
+}

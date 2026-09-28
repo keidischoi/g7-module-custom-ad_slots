@@ -109,6 +109,23 @@
         "update_success_ratio": "슬롯 기본크기(비율)를 저장했습니다.",
         "update_success_fixed": "슬롯 기본크기(크기)를 저장했습니다."
       }
+    },
+    "settings": {
+      "title": "광고 슬롯 설정",
+      "description": "배너 클릭 마일리지 적립 등 광고 슬롯 환경설정입니다.",
+      "saved": "설정을 저장했습니다.",
+      "sections": {
+        "mileage": "마일리지"
+      },
+      "mileage": {
+        "unavailable": "쇼핑몰(sirsoft-ecommerce) 모듈이 없거나 꺼져 있거나 마일리지 설정이 꺼져 있어 지금은 적립되지 않습니다.",
+        "click_reward_enabled": "배너 클릭 적립 사용",
+        "click_reward_enabled_help": "로그인한 회원이 배너를 클릭하면 마일리지를 적립합니다. 같은 배너는 하루 1번만 적립됩니다. (HTML/스크립트형 광고 제외)",
+        "click_reward_amount": "클릭 1회 적립액",
+        "click_reward_amount_help": "0이면 적립하지 않습니다.",
+        "click_reward_daily_limit": "하루 최대 적립 횟수",
+        "click_reward_daily_limit_help": "회원 1명이 하루에 적립받을 수 있는 최대 횟수 (0 = 무제한)."
+      }
     }
   },
   "slots": {

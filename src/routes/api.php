@@ -4,7 +4,9 @@ use Illuminate\Support\Facades\Route;
 use Modules\Custom\AdSlots\Http\Controllers\Admin\AdSlotItemController;
 use Modules\Custom\AdSlots\Http\Controllers\Admin\AdSlotPlacementController;
 use Modules\Custom\AdSlots\Http\Controllers\Admin\AdSlotUploadController;
+use Modules\Custom\AdSlots\Http\Controllers\Admin\SettingsController;
 use Modules\Custom\AdSlots\Http\Controllers\Public\AssetController;
+use Modules\Custom\AdSlots\Http\Controllers\Public\ClickRewardController;
 use Modules\Custom\AdSlots\Http\Controllers\Public\PlacementController;
 
 /*
@@ -18,6 +20,21 @@ Route::get('placements', [PlacementController::class, 'index'])
     ->middleware(['throttle:600,1'])
     ->name('placements.index');
 
+
+// 배너 클릭 마일리지 적립 — 비회원은 오류 없이 awarded=false (설정 기본 꺼짐)
+Route::post('ads/{id}/click', [ClickRewardController::class, 'store'])
+    ->whereNumber('id')
+    ->middleware(['optional.sanctum', 'throttle:60,1'])
+    ->name('ads.click');
+
+// 환경설정 (마일리지)
+Route::prefix('admin/settings')
+    ->middleware(['auth:sanctum', 'throttle:600,1', 'permission:admin,custom-ad_slots.settings.manage'])
+    ->name('admin.settings.')
+    ->group(function () {
+        Route::get('/', [SettingsController::class, 'index'])->name('index');
+        Route::put('/', [SettingsController::class, 'update'])->name('update');
+    });
 
 Route::get('admin/form-defaults', [AdSlotUploadController::class, 'formDefaults'])
     ->middleware(['auth:sanctum', 'throttle:60,1'])

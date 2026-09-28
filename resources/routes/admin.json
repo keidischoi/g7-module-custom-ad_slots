@@ -34,6 +34,14 @@
             }
         },
         {
+            "path": "*/admin/ad-slots/settings",
+            "layout": "admin_ad_slot_settings",
+            "auth_required": true,
+            "meta": {
+                "title": "$t:custom-ad_slots.admin.settings.title"
+            }
+        },
+        {
             "path": "*/admin/ad-slots/:id/edit",
             "layout": "admin_ad_slot_form",
             "auth_required": true,

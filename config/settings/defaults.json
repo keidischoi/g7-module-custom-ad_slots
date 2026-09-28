@@ -1,0 +1,21 @@
+{
+    "_meta": {
+        "version": "1.0.0",
+        "description": "광고 슬롯 모듈 환경설정",
+        "categories": [
+            "mileage"
+        ]
+    },
+    "defaults": {
+        "mileage": {
+            "click_reward_enabled": false,
+            "click_reward_amount": 5,
+            "click_reward_daily_limit": 5
+        }
+    },
+    "frontend_schema": {
+        "mileage": {
+            "expose": false
+        }
+    }
+}

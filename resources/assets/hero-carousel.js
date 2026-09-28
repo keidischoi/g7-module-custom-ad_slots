@@ -1,6 +1,97 @@
 /*! custom-ad_slots — API-driven ad mounts (carousel + stacked banners) + path-routed page mounts */
+/* Banner click mileage reward (v1.4.28): document-level capture listener on [data-cas-ad-id].
+ * Logged-in only (Bearer auth_token in localStorage). The server decides everything
+ * (setting off by default, once per banner/day, daily limit). Never blocks the click. */
 (function () {
-  var CAS_AD_VERSION = "1.4.24";
+  if (window.__casAdClickRewardInstalled) return;
+  window.__casAdClickRewardInstalled = true;
+
+  var CLICK_URL = "/api/modules/custom-ad_slots/ads/";
+  var sentAt = {};
+
+  function authToken() {
+    try {
+      return localStorage.getItem("auth_token") || "";
+    } catch (e) {
+      return "";
+    }
+  }
+
+  function showToast(amount) {
+    try {
+      var n = Number(amount) || 0;
+      if (n <= 0 || !document.body) return;
+      var el = document.createElement("div");
+      el.setAttribute("role", "status");
+      el.textContent = "+" + n.toLocaleString() + " \uB9C8\uC77C\uB9AC\uC9C0";
+      el.style.cssText =
+        "position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:2147483000;" +
+        "padding:8px 14px;border-radius:9999px;background:rgba(17,24,39,.9);color:#facc15;" +
+        "font-size:13px;font-weight:600;box-shadow:0 4px 12px rgba(0,0,0,.2);pointer-events:none;" +
+        "transition:opacity .3s;opacity:1";
+      document.body.appendChild(el);
+      setTimeout(function () {
+        el.style.opacity = "0";
+      }, 1800);
+      setTimeout(function () {
+        if (el.parentNode) el.parentNode.removeChild(el);
+      }, 2200);
+    } catch (e) {}
+  }
+
+  function sendReward(id) {
+    var t = authToken();
+    if (!t || typeof fetch !== "function") return; // guest → nothing
+    var now = Date.now();
+    if (sentAt[id] && now - sentAt[id] < 3000) return; // double-click guard
+    sentAt[id] = now;
+    try {
+      fetch(CLICK_URL + encodeURIComponent(id) + "/click", {
+        method: "POST",
+        keepalive: true,
+        credentials: "same-origin",
+        headers: {
+          Accept: "application/json",
+          "X-Requested-With": "XMLHttpRequest",
+          Authorization: "Bearer " + t,
+        },
+      })
+        .then(function (res) {
+          return res && res.ok ? res.json() : null;
+        })
+        .then(function (j) {
+          var d = j && (j.data !== undefined ? j.data : j);
+          if (d && d.awarded) showToast(d.amount);
+        })
+        ["catch"](function () {});
+    } catch (e) {}
+  }
+
+  function onClick(e) {
+    try {
+      if (!e || (e.button !== undefined && e.button !== 0)) return;
+      var t = e.target;
+      if (!t || !t.closest) return;
+      var el = t.closest("[data-cas-ad-id]");
+      if (!el) return;
+      var id = String(el.getAttribute("data-cas-ad-id") || "").trim();
+      if (!/^\d+$/.test(id)) return;
+      // Only real navigations: <a> needs a usable href; internal banners are <button> → navigate()
+      if (el.tagName === "A") {
+        var href = (el.getAttribute("href") || "").trim();
+        if (!href || href === "#" || /^javascript:/i.test(href)) return;
+      }
+      sendReward(id);
+    } catch (err) {}
+  }
+
+  try {
+    document.addEventListener("click", onClick, true);
+  } catch (e) {}
+})();
+
+(function () {
+  var CAS_AD_VERSION = "1.4.28";
   if (window.__casAdRenderVersion === CAS_AD_VERSION) return;
   window.__casAdRenderVersion = CAS_AD_VERSION;
   window.__casAdRenderInstalled = true;
@@ -752,6 +843,7 @@
         var a = document.createElement("a");
         a.href = link;
         a.title = slide.title || "";
+        if (slide.id != null) a.setAttribute("data-cas-ad-id", String(slide.id));
         if (fillMode) {
           a.style.position = "absolute";
           a.style.inset = "0";
@@ -776,6 +868,7 @@
         btn.type = "button";
         btn.title = slide.title || "";
         btn.setAttribute("aria-label", slide.title || "ad");
+        if (slide.id != null) btn.setAttribute("data-cas-ad-id", String(slide.id));
         if (fillMode) {
           btn.style.position = "absolute";
           btn.style.inset = "0";

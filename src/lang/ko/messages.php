@@ -30,4 +30,12 @@ return [
         'toggle_failed' => '광고 활성 상태 변경에 실패했습니다.',
         'not_found' => '광고를 찾을 수 없습니다.',
     ],
+    'settings' => [
+        'fetched' => '설정을 조회했습니다.',
+        'saved' => '설정을 저장했습니다.',
+    ],
+    'click_reward' => [
+        'awarded' => ':amount 마일리지가 적립되었습니다.',
+        'skipped' => '적립 대상이 아닙니다.',
+    ],
 ];

@@ -30,4 +30,12 @@ return [
         'toggle_failed' => 'Failed to toggle ad active status.',
         'not_found' => 'Ad not found.',
     ],
+    'settings' => [
+        'fetched' => 'Settings loaded.',
+        'saved' => 'Settings saved.',
+    ],
+    'click_reward' => [
+        'awarded' => ':amount mileage earned.',
+        'skipped' => 'Not eligible for a reward.',
+    ],
 ];

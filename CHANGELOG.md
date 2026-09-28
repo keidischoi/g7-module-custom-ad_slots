@@ -1,3 +1,18 @@
+## [1.4.28] - 2026-09-28
+
+### Added
+- **배너 클릭 마일리지 적립 (기본 꺼짐):** 로그인한 회원이 배너(이미지형 static 광고)를 클릭하면 sirsoft-ecommerce 마일리지를 적립합니다. 같은 배너는 회원당 하루 1번(`target_key = item:{id}:{Y-m-d}`), 회원당 하루 최대 적립 횟수 제한. 비회원·HTML/스크립트형(dynamic) 광고·링크 없는 광고는 적립하지 않으며 오류도 내지 않습니다.
+- **환경설정 페이지:** 관리자 > 광고 슬롯 > 설정 (`/admin/ad-slots/settings`), 권한 `custom-ad_slots.settings.manage`. `config/settings/defaults.json` → `mileage.click_reward_enabled`(false) / `click_reward_amount`(5) / `click_reward_daily_limit`(5, 0=무제한). 이커머스 마일리지를 쓸 수 없으면 안내 문구 표시.
+- **API:** `POST /api/modules/custom-ad_slots/ads/{id}/click` (optional.sanctum, throttle 60/분) → `{awarded, amount, reason}`. `GET|PUT /api/modules/custom-ad_slots/admin/settings`.
+- **마일리지 브리지** `MileageBridge` (이커머스 없거나 꺼져도 오류 없음), 적립 원장 테이블 `ad_slots_mileage_rewards` (unique user_id+action+target_key).
+- **프론트:** `hero-carousel.js` 가 배너 `<a>`/`<button>` 에 `data-cas-ad-id` 를 붙이고, document 캡처 클릭 리스너가 `auth_token` 이 있을 때만 `fetch(keepalive)` 로 적립 요청. 페이지가 남아 있으면 "+N 마일리지" 토스트. 기존 링크 동작은 그대로.
+
+### Deploy
+```
+php82 artisan module:update custom-ad_slots
+php82 artisan migrate
+```
+
 ## [1.4.24] - 2026-09-23
 
 ### Fixed

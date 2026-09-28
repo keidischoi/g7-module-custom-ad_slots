@@ -16,6 +16,7 @@
       "if": "{{(ad.type ?? 'static') === 'static' && (ad.image_desktop ?? ad.image_url_desktop ?? ad.image_url ?? ad.image_mobile ?? ad.image_url_mobile) && ad.link_url && (ad.open_in_new_tab ?? true)}}",
       "props": {
         "href": "{{ad.link_url}}",
+        "data-cas-ad-id": "{{ad.id}}",
         "target": "_blank",
         "rel": "noopener noreferrer",
         "className": "block w-full",
@@ -53,6 +54,7 @@
       "if": "{{(ad.type ?? 'static') === 'static' && (ad.image_desktop ?? ad.image_url_desktop ?? ad.image_url ?? ad.image_mobile ?? ad.image_url_mobile) && ad.link_url && !(ad.open_in_new_tab ?? true)}}",
       "props": {
         "href": "{{ad.link_url}}",
+        "data-cas-ad-id": "{{ad.id}}",
         "className": "block w-full",
         "title": "{{ad.title ?? ''}}"
       },
@@ -121,6 +123,7 @@
       "if": "{{(ad.type ?? 'static') === 'static' && !(ad.image_desktop ?? ad.image_url_desktop ?? ad.image_url ?? ad.image_mobile ?? ad.image_url_mobile) && ad.link_url && (ad.open_in_new_tab ?? true)}}",
       "props": {
         "href": "{{ad.link_url}}",
+        "data-cas-ad-id": "{{ad.id}}",
         "target": "_blank",
         "rel": "noopener noreferrer",
         "className": "block w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm font-medium text-gray-800 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700"
@@ -140,6 +143,7 @@
       "if": "{{(ad.type ?? 'static') === 'static' && !(ad.image_desktop ?? ad.image_url_desktop ?? ad.image_url ?? ad.image_mobile ?? ad.image_url_mobile) && ad.link_url && !(ad.open_in_new_tab ?? true)}}",
       "props": {
         "href": "{{ad.link_url}}",
+        "data-cas-ad-id": "{{ad.id}}",
         "className": "block w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm font-medium text-gray-800 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700"
       },
       "children": [

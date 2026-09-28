@@ -109,6 +109,33 @@ class Module extends AbstractModule
                         ],
                     ],
                 ],
+                [
+                    'identifier' => 'settings',
+                    'owner_key' => null,
+                    'name' => [
+                        'ko' => '광고 슬롯 설정',
+                        'en' => 'Ad Slots Settings',
+                    ],
+                    'description' => [
+                        'ko' => '광고 슬롯 환경설정(마일리지) 관리 권한',
+                        'en' => 'Manage ad slots settings (mileage)',
+                    ],
+                    'permissions' => [
+                        [
+                            'action' => 'manage',
+                            'name' => [
+                                'ko' => '설정 관리',
+                                'en' => 'Manage Settings',
+                            ],
+                            'description' => [
+                                'ko' => '광고 슬롯 환경설정 조회·저장',
+                                'en' => 'View and save ad slots settings',
+                            ],
+                            'type' => 'admin',
+                            'roles' => ['admin'],
+                        ],
+                    ],
+                ],
             ],
         ];
     }
@@ -129,6 +156,30 @@ class Module extends AbstractModule
                 'icon' => 'fas fa-ad',
                 'order' => 80,
                 'permission' => 'custom-ad_slots.ads.read',
+                'children' => [
+                    [
+                        'name' => [
+                            'ko' => '광고 목록',
+                            'en' => 'Ads',
+                        ],
+                        'slug' => 'custom-ad_slots-ads',
+                        'url' => '/admin/ad-slots',
+                        'icon' => 'fas fa-list',
+                        'order' => 1,
+                        'permission' => 'custom-ad_slots.ads.read',
+                    ],
+                    [
+                        'name' => [
+                            'ko' => '설정',
+                            'en' => 'Settings',
+                        ],
+                        'slug' => 'custom-ad_slots-settings',
+                        'url' => '/admin/ad-slots/settings',
+                        'icon' => 'fas fa-sliders-h',
+                        'order' => 2,
+                        'permission' => 'custom-ad_slots.settings.manage',
+                    ],
+                ],
             ],
         ];
     }

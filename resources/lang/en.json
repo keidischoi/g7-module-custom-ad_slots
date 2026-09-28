@@ -109,6 +109,23 @@
         "update_success_ratio": "Slot defaults (ratio) saved.",
         "update_success_fixed": "Slot defaults (fixed size) saved."
       }
+    },
+    "settings": {
+      "title": "Ad Slots Settings",
+      "description": "Ad slots settings such as banner click mileage rewards.",
+      "saved": "Settings saved.",
+      "sections": {
+        "mileage": "Mileage"
+      },
+      "mileage": {
+        "unavailable": "The shop (sirsoft-ecommerce) module is missing/disabled or its mileage is turned off, so no mileage is earned right now.",
+        "click_reward_enabled": "Reward banner clicks",
+        "click_reward_enabled_help": "Logged-in members earn mileage when they click a banner. Each banner rewards once per day. (HTML/script ads excluded)",
+        "click_reward_amount": "Mileage per click",
+        "click_reward_amount_help": "0 disables the reward.",
+        "click_reward_daily_limit": "Max rewards per day",
+        "click_reward_daily_limit_help": "Maximum rewarded clicks per member per day (0 = unlimited)."
+      }
     }
   },
   "slots": {
