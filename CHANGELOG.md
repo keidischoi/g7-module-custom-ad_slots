@@ -1,3 +1,17 @@
+## [1.4.29] - 2026-09-29
+
+### Changed
+- **관리자 광고 목록 썸네일:** 썸네일 영역 높이를 `6rem`으로 고정하고 이미지가 **높이를 꽉 채우도록**(`height:100%`) 변경. 너비는 `width:auto`로 **이미지 원본 비율대로** 자동 계산되어 잘림·늘어남이 없습니다(`object-fit: contain`). 아주 긴 배너는 최대 너비 `24rem`에서 제한.
+- 이미지가 없는 광고는 슬롯 비율(`thumb_aspect` → `size.aspect_desktop` → `aspect_desktop`, 기본 `16 / 9`)로 자리 표시 박스 너비를 계산합니다.
+- 버튼 스타일·목록 레이아웃은 그대로입니다. (`admin_ad_slot_list` 레이아웃 1.0.14)
+
+### Deploy
+```
+php82 artisan module:update custom-ad_slots
+php82 artisan cache:clear
+php82 artisan view:clear
+```
+
 ## [1.4.28] - 2026-09-28
 
 ### Added
