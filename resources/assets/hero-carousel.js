@@ -91,7 +91,7 @@
 })();
 
 (function () {
-  var CAS_AD_VERSION = "1.4.28";
+  var CAS_AD_VERSION = "1.4.30";
   if (window.__casAdRenderVersion === CAS_AD_VERSION) return;
   window.__casAdRenderVersion = CAS_AD_VERSION;
   window.__casAdRenderInstalled = true;
@@ -555,6 +555,44 @@
     return out;
   }
 
+  /**
+   * 1.4.30: 슬롯마다 따로 묻지 않고 모든 슬롯을 한 번에 (GET placements — slot 없이 → {slot: [...]}).
+   * 한 화면의 global.top/bottom · home.top/mid/bottom · 페이지 슬롯이 요청 하나로 채워짐.
+   * 진행 중이면 같은 요청을 기다리고, 한 번 받은 슬롯은 캐시. invalidateSlot 뒤에는 다음 요청에서 다시 모두 받음.
+   */
+  var batch = null;
+
+  function normalizeAllPayload(json) {
+    if (!json) return {};
+    var data = json.data !== undefined ? json.data : json;
+    if (data && typeof data === "object" && !Array.isArray(data)) {
+      if (data.data && typeof data.data === "object" && !Array.isArray(data.data)) return data.data;
+      return data;
+    }
+    return {};
+  }
+
+  function fetchAllSlots() {
+    if (batch) return batch;
+    batch = fetch(PLACEMENTS_URL, { credentials: "same-origin", headers: { Accept: "application/json" } })
+      .then(function (res) {
+        if (!res.ok) throw new Error("HTTP " + res.status);
+        return res.json();
+      })
+      .then(function (json) {
+        var map = normalizeAllPayload(json);
+        return { ok: true, map: map };
+      })
+      .catch(function (err) {
+        return { ok: false, map: {}, error: err };
+      })
+      .then(function (r) {
+        batch = null;
+        return r;
+      });
+    return batch;
+  }
+
   function fetchSlot(slotKey) {
     if (!slotKey) {
       return Promise.resolve({ status: "err", items: [], error: "no-slot" });
@@ -570,27 +608,20 @@
     var entry = { status: "pending", items: [], promise: null, error: null };
     slotCache[slotKey] = entry;
 
-    entry.promise = fetch(
-      PLACEMENTS_URL + "?slot=" + encodeURIComponent(slotKey),
-      { credentials: "same-origin", headers: { Accept: "application/json" } }
-    )
-      .then(function (res) {
-        if (!res.ok) throw new Error("HTTP " + res.status);
-        return res.json();
-      })
-      .then(function (json) {
-        var raw = normalizePlacementsPayload(json);
-        entry.items = filterAndMapItems(raw);
-        entry.status = "ok";
-        entry.error = null;
-        return entry;
-      })
-      .catch(function (err) {
-        entry.status = "err";
-        entry.items = [];
-        entry.error = err;
-        return entry;
-      });
+    entry.promise = fetchAllSlots().then(function (r) {
+      // 받은 김에 다른 슬롯도 채워 둠 (이미 받은 슬롯은 그대로)
+      if (r.ok) {
+        Object.keys(r.map).forEach(function (k) {
+          // 이미 받았거나 대기 중인 슬롯은 건드리지 않음 (대기 중이면 그 요청이 같은 결과로 스스로 채움)
+          if (k === slotKey || slotCache[k]) return;
+          slotCache[k] = { status: "ok", items: filterAndMapItems(r.map[k]), promise: null, error: null };
+        });
+      }
+      entry.items = r.ok ? filterAndMapItems(r.map[slotKey]) : [];
+      entry.status = r.ok ? "ok" : "err";
+      entry.error = r.ok ? null : r.error;
+      return entry;
+    });
 
     return entry.promise;
   }

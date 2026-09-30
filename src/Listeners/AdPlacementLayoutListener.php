@@ -341,6 +341,10 @@ class AdPlacementLayoutListener implements HookListenerInterface
 
     private function ensureDataSource(array $layout, string $id, string $slot, string $label): array
     {
+        // 1.4.30: 슬롯별 data_source 를 더하지 않음 — 광고는 hero-carousel.js 가 placements 를 한 번에 받아 그리고
+        // 레이아웃은 이 값을 쓰지 않음 (홈 한 화면에서 쓰지 않는 요청 3~5개). 호출부는 그대로 둠.
+        return $layout;
+
         $sources = $layout['data_sources'] ?? [];
         if (! is_array($sources)) {
             $sources = [];

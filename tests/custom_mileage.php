@@ -232,7 +232,7 @@ namespace {
     check(str_contains((string) file_get_contents($root.'/module.php'), 'MileageIntegrationListener::class'), 'module.php: 리스너 등록');
     $man = json_decode((string) file_get_contents($root.'/module.json'), true);
     $comp = is_file($root.'/composer.json') ? json_decode((string) file_get_contents($root.'/composer.json'), true) : [];
-    check(($man['version'] ?? '') === '1.4.29' && (! isset($comp['version']) || $comp['version'] === '1.4.29'), '버전 1.4.29');
+    check(($man['version'] ?? '') === '1.4.30' && (! isset($comp['version']) || $comp['version'] === '1.4.30'), '버전 1.4.30');
 
     // ---- 이 확장의 브리지
     $b = new Modules\Custom\AdSlots\Services\MileageBridge();
