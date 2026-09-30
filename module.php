@@ -193,6 +193,7 @@ class Module extends AbstractModule
     {
         return [
             \Modules\Custom\AdSlots\Listeners\AdPlacementLayoutListener::class,
+            \Modules\Custom\AdSlots\Listeners\MileageIntegrationListener::class,
         ];
     }
 }

@@ -1,3 +1,15 @@
+## [1.4.29] - 2026-09-30
+
+### Changed
+- **마일리지(custom-mileage) 연동.** custom-mileage **0.3.1 이상**이 켜져 있으면 이 확장의 마일리지가 custom-mileage 를 거칩니다 (금액·켜고 끄기 설정은 그대로).
+  - 배너 클릭 보상 → `custom-mileage.earn` (custom-mileage 소멸 관리 대상), 회수 → `custom-mileage.spend`.
+  - 관리자 → 마일리지 → 「연동 확장」에 **광고 슬롯**이(가) 뜨고(필터 `custom-mileage.integrations`, 「마일리지 설정 열기」 링크), 확장별 사용·환불 합계(custom-mileage 0.3.2)와 조정 기록 「사용 (확장)」에 남습니다. 회원 마일리지 내역의 내용은 「[광고 슬롯] …」.
+  - **그대로**: 클릭 보상 규칙·하루 한도·이 모듈 장부.
+- composer.json 버전을 module.json 과 맞춤.
+  - custom-mileage 가 없거나 0.3.0 이하·이커머스 마일리지를 쓸 수 없으면 **예전과 똑같이** 이커머스를 바로 부릅니다.
+- 새 검사: `php tests/custom_mileage.php` (custom-mileage 있음/없음 · 잔액 부족 · 실패 · 훅 미처리 · 연동 확장 등록 · 버전)
+- 새 훅 리스너가 있으니 업데이트 뒤 `php artisan hooks:clear`.
+
 ## [1.4.28] - 2026-09-28
 
 ### Added
