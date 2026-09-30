@@ -1,3 +1,11 @@
+## [1.4.30] - 2026-10-01
+
+### Changed (첫 화면 속도 · 중복 요청 줄임)
+- **광고를 슬롯마다 따로 묻지 않고 한 번에**: 화면(hero-carousel.js)이 `placements?slot=…` 를 슬롯마다 부르던 것을 `GET /api/modules/custom-ad_slots/placements` (slot 없이 → 모든 슬롯) **요청 하나**로. 진행 중이면 같은 요청을 기다리고, 받은 슬롯은 캐시 (SPA 이동으로 슬롯을 비우면 다음에 다시 한 번에 받음)
+- **쓰지 않던 레이아웃 data_sources 제거**: `ad_home_top/mid/bottom` · `ad_global_top/bottom` · 쇼핑·인기글 슬롯 data_source 가 레이아웃마다 따로 불렸지만, 광고는 화면 JS 가 빈 자리(`data-cas-ad-slot`)에 그리므로 레이아웃은 이 값을 쓰지 않았음. 확장 JSON 의 `data_sources` 를 비우고, 레이아웃 리스너도 더하지 않음
+- 홈 한 화면 광고 요청: **10개 → 1개** (레이아웃 5 + 화면 5 → 화면 1). 그려지는 광고는 같음 (headless Chromium 에서 슬롯 5개 비교)
+- 화면 스크립트 주소 `?v=1.4.30` (브라우저가 새 파일을 받게)
+
 ## [1.4.29] - 2026-09-30
 
 ### Changed
