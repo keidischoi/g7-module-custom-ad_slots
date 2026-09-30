@@ -10,6 +10,9 @@ use Illuminate\Support\Facades\Log;
  *
  * 이커머스 모듈이 활성 + 마일리지 클래스 존재 + 이커머스 마일리지 설정(mileage.enabled) 켜짐일 때만 동작합니다.
  * 이커머스 클래스는 문자열로만 참조합니다 (하드 의존 없음). 사용할 수 없으면 조용히 아무것도 하지 않습니다.
+ *
+ * 1.4.29: 마일리지(custom-mileage) 0.3.1+ 가 켜져 있으면 적립은 custom-mileage.earn, 회수는 custom-mileage.spend
+ * (CustomMileage) → 「연동 확장」 · 조정 기록에 남음. 없으면 예전처럼 이커머스 직접.
  */
 class MileageBridge
 {
@@ -50,6 +53,11 @@ class MileageBridge
         if ($amount <= 0 || ! $this->available()) {
             return null;
         }
+        // custom-mileage 0.3.1+ 면 custom-mileage.earn (소멸 관리 대상 · 1.4.29)
+        $txId = CustomMileage::earn($userId, $amount, $description);
+        if ($txId !== null) {
+            return $txId;
+        }
         $dto = self::EARN_DTO;
         $tx = app(self::SERVICE)->adminEarn($userId, new $dto(
             amount: $amount,
@@ -73,6 +81,10 @@ class MileageBridge
         $take = min($amount, max(0, (int) $this->balance($userId)));
         if ($take <= 0) {
             return 0;
+        }
+        $r = CustomMileage::spend($userId, $take, $description);
+        if ($r !== null) {
+            return ! empty($r['ok']) ? $take : 0;
         }
         $dto = self::DEDUCT_DTO;
         try {
