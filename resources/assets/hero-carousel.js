@@ -91,7 +91,7 @@
 })();
 
 (function () {
-  var CAS_AD_VERSION = "1.4.30";
+  var CAS_AD_VERSION = "1.4.31";
   if (window.__casAdRenderVersion === CAS_AD_VERSION) return;
   window.__casAdRenderVersion = CAS_AD_VERSION;
   window.__casAdRenderInstalled = true;
@@ -1244,6 +1244,21 @@
       while (mount.firstChild) mount.removeChild(mount.firstChild);
     } catch (e2) {}
     mount.style.display = "none";
+    syncWrap(mount, false);
+  }
+
+  /**
+   * 1.4.31 전체 상단/하단 감싸개 — 처음엔 숨겨 둠(레이아웃 display:none).
+   * 안에 광고를 그리면 보이고, 안의 광고 자리가 모두 비면 다시 숨김.
+   * (새로고침 때 빈 여백이 생겼다 사라지며 머리말 · 본문이 밀리던 것)
+   */
+  function syncWrap(mount, shown) {
+    var w = mount && mount.closest ? mount.closest("#ad_global_top_wrap,#ad_global_bottom_wrap") : null;
+    if (!w) return;
+    if (shown) { w.style.display = ""; return; }
+    var any = false;
+    w.querySelectorAll("[data-cas-ad-slot],[data-cas-ad-role]").forEach(function (m) { if (m.style.display !== "none" && m.querySelector("[data-cas-ad-host='1']")) any = true; });
+    if (!any) w.style.display = "none";
   }
 
   function hideEmptyMount(mount) {
@@ -1299,6 +1314,7 @@
     mount.setAttribute("data-cas-page-slot", slotKey);
     mount.removeAttribute("aria-hidden");
     mount.style.display = "";
+    syncWrap(mount, true);
 
     if (useCarousel) {
       buildCarouselInto(mount, slides);
