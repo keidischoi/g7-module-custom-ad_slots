@@ -56,6 +56,7 @@ final class AdPlacementFragments
                 'className' => $className,
                 'id' => $wrapId,
                 'data-cas-ad-slot' => $slotKey,
+                'style' => ['display' => 'none'],   // 1.4.31 광고를 그릴 때만 보임 (빈 여백으로 내용이 밀리지 않게)
             ],
             'children' => [],
         ];
@@ -79,6 +80,7 @@ final class AdPlacementFragments
                 'data-cas-ad-slot' => $slotKey,
                 'data-cas-hero' => '1',
                 'data-cas-hero-slot' => $slotKey,
+                'style' => ['display' => 'none'],   // 1.4.31
             ],
             'children' => [],
         ];

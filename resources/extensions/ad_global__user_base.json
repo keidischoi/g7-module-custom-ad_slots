@@ -1,5 +1,5 @@
 {
-  "_comment": "공식 sirsoft-basic _user_base: global.top/bottom + ALWAYS-ON page mounts (data-cas-ad-role). JS path-routes page slots. No if on API length — JS hides empty mounts. home.mid still Event Hook. | 1.4.30: 슬롯별 data_sources 제거 — 화면(hero-carousel.js)이 placements 를 한 번에 받아 그림 (쓰지 않는 요청이었음)",
+  "_comment": "공식 sirsoft-basic _user_base: global.top/bottom + ALWAYS-ON page mounts (data-cas-ad-role). JS path-routes page slots. No if on API length — JS hides empty mounts. 1.4.31: 광고 자리 · 감싸개는 처음엔 display:none — 광고를 그릴 때만 보임 (새로고침 때 빈 여백이 생겼다 사라지며 아래 내용이 밀리던 것) home.mid still Event Hook. | 1.4.30: 슬롯별 data_sources 제거 — 화면(hero-carousel.js)이 placements 를 한 번에 받아 그림 (쓰지 않는 요청이었음)",
   "target_layout": "_user_base",
   "priority": 80,
   "data_sources": [],
@@ -14,7 +14,10 @@
           "type": "basic",
           "name": "Div",
           "props": {
-            "className": "w-full"
+            "className": "w-full",
+            "style": {
+              "display": "none"
+            }
           },
           "children": [
             {
@@ -51,7 +54,10 @@
                     "data-cas-ad-slot": "global.top",
                     "id": "ad_global_top_hero",
                     "data-cas-hero": "1",
-                    "data-cas-hero-slot": "global.top"
+                    "data-cas-hero-slot": "global.top",
+                    "style": {
+                      "display": "none"
+                    }
                   },
                   "children": []
                 },
@@ -63,7 +69,10 @@
                   "props": {
                     "className": "relative w-full mb-4",
                     "id": "cas_page_top_mount",
-                    "data-cas-ad-role": "page-top"
+                    "data-cas-ad-role": "page-top",
+                    "style": {
+                      "display": "none"
+                    }
                   },
                   "children": []
                 }
@@ -83,7 +92,10 @@
           "type": "basic",
           "name": "Div",
           "props": {
-            "className": "w-full"
+            "className": "w-full",
+            "style": {
+              "display": "none"
+            }
           },
           "children": [
             {
@@ -118,7 +130,10 @@
                   "props": {
                     "className": "mt-4 w-full",
                     "id": "cas_page_bottom_mount",
-                    "data-cas-ad-role": "page-bottom"
+                    "data-cas-ad-role": "page-bottom",
+                    "style": {
+                      "display": "none"
+                    }
                   },
                   "children": []
                 },
@@ -130,7 +145,10 @@
                   "props": {
                     "className": "mt-2 flex flex-col gap-3",
                     "data-cas-ad-slot": "global.bottom",
-                    "id": "ad_global_bottom_stack"
+                    "id": "ad_global_bottom_stack",
+                    "style": {
+                      "display": "none"
+                    }
                   },
                   "children": []
                 }
@@ -144,7 +162,7 @@
   "scripts": [
     {
       "id": "cas_hero_carousel",
-      "src": "/api/modules/custom-ad_slots/assets/hero-carousel.js?v=1.4.30"
+      "src": "/api/modules/custom-ad_slots/assets/hero-carousel.js?v=1.4.31"
     }
   ]
 }
