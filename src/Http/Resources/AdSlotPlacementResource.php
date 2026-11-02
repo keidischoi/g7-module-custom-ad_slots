@@ -50,7 +50,7 @@ class AdSlotPlacementResource extends JsonResource
 
         return [
             'slot_key' => $this->slot_key,
-            'slot_label' => $labels[$this->slot_key] ?? $this->slot_key,
+            'slot_label' => isset($labels[$this->slot_key]) ? __('custom-ad_slots::messages.slot_labels.'.str_replace('.', '_', (string) $this->slot_key)) : $this->slot_key,
             'size_mode' => $this->size_mode ?: AdSizeSettings::MODE_RATIO,
             'aspect_desktop' => $this->aspect_desktop,
             'aspect_mobile' => $this->aspect_mobile,
