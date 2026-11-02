@@ -101,9 +101,9 @@ class AdSlotItemResource extends JsonResource
         return [
             'id' => $this->id,
             'slot_key' => $this->slot_key,
-            'slot_label' => self::SLOT_LABELS[$this->slot_key] ?? $this->slot_key,
+            'slot_label' => isset(self::SLOT_LABELS[$this->slot_key]) ? __('custom-ad_slots::messages.slot_labels.'.str_replace('.', '_', (string) $this->slot_key)) : $this->slot_key,
             'type' => $this->type,
-            'type_label' => $this->type === 'dynamic' ? '동적' : '정적',
+            'type_label' => $this->type === 'dynamic' ? __('custom-ad_slots::messages.type_label.dynamic') : __('custom-ad_slots::messages.type_label.static'),
             'title' => $this->title,
             'image_url' => $this->image_url,
             'image_url_desktop' => $this->image_url_desktop,

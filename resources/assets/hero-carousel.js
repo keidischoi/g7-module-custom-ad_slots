@@ -91,7 +91,7 @@
 })();
 
 (function () {
-  var CAS_AD_VERSION = "1.4.31";
+  var CAS_AD_VERSION = "1.4.32";
   if (window.__casAdRenderVersion === CAS_AD_VERSION) return;
   window.__casAdRenderVersion = CAS_AD_VERSION;
   window.__casAdRenderInstalled = true;

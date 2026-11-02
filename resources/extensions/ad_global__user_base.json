@@ -162,7 +162,7 @@
   "scripts": [
     {
       "id": "cas_hero_carousel",
-      "src": "/api/modules/custom-ad_slots/assets/hero-carousel.js?v=1.4.31"
+      "src": "/api/modules/custom-ad_slots/assets/hero-carousel.js?v=1.4.32"
     }
   ]
 }
